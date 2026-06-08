@@ -1,0 +1,1303 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_SI_Sales_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_si_sales"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_SI_Sales_Pending_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Sales_Document_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Sales_Document_Item_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistChl_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DC_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DC_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Sku_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PO_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Reporting_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Doc_Create_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Order_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pending_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ATP_Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pending_Qty",
+						"type": "nvarchar"
+					},
+					{
+						"name": "GPS",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Total_Tax",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Item_Tax",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Amt",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "SI_Sales_Pending"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_SI_Sales_Pending_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_si_sales_pending"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Goods_Sign_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Receipt_Generation_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Vehicle_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Qty_receivable",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Actual_Qty",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Difference_Qty",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Signatory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Sign_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Sign_Mode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Replace_Sign",
+						"type": "bit"
+					},
+					{
+						"name": "Replace_Signatory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Modify_State",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Modifier",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Modify_Role",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Modification_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Modify_Goods_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Sku_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Modify_Goods_Qty",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Receive_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Identical_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_update",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "TMS_Goods_Sign"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Goods_Sign_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_tms_goods_sign"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_OBD_Information_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "OBD_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Vehicle_Total_Num",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TransPlan_Total_Qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Delivery_Distance",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Req_Delivery_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Vehicle_Arrival_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Start_Load_leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Start_Load_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Load_Completed_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Load_Completed_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Leave_PickupPoint_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Leave_PickupPoint_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Arrive_TransPoint_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Arrive_TransPoint_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Leave_TransPoint_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Leave_TransPoint_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Req_Arrive_Deatination_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Req_Arrive_Destination_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Actual_Arrive_Destination_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Arrive_Receive_Place_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "To_Receive_Goods_Leadtime",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Receive_Goods_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Arrive_PickupPoint_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Load_Positon",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Load_Complet_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Leave_PickupPoint_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Arrive_TransPoint_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Leave_TransPoint_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Arrive_Receiving_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Receive_Goods_Position",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Arrive_PickupPoint_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Loading_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Loading_Completion_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Leave_PickPoint_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Arrive_TransPoint_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Leave_TransPoint_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Arrive_Receiving_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Receive_Goods_TriggerMode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Sign_Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Identical_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_update",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "TMS_OBD_Information"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_OBD_Information_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_tms_obd_information"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Orders_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "PO_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Nestle_SalesOrder_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PO_Create_Dt",
+						"type": "date"
+					},
+					{
+						"name": "SO_Create_Dt",
+						"type": "date"
+					},
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OBD_Create_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Channel_RDD",
+						"type": "date"
+					},
+					{
+						"name": "EarliestShipment_Dt",
+						"type": "date"
+					},
+					{
+						"name": "LatestShipment_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Order_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Sku_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Batch",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Total_Shelf_Life",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Order_Qty",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Weight_Kg",
+						"type": "decimal",
+						"precision": 10,
+						"scale": 6
+					},
+					{
+						"name": "Vol_M3",
+						"type": "decimal",
+						"precision": 10,
+						"scale": 6
+					},
+					{
+						"name": "SoldTo_Cust_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SoldTo_Cust_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SoldTo_Cust_Addr",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SoldTo_Cust_ContactNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ShipTo_Cust_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ShipTo_Cust_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ShipTo_Cust_Addr",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ShipTo_Cust_Contacts",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ShipTo_Cust_ContactsNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Plant_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Factory_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Factory_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Factory_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Route_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SoldTo_Cust_Channel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Is_DirectToCustomer",
+						"type": "bit"
+					},
+					{
+						"name": "Shipment_Place_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Identical_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_update",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "TMS_Orders"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Orders_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_tms_orders"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Transportation_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Trans_Plan_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Transport_Agent",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Transport_Mode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Vehicle_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Vehicle_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Driver_Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Driver_Telephone",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Transporter",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Driver_Rest_Time",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Standard_DWT",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Standard_Volume",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Transport_Prescription",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Actual_Transit_Time",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Actual_Loaded_Weight",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Actual_Loaded_Volume",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Box_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Sealing_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Identical_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_update",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "TMS_Transportation"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Transportation_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_tms_transportation"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Vehicle_Path_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "OBD_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Vehicle_Number",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Travel_Path_Longitude",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Travel_Path_Latitude",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Data_Collection_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Identical_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source_data_update",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "TMS_Vehicle_Path"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_TMS_Vehicle_Path_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_tms_vehicle_path"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_sales_day_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DT Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccessID",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "BF_walmart_f_sales_day"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_sales_week')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "bf_walmart_f_sales_week"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_sales_week_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DT Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccessID",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "BF_walmart_f_sales_week"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_stock_day')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "bf_walmart_f_stock_day"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_stock_day_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DT Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccessID",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "BF_walmart_f_stock_day"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_stock_week')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "bf_walmart_f_stock_week"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BF_walmart_f_stock_week_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DT Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccessID",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_BFL",
+					"table": "BF_walmart_f_stock_week"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

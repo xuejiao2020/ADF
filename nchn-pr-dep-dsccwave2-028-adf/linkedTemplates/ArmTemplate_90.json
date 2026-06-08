@@ -1,0 +1,1202 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_FACT_Supplier_Service_Level')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT\nUUID,\nCONVERT(datetime,convert(char(8),Etl_Tm,120)+'01') as KPIDate,\nCompany_Cd,\nFactory_Cd,\nFactory_NmEn,\nFactory_NmCn,\nSupplier_Cd,\nSupplier_NmEn,\nSupplier_NmCn,\nMaterial_Type_Cd,\nMaterial_Type_NmEn,\nMaterial_Type_NmCn,\nPO_Items_Num,\nOnTime_Delivery_Cnt,\nQuantity_Reliability_Cnt,\nTotal_Quality_Cnt,\nSupplier_Service_Cnt,\nEtl_Tm\nFROM \nNESZ_AL.KPI_SSL_M",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "UUID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "KPIDate",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "KPIDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Company_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Company_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Factory_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Plant_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Factory_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Plant_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Factory_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Plant_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Supplier_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Supplier_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Supplier_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Supplier_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Supplier_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Supplier_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Material_Type_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Material_Type_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Material_Type_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Material_Type_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Material_Type_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Material_Type_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "PO_Items_Num",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "Total_Qty",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "OnTime_Delivery_Cnt",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "OnTime_Qty",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Quantity_Reliability_Cnt",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "Quantity_Qty",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Total_Quality_Cnt",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "Quality_Qty",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Supplier_Service_Cnt",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "SupplierService_Qty",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "Etl_Time",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "KPI_SSL_M",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DM_FACT_Supplier_Service_Level",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:47:08Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_OT_SALES')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Offtake销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_OT_SALES",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_OT_SALES",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_OT_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_OT_SALES/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SI_SALES')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Sell In销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_SI_SALES",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SI_SALES",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SI_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SI_SALES/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SI_SALES_INC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Sell In销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_SI_SALES",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SI_SALES_INC",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SI_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SI_SALES/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:40Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_CDP_TARGET')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DM_F_SO_CDP_TARGET",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_CDP_TARGET",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Master/Customer/DM_F_SO_CDP_TARGET/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Master/Customer/DM_F_SO_CDP_TARGET/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_FORECAST')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DM_F_SO_FORECAST",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_FORECAST/DM_F_SO_FORECAST",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Master/Customer/DM_F_SO_FORECAST/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Master/Customer/DM_F_SO_FORECAST/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_SALES')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SellOut销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_SO_SALES",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_SALES_INTO",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.database": "dscc",
+								"ADF.rootpath3": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES_D/"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:48:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_SALES_CG_1_SD2_ACTUAL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DM_F_SO_SALES_CG_1_SD2_ACTUAL",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_FORECAST/DM_F_SO_SALES_CG_1_SD2_ACTUAL",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Master/Customer/DM_F_SO_SALES_CG_1_SD2_ACTUAL/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Master/Customer/DM_F_SO_SALES_CG_1_SD2_ACTUAL/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_SALES_INC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SellOut销售数据表_增量逻辑",
+				"activities": [
+					{
+						"name": "DM_F_SO_SALES_INC",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_SALES_INTO_INC",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.database": "dscc",
+								"ADF.rootpath3": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES_D/"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:40Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_SALES_INTO')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SellOut销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_SO_SALES_INTO",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_SALES_INTO",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_SO_SALES_OVERWRITE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SellOut销售数据表",
+				"activities": [
+					{
+						"name": "DM_F_SO_SALES_OVERWRITE",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_SO_SALES_OVERWRITE",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Sales/SalesOrder/DM_F_SO_SALES/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_F_S_FRESHNESS_STOCK')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DM_F_S_FRESHNESS_STOCK",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/DM_F_S_FRESHNESS_STOCK",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Distributor/Stock/DM_F_S_FRESHNESS_STOCK/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Distributor/Stock/DM_F_S_FRESHNESS_STOCK/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_DPB_BU_Mapping')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DPA_DPB_BU_Mapping",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA_DPB_BU_Mapping",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath_l1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/DSCC/DPA_DPB_BU_Mapping",
+								"ADF.rootpath_l2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/DSCC/DPA_DPB_BU_Mapping"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_HKF_B_DPAM_1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_HKF_B_DPAM_1",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-HKF&B/DPAM-1/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-HKF&B/DPAM-1/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_HKF_B_DPAM_3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_HKF_B_DPAM_3",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-HKF&B/DPAM-3/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-HKF&B/DPAM-3/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_HKF_B_DPBM_1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_HKF_B_DPBM_1",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-HKF&B/DPBM-1/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-HKF&B/DPBM-1/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_HKF_B_DPBM_3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_HKF_B_DPBM_3",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-HKF&B/DPBM-3/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-HKF&B/DPBM-3/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_TWF_B_DPAM_1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_TWF_B_DPAM_1",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-TWF&B/DPAM-1/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-TWF&B/DPAM-1/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_TWF_B_DPAM_3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_TWF_B_DPAM_3",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-TWF&B/DPAM-3/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-TWF&B/DPAM-3/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:42:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DPA_TWF_B_DPBM_1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/DPA/DPA_TWF_B_DPBM_1",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DPA-TWF&B/DPBM-1/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DPA-TWF&B/DPBM-1/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:45Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

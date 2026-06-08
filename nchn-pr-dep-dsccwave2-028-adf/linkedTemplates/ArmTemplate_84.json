@@ -1,0 +1,2008 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CityMasterForNTS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "CityMasterForNTS",
+				"activities": [
+					{
+						"name": "CityMasterForNTS",
+						"description": "CityMasterForNTS",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/CityMasterForNTS",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/CityMasterForNTS/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/CityMasterForNTS/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Corporate_SAS_fst')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/Corporate_SAS_fst",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/CopyofcorporateSASforecst201909/Corporate_SAS_fst/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/CopyofcorporateSASforecst201909/Corporate_SAS_fst/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Corporate_SAS_his')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/Corporate_SAS_his",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/CopyofcorporateSASforecst201909/Corporate_SAS_his/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/CopyofcorporateSASforecst201909/Corporate_SAS_his/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Customer",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/Customer",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/Customer/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/Customer_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP/price_K&L"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CustomerHier",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/CustomerHier_New",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/CustomerHier/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/CustomerHier_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier_Clean_init')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CustomerHier_Clean_init",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/CustomerHier_Clean_init",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/CustomerHier_Wave2/"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CustomerHier_DL",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/L2ETL/DW1SAP/CustomerHier_New"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "CustomerHier_delete_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "CustomerHier_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "CustomerHier_delete_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "CustomerHier_delete_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/L2ETL/DW1SAP/CustomerHier"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2_DL/DW1SAP_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-10-24T10:55:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier_Full')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CustomerHier_Full",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/CustomerHier_Full",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/CustomerHier/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/CustomerHier_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier_IC_Master_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select \n'Num' as Num,\n'CustomerNumber'as CustomerNumber,\n'SalesOrg'as SalesOrg,\n'DistributionChannel'as DistributionChannel,\n'Division'as Division,\n'HigherCustomerNumber'as HigherCustomerNumber,\n'HigherSalesOrg'as HigherSalesOrg,\n'HigherDistributionChannel'as HigherDistributionChannel,\n'HigherDivision'as HigherDivision,\n'HierarchyAssignment'as HierarchyAssignment,\n'HierarchyType'as HierarchyType,\n'ValidFrom'as ValidFrom,\n'ValidTo'as ValidTo,\n'CustomerName'as CustomerName,\n'RAW_DATA_ACT_STATUS'as RAW_DATA_ACT_STATUS,\n'RAW_DATA_UPDT_TS'as RAW_DATA_UPDT_TS,\n'BACH_NUM'as BACH_NUM,\n'SRC_SYS_CD'as SRC_SYS_CD,\n'SRC_SCM_NM'as SRC_SCM_NM,\n'SRC_FIL_NM'as SRC_FIL_NM,\n'SRC_FIL_DIR'as SRC_FIL_DIR,\n'REC_CRT_DT'as REC_CRT_DT,\n'REC_EFF_DT'as REC_EFF_DT,\n'REC_EXP_DT'as REC_EXP_DT,\n'INA_FLG'as INA_FLG,\n'DT'as DT,\n'EXP_FLG'as EXP_FLG\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nDivision,\nHigherCustomerNumber,\nHigherSalesOrg,\nHigherDistributionChannel,\nHigherDivision,\ncast(HierarchyAssignment as nvarchar) as HierarchyAssignment,\nHierarchyType,\nValidFrom,\nValidTo,\nCustomerName,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT,\ncast(INA_FLG as nvarchar) as INA_FLG,\nDT,\nEXP_FLG\n from (\nselect row_number() over(order by CustomerNumber ) as Num,\n*\nfrom (\nselect \nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nDivision,\nHigherCustomerNumber,\nHigherSalesOrg,\nHigherDistributionChannel,\nHigherDivision,\ncast(HierarchyAssignment as nvarchar) as HierarchyAssignment,\nHierarchyType,\nValidFrom,\nValidTo,\nCustomerName,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT,\ncast(INA_FLG as nvarchar) as INA_FLG,\nDT,\nEXP_FLG\nFrom [MVIEW].[MIC_CustomerHierarchy]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_MIC_CustomerHierarchy",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "MIC_CustomerHierarchy_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Delete_MDM_MIC_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"Patch": "prod/outbound/Hand/CN/Master/Customer/IC/CustomerHier/"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": false,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "IC_Master_data/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-06T08:20:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerMapping')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CustomerMapping",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/CustomerMapping",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/CustomerMapping/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/CustomerMapping/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerParnter_IC_Master_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select \n'Num' as Num,\n'RAW_DATA_ID'  as RAW_DATA_ID,\n'CustomerNumber' as CustomerNumber,\n'SalesOrg' as SalesOrg,\n'DistributionChannel' as DistributionChannel,\n'PartnerFunction' as PartnerFunction,\n'PartnerNumber'  as PartnerNumber,\n'REC_EFF_DT' as REC_EFF_DT,\n'REC_EXP_DT' as REC_EXP_DT,\n'REC_CRT_DT' as REC_CRT_DT\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nPartnerFunction,\ncast(PartnerNumber as nvarchar) as PartnerNumber,\nREC_EFF_DT,\nREC_EXP_DT,\nREC_CRT_DT\n from (\nselect row_number() over(order by RAW_DATA_ID ) as Num,\n*\nfrom (\nselect \ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nPartnerFunction,\ncast(PartnerNumber as nvarchar) as PartnerNumber,\nREC_EFF_DT,\nREC_EXP_DT,\nREC_CRT_DT\n from [MVIEW].[MIC_CustomerPartner]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_MIC_CustomerPartner",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "MIC_CustomerPartner_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Delete_MDM_MIC_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"Patch": "prod/outbound/Hand/CN/Master/Customer/IC/CustomerParnter/"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": false,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "IC_Master_data/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-06T08:22:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerPartner')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/CustomerPartner",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/CustomerPartner/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/CustomerPartner_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:41Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerStockCoverTop20DT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "DSA &amp; Customer Stock Cover Top 20 DT_manual",
+				"activities": [
+					{
+						"name": "CustomerStockCoverTop20DT",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/CustomerStockCoverTop20DT",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/CustomerStockCoverTop20DT",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/CustomerStockCoverTop20DT",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:47:08Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Full')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Customer_Full",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/Customer_Full",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/Customer/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/Customer_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP/price_K&L"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_IC_Master_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select \n'Num' as Num,\n'XSAP_Customer_KEY' as XSAP_Customer_KEY ,\n'RAW_DATA_ID' as RAW_DATA_ID,\n'CustomerNumber' as CustomerNumber,\n'CustomerName' as CustomerName,\n'CustomerName2' as CustomerName2,\n'CustomerName3' as CustomerName3,\n'CustomerName4' as CustomerName4,\n'SearchTerm1' as SearchTerm1,\n'SearchTerm2' as SearchTerm2,\n'Building' as Building,\n'Room' as Room,\n'Floor' as Floor,\n'Street2' as Street2,\n'Street3' as Street3,\n'Street' as Street,\n'StreetNumber' as StreetNumber,\n'House' as House,\n'Street4' as Street4,\n'Street5' as Street5,\n'District' as District,\n'City' as City,\n'Country' as Country,\n'Region' as Region,\n'CustomerClass' as CustomerClass,\n'Industry' as Industry,\n'IndustryCode1' as IndustryCode1,\n'SalesOrg' as SalesOrg,\n'DistributionChannel' as DistributionChannel,\n'Division' as Division,\n'SalesDistrict' as SalesDistrict,\n'SalesOffice' as SalesOffice,\n'SalesGroup' as SalesGroup,\n'CustomerGroup' as CustomerGroup,\n'DeliveryPlant' as DeliveryPlant,\n'AccountingGroup' as AccountingGroup,\n'Street1' as Street1,\n'PostalCode' as PostalCode,\n'VATRegistrationNumber' as VATRegistrationNumber,\n'TelephoneNumber' as TelephoneNumber,\n'BankAccountNumber' as BankAccountNumber,\n'AccountHolderName' as AccountHolderName,\n'FlexiblePlanningNode' as FlexiblePlanningNode,\n'CustomerChineseName1' as CustomerChineseName1,\n'CustomerChineseName2' as CustomerChineseName2,\n'CustomerChineseName3' as CustomerChineseName3,\n'CustomerChineseName4' as CustomerChineseName4,\n'ChineseSearchTerm1' as ChineseSearchTerm1,\n'ChineseSearchTerm2' as ChineseSearchTerm2,\n'ChineseBuilding' as ChineseBuilding,\n'ChineseRoom' as ChineseRoom,\n'ChineseFloor' as ChineseFloor,\n'ChineseStreet2' as ChineseStreet2,\n'ChineseStreet3' as ChineseStreet3,\n'ChineseStreet' as ChineseStreet,\n'ChineseStreetNumber' as ChineseStreetNumber,\n'ChineseHouse' as ChineseHouse,\n'ChineseStreet4' as ChineseStreet4,\n'ChineseStreet5' as ChineseStreet5,\n'ChineseDistrict' as ChineseDistrict,\n'ChineseCity' as ChineseCity,\n'ChineseCountry' as ChineseCountry,\n'ChineseRegion' as ChineseRegion,\n'PricingGroup' as PricingGroup,\n'EnglishBankName' as EnglishBankName,\n'ChineseBankName' as ChineseBankName,\n'RAW_DATA_ACT_STATUS' as RAW_DATA_ACT_STATUS,\n'RAW_DATA_UPDT_TS' as RAW_DATA_UPDT_TS,\n'BACH_NUM' as BACH_NUM,\n'SRC_SYS_CD' as SRC_SYS_CD,\n'SRC_SCM_NM' as SRC_SCM_NM,\n'REC_CRT_DT' as REC_CRT_DT,\n'REC_EFF_DT' as REC_EFF_DT,\n'REC_EXP_DT' as REC_EXP_DT,\n'INA_FLG' as INA_FLG,\n'DT' as DT,\n'EXP_FLG'  as EXP_FLG\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\ncast(XSAP_Customer_KEY as nvarchar) as XSAP_Customer_KEY,\ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nCustomerName,\nCustomerName2,\nCustomerName3,\nCustomerName4,\nSearchTerm1,\nSearchTerm2,\nBuilding,\nRoom,\nFloor,\nStreet2,\nStreet3,\nStreet,\nStreetNumber,\nHouse,\nStreet4,\nStreet5,\nDistrict,\nCity,\nCountry,\nRegion,\nCustomerClass,\nIndustry,\nIndustryCode1,\nSalesOrg,\nDistributionChannel,\nDivision,\nSalesDistrict,\nSalesOffice,\nSalesGroup,\nCustomerGroup,\nDeliveryPlant,\nAccountingGroup,\nStreet1,\nPostalCode,\nVATRegistrationNumber,\nTelephoneNumber,\nBankAccountNumber,\nAccountHolderName,\nFlexiblePlanningNode,\nCustomerChineseName1,\nCustomerChineseName2,\nCustomerChineseName3,\nCustomerChineseName4,\nChineseSearchTerm1,\nChineseSearchTerm2,\nChineseBuilding,\nChineseRoom,\nChineseFloor,\nChineseStreet2,\nChineseStreet3,\nChineseStreet,\nChineseStreetNumber,\nChineseHouse,\nChineseStreet4,\nChineseStreet5,\nChineseDistrict,\nChineseCity,\nChineseCountry,\nChineseRegion,\nPricingGroup,\nEnglishBankName,\nChineseBankName,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nSRC_SCM_NM,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT,\ncast(INA_FLG as nvarchar) as INA_FLG,\nDT,\nEXP_FLG\n from (\nselect row_number() over(order by XSAP_Customer_KEY ) as Num,\n*\nfrom (\nselect \ncast(XSAP_Customer_KEY as nvarchar) as XSAP_Customer_KEY,\ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nCustomerName,\nCustomerName2,\nCustomerName3,\nCustomerName4,\nSearchTerm1,\nSearchTerm2,\nBuilding,\nRoom,\nFloor,\nStreet2,\nStreet3,\nStreet,\nStreetNumber,\nHouse,\nStreet4,\nStreet5,\nDistrict,\nCity,\nCountry,\nRegion,\nCustomerClass,\nIndustry,\nIndustryCode1,\nSalesOrg,\nDistributionChannel,\nDivision,\nSalesDistrict,\nSalesOffice,\nSalesGroup,\nCustomerGroup,\nDeliveryPlant,\nAccountingGroup,\nStreet1,\nPostalCode,\nVATRegistrationNumber,\nTelephoneNumber,\nBankAccountNumber,\nAccountHolderName,\nFlexiblePlanningNode,\nCustomerChineseName1,\nCustomerChineseName2,\nCustomerChineseName3,\nCustomerChineseName4,\nChineseSearchTerm1,\nChineseSearchTerm2,\nChineseBuilding,\nChineseRoom,\nChineseFloor,\nChineseStreet2,\nChineseStreet3,\nChineseStreet,\nChineseStreetNumber,\nChineseHouse,\nChineseStreet4,\nChineseStreet5,\nChineseDistrict,\nChineseCity,\nChineseCountry,\nChineseRegion,\nPricingGroup,\nEnglishBankName,\nChineseBankName,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nSRC_SCM_NM,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT,\ncast(INA_FLG as nvarchar) as INA_FLG,\nDT,\nEXP_FLG\n from [MVIEW].[MIC_Customer]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_MIC_Customer",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "MIC_Customer_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Delete_MDM_MIC_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"Patch": "prod/outbound/Hand/CN/Master/Customer/IC/Customer/"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": false,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "IC_Master_data/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-06T08:07:11Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_D_SDM_DataCheck_EC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_EC",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_EC",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_EC_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_EC_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_D]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='EC'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_d_EC"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_D_EC"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_D_EC"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:09:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_D_SDM_DataCheck_NIN')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NIN",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NIN",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NIN_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NIN_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_D]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NIN'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_d_NIN"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_D_NIN"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_D_NIN"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:09:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_D_SDM_DataCheck_NP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NP",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NP_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NP_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_D]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NP'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_d_NP"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_D_NP"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_D_NP"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:09:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_D_SDM_DataCheck_NPP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NPP",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NPP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_D_Datacheck_NPP_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NPP_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_D]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NPP'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_d_NPP"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_D_NPP"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_D_NPP"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:09:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_M_SDM_DataCheck_EC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_EC",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_EC",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_EC_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_EC_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_M]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='EC'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_m_EC"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_M_EC"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_M_EC"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:10:00Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

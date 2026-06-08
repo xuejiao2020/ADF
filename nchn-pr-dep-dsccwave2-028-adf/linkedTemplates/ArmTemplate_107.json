@@ -1,0 +1,2541 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Material_AUOM_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Material_AUOM",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[Material_AUOM] with(nolock) \nwhere [PubDate]  >=format(dateadd(DD,-1,getdate()),'yyyyMMdd')",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Material_AUOM",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Material_AUOM",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-02-04T08:58:33Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Material_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Material",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * from [dbo].[Material] with(nolock) \nwhere [PubDate] >=  format(dateadd(DD,-1,getdate()),'yyyyMMdd')",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Material",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Material",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-07T12:23:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Price')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select\nREPLACE(REPLACE(Replace(Rid,' ',''),CHAR(13),''),CHAR(10),'')Rid,\nREPLACE(REPLACE(Replace(ChangeFlag,' ',''),CHAR(13),''),CHAR(10),'')ChangeFlag,\nREPLACE(REPLACE(Replace(SalesOrg,' ',''),CHAR(13),''),CHAR(10),'')SalesOrg,\nREPLACE(REPLACE(Replace(DistributionChannel,' ',''),CHAR(13),''),CHAR(10),'')DistributionChannel,\nREPLACE(REPLACE(Replace(ConditionType,' ',''),CHAR(13),''),CHAR(10),'')ConditionType,\nREPLACE(REPLACE(Replace(MaterialNumber,' ',''),CHAR(13),''),CHAR(10),'')MaterialNumber,\nREPLACE(REPLACE(Replace(MaterialGroup1,' ',''),CHAR(13),''),CHAR(10),'')MaterialGroup1,\nREPLACE(REPLACE(Replace(PricingGroupCustomer,' ',''),CHAR(13),''),CHAR(10),'')PricingGroupCustomer,\nREPLACE(REPLACE(Replace(PricingGroupMaterial,' ',''),CHAR(13),''),CHAR(10),'')PricingGroupMaterial,\nREPLACE(REPLACE(Replace(AmountRate,' ',''),CHAR(13),''),CHAR(10),'')AmountRate,\nREPLACE(REPLACE(Replace(RateUnit,' ',''),CHAR(13),''),CHAR(10),'')RateUnit,\nREPLACE(REPLACE(Replace(ConditionPriceUnit,' ',''),CHAR(13),''),CHAR(10),'')ConditionPriceUnit,\nREPLACE(REPLACE(Replace(ConditionUnit,' ',''),CHAR(13),''),CHAR(10),'')ConditionUnit,\nREPLACE(REPLACE(Replace(DateFrom,' ',''),CHAR(13),''),CHAR(10),'')DateFrom,\nREPLACE(REPLACE(Replace(DateTo,' ',''),CHAR(13),''),CHAR(10),'')DateTo,\nREPLACE(REPLACE(Replace(FileDate,' ',''),CHAR(13),''),CHAR(10),'')FileDate,\nREPLACE(REPLACE(Replace(PubDate,' ',''),CHAR(13),''),CHAR(10),'')PubDate\nfrom dbo.Price with(nolock)\nwhere PubDate>=format(dateadd(DD,0,DATEADD(HOUR, 8, getdate())),'yyyyMMdd')\nand  PubDate<=format(dateadd(DD,0,DATEADD(HOUR, 8, getdate())),'yyyyMMdd')",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Price",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_Price",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Product_Category_Group')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Product_Category_Group",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[Product_Category_Group] with(nolock) \nwhere   CONVERT(nvarchar(10), updatetime , 120)< '@{pipeline().parameters.MyWindowEnd}'\nand   CONVERT(nvarchar(10), updatetime , 120)>= '@{pipeline().parameters.MyWindowStart}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Product_Category_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Product_Category_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:42:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Product_Category_Group_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Product_Category_Group",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[Product_Category_Group] with(nolock) \nwhere   CONVERT(nvarchar(10), updatetime , 120)< '@{pipeline().parameters.MyWindowEnd}'\nand   CONVERT(nvarchar(10), updatetime , 120)>= '@{pipeline().parameters.MyWindowStart}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Product_Category_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Product_Category_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1_DL/INC_ECMS_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_RSF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_RSF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[RSF] with(nolock)\nwhere [sorperiod] >= FORMAT(GetDate(),'yyyyMM')\n",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "RSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_RSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:48:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_RSF_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_RSF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[RSF] with(nolock)\nwhere [sorperiod] >= FORMAT(GetDate(),'yyyyMM')\n",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "RSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_RSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Sales')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Sales",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[Sales] with(nolock) \nwhere [PubDate]  <  '@{pipeline().parameters.MyWindowEnd}' \nand   [PubDate]  >= '@{pipeline().parameters.MyWindowStart}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Sales_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Sales",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[Sales] with(nolock) \nwhere [PubDate]  <  '@{pipeline().parameters.MyWindowEnd}' \nand   [PubDate]  >= '@{pipeline().parameters.MyWindowStart}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Sales_One_Copy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Sales_One_Copy",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[Sales] with(nolock) \nwhere [PubDate]  >=format(dateadd(DD,-1,getdate()),'yyyyMMdd')\nand  [PubDate]  <= format(dateadd(DD,0,getdate()),'yyyyMMdd')",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Sales_One_Copy",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Sales_copy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[Sales] with(nolock) \nwhere [PubDate]  >=format(dateadd(DD,-1,getdate()),'yyyyMMdd')\nand  [PubDate]  <= format(dateadd(DD,0,getdate()),'yyyyMMdd')",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Sales_copy_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[Sales] with(nolock) \nwhere [PubDate]  >=format(dateadd(DD,-1,getdate()),'yyyyMMdd')\nand  [PubDate]  <= format(dateadd(DD,0,getdate()),'yyyyMMdd')",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Sales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T12:00:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Wave2_Nestle_Orders_Progress')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Notebook2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "select t1.* \nfrom dscc.Wave2_Nestle_Orders_Progress t1\nwhere t1.dt>=add_months(trunc(to_date(current_date()),'MM'), -1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete [NESZ_STG].[Nestle_Orders_Progress] where dt>=CONVERT(varchar(7), dateadd(MM,-1,getdate()), 23) + '-01'",
+								"writeBehavior": "insert",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "t1.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.po_number",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Number",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.sales_document_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Sales_Document_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.salesorg_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.salesorg_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.salesorg_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.distchannel_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.distchannel_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.distchannel_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.soldto_cust_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Soldto_Cust_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.soldto_cust_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Soldto_Cust_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.cust_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Cust_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.cust_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Cust_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.cust_class_grp",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Cust_Class_Grp",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.custcity_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustCity_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.custcity_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustCity_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.custcity_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustCity_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.province_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.province_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.province_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.dc_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.dc_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.dc_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.dc_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Sku_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_bu_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_bu_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BU_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.product_bu_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BU_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.po_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Po_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.nps",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.order_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Order_Date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.order_ym",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Order_YM",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.order_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Order_Year",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.order_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Order_Month",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.billing_doc_date_max",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "billing_doc_date_max",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.delivery_created_on_max",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "delivery_created_on_max",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.actual_gi_date_max",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "actual_gi_date_max",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.pgr_date_max",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "pgr_date_max",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.billing_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "billing_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.obd_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "obd_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.pgi_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "pgi_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.pgr_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "pgr_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.pgr_qty_cs_bydc",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "pgr_Qty_Cs_byDC",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "t1.dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Wave2_Nestle_Orders_Progress_hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Nestle_Orders_Progress",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/OneALL/STG/Nestle_Orders_Progress_dim1"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Notebook2",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/OneALL/STG/Nestle_Orders_Progressinc"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/STG"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Wave2_Nestle_Orders_Progress_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Notebook2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_Nestle_Orders_Progress",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete [NESZ_STG].[Nestle_Orders_Progress] where dt>=CONVERT(varchar(7), dateadd(MM,-1,getdate()), 23) + '-01'",
+								"writeBehavior": "insert",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "UUID",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "PO_Number",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "PO_Number",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Sales_Document_Id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Sales_Document_Id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrg_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrg_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrg_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Soldto_Cust_UniId",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Soldto_Cust_UniId",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Soldto_Cust_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Soldto_Cust_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Cust_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Cust_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Cust_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Cust_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Cust_Class_Grp",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Cust_Class_Grp",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CustCity_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CustCity_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CustCity_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CustCity_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CustCity_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CustCity_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Province_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Province_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Province_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Province_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Province_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Province_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DC_UniId",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DC_UniId",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DC_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DC_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DC_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DC_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DC_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DC_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_UniId",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_Sku_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_Sku_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_BU_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_BU_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_BU_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product_BU_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Product_BU_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Po_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "Po_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "NPS",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 6,
+											"precision": 19
+										},
+										"sink": {
+											"name": "NPS",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 6,
+											"precision": 19
+										}
+									},
+									{
+										"source": {
+											"name": "Order_Date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Order_Date",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Order_YM",
+											"type": "Int32",
+											"physicalType": "INT32"
+										},
+										"sink": {
+											"name": "Order_YM",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Order_Year",
+											"type": "Int32",
+											"physicalType": "INT32"
+										},
+										"sink": {
+											"name": "Order_Year",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Order_Month",
+											"type": "Int32",
+											"physicalType": "INT32"
+										},
+										"sink": {
+											"name": "Order_Month",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "billing_doc_date_max",
+											"type": "DateTime",
+											"physicalType": "DATE"
+										},
+										"sink": {
+											"name": "billing_doc_date_max",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "delivery_created_on_max",
+											"type": "DateTime",
+											"physicalType": "DATE"
+										},
+										"sink": {
+											"name": "delivery_created_on_max",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "actual_gi_date_max",
+											"type": "DateTime",
+											"physicalType": "DATE"
+										},
+										"sink": {
+											"name": "actual_gi_date_max",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "pgr_date_max",
+											"type": "DateTime",
+											"physicalType": "DATE"
+										},
+										"sink": {
+											"name": "pgr_date_max",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "billing_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "billing_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "obd_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "obd_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "pgi_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "pgi_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "pgr_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "pgr_Qty_Cs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "pgr_Qty_Cs_byDC",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 12
+										},
+										"sink": {
+											"name": "pgr_Qty_Cs_byDC",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 4,
+											"precision": 12
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Wave2_Nestle_Orders_Progress_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Nestle_Orders_Progress",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/OneALL/STG/Nestle_Orders_Progress_dim1"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Notebook2",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/OneALL/STG/Nestle_Orders_Progressinc"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/STG_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-06-09T08:48:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_aidisplay_L1_L2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Aidisplay",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_Aidisplay",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "aidisplay",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "INC_Aidisplay",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "aidisplay",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/SFA"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-06-09T08:41:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INVENTORY_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Product_D",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLModel/INVENTORY_Product_D/",
+								"ADF.database": " dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLModel"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INVENTORY_Warehouse_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLModel/INVENTORY_Warehouse_Product_D/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLModel"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KONH_sap')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/SAP/KONH",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/DSCC_BW/KONH",
+								"ADF.rootpath2": "abfs://prddatalake@nchnstdep003sta.dfs.core.chinacloudapi.cn/prerod/process/DSCC/CN/customer/sap_bw_data/KONH_sap"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "SAP Data"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KPI_Customer_Store_City_Y')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KPI_Customer_Store_City_Y",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/KPI_Customer_Store_City_Y",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLModel"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KPI_Customer_Store_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KPI_Customer_Store_Product_D",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/KPI_Customer_Store_Product_D",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLModel"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:42:37Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

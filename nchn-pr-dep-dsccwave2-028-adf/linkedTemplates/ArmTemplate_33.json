@@ -1,0 +1,3674 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		},
+		"RPA_AZCNN2PRRPAAPP_Walmart_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\10.236.75.75\\Walmart"
+		},
+		"RPA_AZCNN2PRRPAAPP_Walmart_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "adf-user"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_AZCNN2PRRPAAPP_Walmart')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "[parameters('RPA_AZCNN2PRRPAAPP_Walmart_properties_typeProperties_host')]",
+					"userId": "[parameters('RPA_AZCNN2PRRPAAPP_Walmart_properties_typeProperties_userId')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "KeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "FILESYS-PWD-Walmart"
+					}
+				},
+				"connectVia": {
+					"referenceName": "adf-ir",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/All_Exec_ReportLayer_Procedure')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RL_KPI_Customer_Store_City_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_City_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_City_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Product_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Province_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Product_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Province_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_StockCover_Detail_LY_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LeYou_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @fromdate datetime=dateadd(day,-1,dateadd(hh,8,'2021-04-04')), @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nwhile @fromdate <=@nowdate \nbegin\n    exec KPI_StockCover_Detail_LY_D_Procedure @p_Data_Dt = @fromdate\n\tSET @fromdate = dateadd(day,1,@fromdate)\nend ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Case_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_StockCover_Detail_LY_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Case_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Case_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_M_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_M_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_W_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_M_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_W_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Inventory_Warehouse_Product",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_W_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Inventory_Warehouse_Product]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Province_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec RL_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LeYou_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_StockCover_Detail_KW_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec LeYou_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_StockCover_Detail_KW_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @fromdate datetime=dateadd(day,-1,dateadd(hh,8,'2021-04-04')), @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nwhile @fromdate <=@nowdate \nbegin\n\texec RL_KPI_StockCover_Detail_KW_D @p_Data_Dt = @fromdate\t\n\tSET @fromdate = dateadd(day,1,@fromdate)\nend ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Exec_ReportLayerTrigger_Notice",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Inventory_Warehouse_Product",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[GenMonLog]",
+							"storedProcedureParameters": {
+								"Env": {
+									"value": "PR",
+									"type": "String"
+								},
+								"Module": {
+									"value": "Exec_ReportLayer_Procedure",
+									"type": "String"
+								},
+								"Status": {
+									"value": "OK",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_Dep_Mail",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/Report"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BFL_Schedule_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "BF_walmart_f_sales_day_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BF_walmart_f_sales_day_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BF_walmart_f_stock_day_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BF_walmart_f_stock_day_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BF_walmart_f_stock_week_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BF_walmart_f_stock_week_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BF_walmart_f_sales_week_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BF_walmart_f_sales_week_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/BFL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:05Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BW_Schedule_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "bw_kpi_rpm_stockcover1_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_RPM_Stockcover1_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "bw_kpi_rpm_stockcover2_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_RPM_Stockcover2_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "bw_kpi_rpm_stockcover3_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_RPM_Stockcover3_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "RPM-Wait",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "bw_kpi_rpm_stockcover1_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "bw_kpi_rpm_stockcover2_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "bw_kpi_rpm_stockcover3_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "BW_KPI_DPADPB_DC_M1M2_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_KPI_DPADPB_DC_M1M2_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_KPI_DPADPB_DC_M3_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_KPI_DPADPB_DC_M3_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_KPI_DPADPB_DC_W1W2_full_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_KPI_DPADPB_DC_W1W2_full_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "FULL_BW_KPI_SSL_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "FULL_BW_KPI_SSL_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_KPI_DC_FG_Freshness_Shipment_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_KPI_DC_FG_Freshness_Shipment_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_KPI_DC_FG_Freshness_Inventory_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_KPI_DC_FG_Freshness_Inventory_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerHier_delete_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "CustomerHier_delete",
+								"type": "DatasetReference",
+								"parameters": {
+									"Container": "prddatalake",
+									"Directory": "prod/process/DW1SAP/CN/userdata/CustomerHier_Wave2/"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DW1SAP_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:11:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DeleteReportData')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "从3月1号开始",
+				"activities": [
+					{
+						"name": "Delete BF_CustomerDC_Inventory",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.BF_CustomerDC_Inventory where convert(date,Data_Dt,23) >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_CustomerStore_Sales",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime ='2020-12-03'\ndelete RPT.BF_CustomerStore_Sales where convert(date,Data_Dt,23) >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Product_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.INVENTORY_Product_D where Data_Dt>= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Warehouse_Product_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.INVENTORY_Warehouse_Product_D where Data_Date >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteOFFTAKE_Consumer_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.OFFTAKE_Consumer_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteOFFTAKE_Order_Consumer_Detail_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime ='2020-12-03'\ndelete RPT.OFFTAKE_Order_Consumer_Detail_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteOFFTAKE_Store_Sales_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.OFFTAKE_Store_Sales_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteOFFTAKE_Sales_Achievement_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.OFFTAKE_Sales_Achievement_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteKPI_StockCover_Detail_KW_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime ='2020-12-03'\ndelete RPT.KPI_StockCover_Detail_KW_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteKPI_StockCover_Detail_LY_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.KPI_StockCover_Detail_LY_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteKPI_Customer_Store_Product_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime ='2020-12-03'\ndelete RPT.KPI_Customer_Store_Product_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteKPI_Inventory_Warehouse_Product_D",
+						"description": "删除报表数据",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "declare @fromdate datetime = '2020-12-03'\ndelete RPT.KPI_Inventory_Warehouse_Product_D where Data_Dt >= @fromdate;",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1OneALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DeleteReportData_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete BF_CustomerDC_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.BF_CustomerDC_Inventory\nwhere convert(date,Data_Dt,23) >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete BF_CustomerStore_Sales",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.BF_CustomerStore_Sales\nwhere convert(date,Data_Dt,23) >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete INVENTORY_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.INVENTORY_Product_D\nwhere Data_Dt>= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete INVENTORY_Warehouse_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.INVENTORY_Warehouse_Product_D\nwhere Data_Date >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete OFFTAKE_Consumer_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Consumer_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete OFFTAKE_Order_Consumer_Detail_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Order_Consumer_Detail_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete OFFTAKE_Store_Sales_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Store_Sales_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete OFFTAKE_Sales_Achievement_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Sales_Achievement_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete KPI_StockCover_Detail_KW_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.KPI_StockCover_Detail_KW_D\nwhere Data_Dt >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete KPI_StockCover_Detail_LY_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.KPI_StockCover_Detail_LY_D\nwhere Data_Dt >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.KPI_Customer_Store_Product_D\nwhere Data_Dt >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete KPI_Inventory_Warehouse_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.KPI_Inventory_Warehouse_Product_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/Report"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ECMS_SAP_Lose_pipeline_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait-SAP",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "P_RM_ROH_ZPCK_MAKT_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "P_RM_ROH_ZPCK_MAKT_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "P_RM_ROH_ZPCK_MARA_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "P_RM_ROH_ZPCK_MARA_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PRMROHZPCKMaterial_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PRMROHZPCKMaterial_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Address_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Address_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Company_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Company_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Vendor_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Vendor_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL/L2_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ECMS_SAP_Lose_pipeline_DL_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait-SAP",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "P_RM_ROH_ZPCK_MAKT_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "P_RM_ROH_ZPCK_MAKT_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "P_RM_ROH_ZPCK_MARA_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "P_RM_ROH_ZPCK_MARA_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PRMROHZPCKMaterial_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PRMROHZPCKMaterial_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Address_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Address_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Company_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Company_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "VMD_Vendor_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait-SAP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "VMD_Vendor_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL/L2_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:19:42Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Exec_ALL_ReportLayer_Procedure')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KPI_Stock_Cover_By_Case_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Case_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Case_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_M_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_M_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_W_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_M_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_W_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Inventory_Warehouse_Product",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_W_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Inventory_Warehouse_Product]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_ReportLayer"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Exec_KW_ReportLayer_Procedure')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KPI_StockCover_Detail_KW_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_StockCover_Detail_KW_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec RL_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_StockCover_Detail_KW_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_KW_Customer_Store_Product_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_City_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Product_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KW_KPI_Customer_Store_City_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Province_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_City_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KW_KPI_Customer_Store_Province_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_ReportLayer"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Exec_LY_ReportLayer_Procedure')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KPI_StockCover_Detail_LY_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LeYou_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec KPI_StockCover_Detail_LY_D_Procedure @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LeYou_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec LeYou_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_StockCover_Detail_LY_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_LY_Customer_Store_Product_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_City_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Product_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_LY_KPI_Customer_Store_City_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Province_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_City_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_LY_KPI_Customer_Store_Province_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_ReportLayer"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Exec_ReportLayer_Procedure')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RL_KPI_Customer_Store_City_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_StockCover_Detail_LY_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_City_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_City_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Product_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Province_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Product_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Province_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_StockCover_Detail_KW_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_StockCover_Detail_KW_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_StockCover_Detail_LY_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LeYou_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec KPI_StockCover_Detail_LY_D_Procedure @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Case_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_StockCover_Detail_KW_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Case_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Case_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_M_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_M_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_W_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_M_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_W_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Inventory_Warehouse_Product",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_W_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Inventory_Warehouse_Product]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Province_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec RL_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LeYou_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec LeYou_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_ReportLayer"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Exec_ReportLayer_Procedure_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RL_KPI_Customer_Store_City_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_City_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_City_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Product_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Customer_Store_Province_Y",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Product_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_Customer_Store_Province_Y]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_StockCover_Detail_LY_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LeYou_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "\ndeclare @fromdate datetime=dateadd(day,-1,dateadd(hh,8,'2020-12-03')), @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nwhile @fromdate <=@nowdate \nbegin\n    exec KPI_StockCover_Detail_LY_D_Procedure @p_Data_Dt = @fromdate\n\tSET @fromdate = dateadd(day,1,@fromdate)\nend ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Case_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_StockCover_Detail_KW_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Case_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_D_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Case_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_D_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_M_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_D_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_M_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_Stock_Cover_By_Value_W_Procedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_M_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[KPI_Stock_Cover_By_Value_W_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Inventory_Warehouse_Product",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "KPI_Stock_Cover_By_Value_W_Procedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Inventory_Warehouse_Product]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Customer_Store_Province_Y",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec RL_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LeYou_KPI_Allocating_Intransit_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nexec LeYou_KPI_Allocating_Intransit_D @p_Data_Dt = @nowdate",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "RL_KPI_StockCover_Detail_KW_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "RL_KPI_Allocating_Intransit_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "declare @fromdate datetime=dateadd(day,-1,dateadd(hh,8,'2020-12-03')), @nowdate datetime = dateadd(day,-1,dateadd(hh,8,getdate()))\nwhile @fromdate <=@nowdate \nbegin\n\texec RL_KPI_StockCover_Detail_KW_D @p_Data_Dt = @fromdate\t\n\tSET @fromdate = dateadd(day,1,@fromdate)\nend ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1OneALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/INC_Aidisplay')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": {
+										"value": "@getPastTime(5,'Hour')",
+										"type": "Expression"
+									},
+									"wildcardFolderPath": "prod/inbound/POS/CN/Marketing/CRM/OSA/",
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DL_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "prod/inbound/POS/CN/Marketing/CRM/OSA/",
+									"file": "*"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OSA_DL1",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "@concat('prod/inbound/DSCC/CN/customer/aidisplay_New','/dt=',formatDateTime(addhours(utcNow(),8),'yyyy-MM-dd'))"
+								}
+							}
+						]
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "OSA_DL1",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "@concat('prod/inbound/DSCC/CN/customer/aidisplay_New','/dt=',formatDateTime(addhours(utcNow(),8),'yyyy-MM-dd'))"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2_DL/SFA_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:12:40Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LStatus')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadPipelineStatus",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,0 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'MDM' ,0 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,0 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "L1-L2_success",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,1 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "L1-L2_errror",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'MDM' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "MDM_success",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'MDM' ,1 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "MDM_errror",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'MDM' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Share_Data_Model_success",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,1 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Share_Data_Model_errror",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppMdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OTIFL1-L2_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INCR_BW_KPI_OTIF1_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF1_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INCR_BW_KPI_OTIF2_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF2_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INCR_BW_KPI_OTIF4_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF4_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INCR_BW_KPI_OTIF5_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF5_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INCR_BW_KPI_OTIF3_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF3_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INCR_BW_KPI_OTIF6_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INCR_BW_KPI_OTIF6_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL/Interval_Schedule_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:05Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SAP_Data_Schedule_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Overdue_Report_sap_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Overdue_Report_sap_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_OBD_Del_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_OBD_Del_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "BW_OOS_report_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "BW_OOS_report_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL/L2_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Schedule_Walmart_RPA_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Walmart_CCFR_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Walmart_CCFR_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Walmart_instock_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Walmart_instock_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Walmart_OTIF_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Walmart_OTIF_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Walmart_Sams_OTIF_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Walmart_Sams_OTIF_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/L1-L2_DL/Walmart_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:05Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/StockerCover_L1-L2_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_BW_KPI_FG_Stockcover1_KPI_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_Stockcover1_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INC_BW_KPI_FG_Stockcover2_KPI_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_Stockcover2_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INC_BW_KPI_FG_Stockcover4_KPI_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_StockCover4_KPI_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INC_BW_KPI_FG_Stockcover2_MinMax_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_Stockcover2_MinMax_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INC_BW_KPI_FG_Stockcover1_MinMax_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_Stockcover1_MinMax_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "INC_BW_KPI_FG_StockCover4_MinMax_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "INC_BW_KPI_FG_StockCover4_MinMax_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/Scheduler_DL/Interval_Schedule_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:05Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,1181 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Distribution_Center')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "DIM_Distribution_Center",
+						"folderPath": "prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Distribution_Center",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_GeoCode_Value_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_GeoCode_Value",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Geo_Type_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_Type_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_Type_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_Src_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_DesCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geo_DesEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "End_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src_Tb",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "ETL_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_MDM_CST_MST_MV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "DM_MDM_CST_MST_MV",
+						"folderPath": "prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Material_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Material",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Material_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Type_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Type_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Grp_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Grp_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Plant_Status_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Plant_Status_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Base_Unit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Supply_Unit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Grs_Weight",
+						"type": "UTF8"
+					},
+					{
+						"name": "Net_Weight",
+						"type": "UTF8"
+					},
+					{
+						"name": "Weight_Unit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Volume",
+						"type": "UTF8"
+					},
+					{
+						"name": "Uom_of_vol",
+						"type": "UTF8"
+					},
+					{
+						"name": "Min_Shelf_Life",
+						"type": "INT32"
+					},
+					{
+						"name": "Total_Shelf_Life",
+						"type": "INT32"
+					},
+					{
+						"name": "Material_Trasport_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Trasport_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Storage_Condition_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Material_Storage_Condition_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Effective_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "End_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "ETL_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_NestleCompany_HiveParquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_NestleCompany",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_NestleCompany_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "*",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DIM_NestleCompany",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_NestlePlant_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_NestlePlant",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Plant_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Code",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Type",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Type_Desc",
+						"type": "UTF8"
+					},
+					{
+						"name": "Company_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Addr",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Longitude",
+						"type": "UTF8"
+					},
+					{
+						"name": "Plant_Latitude",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Country_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "End_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Product_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "DIM_Product",
+						"folderPath": "prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Product",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Product_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Product",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Product_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Type_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Type_Nm",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_BarCode_CS",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_BarCode_EA",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Nm_Alias",
+						"type": "UTF8"
+					},
+					{
+						"name": "Weight",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Weight_Unit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Volume",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Volume_Unit",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_FactorInCS",
+						"type": "INT32"
+					},
+					{
+						"name": "Product_Total_Shelf_Life",
+						"type": "INT_16"
+					},
+					{
+						"name": "Product_Total_Shelf_Period",
+						"type": "UTF8"
+					},
+					{
+						"name": "MilkPowder_Stage",
+						"type": "INT32"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "End_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Store_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "DIM_Store",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Store",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Supplier_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Supplier",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Supplier_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Supplier_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Supplier_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Supplier_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Location_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "End_Dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DL_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						},
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"nullValue": "NULL",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DL_Parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						},
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_DIM_SKU_Group_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/DM_DIM_SKU_Group",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "yearmonth",
+						"type": "UTF8"
+					},
+					{
+						"name": "sku_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "sku_group_dsa",
+						"type": "UTF8"
+					},
+					{
+						"name": "sku_group_dsa_name",
+						"type": "UTF8"
+					},
+					{
+						"name": "key_group_dsa",
+						"type": "UTF8"
+					},
+					{
+						"name": "ETL_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_D_SO_KA_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Unnid"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "ECMS_DM_D_SO_KA",
+						"folderPath": "prod/inbound/Light/CN/customer/uniid/ECMS_DM_D_SO_KA",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DM_OUTLET_Master_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Unnid"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "EECMS_Grocery_OUTLET_Master",
+						"folderPath": "prod/inbound/Light/CN/customer/uniid/ECMS_Grocery_OUTLET_Master",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DSCC_OUTLET_Master_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Unnid"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "DSCC_OUTLET_Master",
+						"folderPath": "prod/inbound/Light/CN/customer/uniid/DSCC_OUTLET_Master",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DSCC_Retailer_Access_list_l2_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/DSCC_Retailer_Access_list_l2",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Retailer",
+						"type": "UTF8"
+					},
+					{
+						"name": "AccessID",
+						"type": "UTF8"
+					},
+					{
+						"name": "StartDate",
+						"type": "UTF8"
+					},
+					{
+						"name": "EndDate",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DT_Manual_List_l2_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/DT_Manual_List_l2",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "top20",
+						"type": "UTF8"
+					},
+					{
+						"name": "dt_group",
+						"type": "UTF8"
+					},
+					{
+						"name": "oop",
+						"type": "UTF8"
+					},
+					{
+						"name": "segmentation_group",
+						"type": "UTF8"
+					},
+					{
+						"name": "customer_segment",
+						"type": "UTF8"
+					},
+					{
+						"name": "customer_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "customer_name",
+						"type": "UTF8"
+					},
+					{
+						"name": "distributor_type",
+						"type": "UTF8"
+					},
+					{
+						"name": "region_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "region_name",
+						"type": "UTF8"
+					},
+					{
+						"name": "city_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "city",
+						"type": "UTF8"
+					},
+					{
+						"name": "sales_group",
+						"type": "UTF8"
+					},
+					{
+						"name": "city_groupcode",
+						"type": "UTF8"
+					},
+					{
+						"name": "city_groupname_cn",
+						"type": "UTF8"
+					},
+					{
+						"name": "l6_cg_code",
+						"type": "UTF8"
+					},
+					{
+						"name": "main_ua_c",
+						"type": "UTF8"
+					},
+					{
+						"name": "based_city_name",
+						"type": "UTF8"
+					},
+					{
+						"name": "nestle_ua_level",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DW1SAP_Sales_L1_Parquet_Datacheck')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/DW1SAP_Sales_L1_Datacheck",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "UUID",
+						"type": "UTF8"
+					},
+					{
+						"name": "SalesOrg_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "DistChannel_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Cust_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Cust_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Cust_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Cust_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_Cd_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Sku_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Stock_Qty_Cs",
+						"type": "DECIMAL",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Stock_Good_Qty_Cs",
+						"type": "DECIMAL",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Stock_Bad_Qty_Cs",
+						"type": "DECIMAL",
+						"precision": 12,
+						"scale": 4
+					},
+					{
+						"name": "Stock_NPS_Amt",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Stock_Good_NPS_Amt",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Stock_Bad_NPS_Amt",
+						"type": "DECIMAL",
+						"precision": 19,
+						"scale": 6
+					},
+					{
+						"name": "Stock_Date",
+						"type": "UTF8"
+					},
+					{
+						"name": "Stock_Year",
+						"type": "INT32"
+					},
+					{
+						"name": "Stock_Month",
+						"type": "INT32"
+					},
+					{
+						"name": "Src_Data_Tm",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "dt",
+						"type": "UTF8"
+					},
+					{
+						"name": "bu",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,987 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Category_BU_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_category_bu"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Channel_Hier')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Channel_Map_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Channel_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev1_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev1_DescCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev1_DescEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev2_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev2_DescCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev2_DescEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev3_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev3_DescCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChannelHieLev3_DescEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Attr1_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Attr1_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Attr2_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Attr2_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Channel_Hier"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Channel_Hier_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_channel_hier"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Consumer_App')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Consumer_App_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Consumer_Id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "App_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "App_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "App_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Data_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src_Tb",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Consumer_App"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Consumer_App_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_consumer_app"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_DSCC_Geo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Business_Geo_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_DSCC_Geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_DSCC_Geo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_dscc_geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_DSO_Geo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_DSO_Geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_DSO_Geo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_dso_geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_EcmsCity_DSCC_Geo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "City_Cd_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CityGrp_M_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DSO_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SubRegion_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Business_Geo_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_EcmsCity_DSCC_Geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_EcmsCity_DSCC_Geo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_ecmscity_dscc_geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_KPI_Account')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "KPI_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Acc_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_KPI_Account"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_KPI_Account_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_kpi_account"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Product_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Src_Product_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Src_Product_Cd_Des",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Cd_Des",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "ETL_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Product"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Product_DB2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Src_Product_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Src_Product_Cd_Des",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SrcSys_Cd_Des",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "ETL_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Product"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Product_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_product"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Product_HIVE2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_product"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Sku_Grp')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SkuGrp_Map_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Product_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SkuGrp_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SkuGrp_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Is_KeySku",
+						"type": "bit"
+					},
+					{
+						"name": "Map_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Data_YM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Sku_Grp"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Sku_Grp_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_sku_grp"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_StandardCity_Region')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_StandardCity_Region"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,1917 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/PR_DP_Code_Value_H')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "PR_DP_Code_Value_H_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "PR_DP_Code_Value_H_Table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DB_Table/PR_DP_Code_Value_H",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/PR_DP_Code_Value_H"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM/DB_Table"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/P_RM_ROH_ZPCK_MAKT_sap')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/SAP/P_RM_ROH_ZPCK_MAKT",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/DSCC_BW/P_RM_ROH_ZPCK_MAKT",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/sap_bw_data/P_RM_ROH_ZPCK_MAKT_sap"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "SAP Data"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:42:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/P_RM_ROH_ZPCK_MARA_sap')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/SAP/P_RM_ROH_ZPCK_MARA",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/DSCC_BW/P_RM_ROH_ZPCK_MARA",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/sap_bw_data/P_RM_ROH_ZPCK_MARA_sap"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "SAP Data"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PoIntransitInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "大库po在途信息",
+				"activities": [
+					{
+						"name": "PoIntransitInfo",
+						"description": "大库po在途信息",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/PoIntransitInfo",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/LY10007/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/PoIntransitInfo/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PoIntransitInfo_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/LY/LY_PoIntransitInfo_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/LY/PoIntransitInfo_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_id",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_id",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.order_clerk",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_clerk",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_is_finished",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_is_finished",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_warehouse_id",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_warehouse_id",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.warehouse_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "warehouse_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.ctgy_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ctgy_code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.sku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sku",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.prod_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "prod_barcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_status",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_status",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.product_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "product_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_create_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_create_time",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.expire_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "expire_date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_qty",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_qty",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.po_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "po_price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.recv_qty",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "recv_qty",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.recv_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "recv_price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.vendor_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vendor_id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_pointransitinfo_to.createon",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_LY_PoIntransitInfo_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_LY_PoIntransitInfo_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Price')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/Price",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/Price/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/Price_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP/price_K&L"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Price_IC_Master_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select \n'Num' as Num,\n'SalesOrg' as  SalesOrg,\n'DistributionChannel' as DistributionChannel,\n'ConditionType' as ConditionType,\n'MaterialNumber' as MaterialNumber,\n'MaterialGroup1' as MaterialGroup1,\n'PricingGroupCustomer' as PricingGroupCustomer,\n'PricingGroupMaterial' as PricingGroupMaterial,\n'AmountRate' as AmountRate,\n'RateUnit' as RateUnit,\n'ConditionPriceUnit' as ConditionPriceUnit,\n'ConditionUnit' as ConditionUnit,\n'DateFrom' as DateFrom,\n'DateTo' as DateTo,\n'FileDate' as FileDate,\n'PubDate' as PubDate,\n'RAW_DATA_ACT_STATUS' as RAW_DATA_ACT_STATUS,\n'RAW_DATA_UPDT_TS' as RAW_DATA_UPDT_TS,\n'BACH_NUM' as BACH_NUM,\n'SRC_SYS_CD' as SRC_SYS_CD,\n'REC_CRT_DT' as REC_CRT_DT,\n'SRC_SCM_NM' as SRC_SCM_NM,\n'SRC_FIL_NM' as SRC_FIL_NM,\n'SRC_FIL_DIR' as SRC_FIL_DIR,\n'DT' as DT,\n'EXP_FLG' as EXP_FLG\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\nSalesOrg,\nDistributionChannel,\nConditionType,\nMaterialNumber,\nMaterialGroup1,\nPricingGroupCustomer,\nPricingGroupMaterial,\ncast(AmountRate as nvarchar) as AmountRate,\nRateUnit,\ncast(ConditionPriceUnit as nvarchar) as ConditionPriceUnit,\nConditionUnit, \nDateFrom,\nDateTo,\nFileDate,\nPubDate,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nREC_CRT_DT,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nDT,\nEXP_FLG\n from (\nselect row_number() over(order by MaterialNumber ) as Num,\n*\nfrom (\nselect \nSalesOrg,\nDistributionChannel,\nConditionType,\nMaterialNumber,\nMaterialGroup1,\nPricingGroupCustomer,\nPricingGroupMaterial,\ncast(AmountRate as nvarchar) as AmountRate,\nRateUnit,\ncast(ConditionPriceUnit as nvarchar) as ConditionPriceUnit,\nConditionUnit, \nDateFrom,\nDateTo,\nFileDate,\nPubDate,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nREC_CRT_DT,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nDT,\nEXP_FLG\nFrom [MVIEW].[MIC_SAP_Price]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_MIC_SAP_Price",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "MIC_SAP_Price_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Delete_MDM_MIC_CSV",
+								"type": "DatasetReference",
+								"parameters": {
+									"Patch": "prod/outbound/Hand/CN/Master/material/IC/Price/"
+								}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": false,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "IC_Master_data/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-06T08:31:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Price_KIdswant_Leyou_Manual')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Price_KIdswant_Leyou",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/Price_KIdswant_Leyoul2Manual",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/Price_KIdswant_Leyou/"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProductHierarchy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ProductHierarchy",
+						"description": "ProductHierarchy",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/ProductHierarchy",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/ProductHierarchy/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/ProductHierarchy_Wave2/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_Category_Group')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Product_Category_Group",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ECMS/Product_Category_Group",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/ECMS/CN/Master/Customer/Product_Category_Group",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/ECMS/CN/Master/Customer/Product_Category_Group",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ECMS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_Puree')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Product_Puree",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/Product_Puree",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/Product_Puree/",
+								"ADF.database": "dscc",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/Product_Puree/"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Product_Puree_Copy_ReportDB",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DELETE_Product_Puree",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "product_puree.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "product_puree.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "product_puree.sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "product_puree.etl_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Product_Puree_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Product_Puree",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DELETE_Product_Puree",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Product_Puree",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Delete_Product_Puree]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLDIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:14Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PurchaseOrderInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "雀巢采购单信息",
+				"activities": [
+					{
+						"name": "PurchaseOrderInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/PurchaseOrderInfo",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/LY10006/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/PurchaseOrderInfo/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PurchaseOrderInfo_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/LY/LY_PurchaseOrderInfo_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/LY/PurchaseOrderInfo_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_id",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_id",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.order_clerk",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_clerk",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_is_finished",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_is_finished",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.receiving_status",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "receiving_status",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_warehouse_id",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_warehouse_id",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.warehouse_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "warehouse_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.ctgy_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ctgy_code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.product_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "product_name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.sku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sku",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.prod_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "prod_barcode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_status",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_status",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_create_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "po_create_time",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.expire_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "expire_date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.receiving_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "receiving_time",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_qty",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "po_qty",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.po_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "po_price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.recv_qty",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "recv_qty",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.recv_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "recv_price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.vendor_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vendor_id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "ly_purchaseorderinfo_to.createon",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_LY_PurchaseOrderInfo_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_LY_PurchaseOrderInfo_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPMStockCover_LMB')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/RPMStockCover_LMB",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/RPMStockCover-SCDashboard/ForDashboard-LMB/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/RPMStockCover-SCDashboard/ForDashboard-LMB/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPMStockCover_NiM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/ManualData/RPMStockCover_NiM",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/RPMStockCover-SCDashboard/ForDashboard-NiM/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/RPMStockCover-SCDashboard/ForDashboard-NiM/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RSF')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RSF",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW2SAP/RSF",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW2SAP/CN/userdata/RSF",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW2SAP/CN/userdata/RSF",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW2SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RSF_INC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RSF",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW2SAP/RSF_inc",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW2SAP/CN/userdata/RSF",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW2SAP/CN/userdata/RSF",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW2SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Retailer_Access_list')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Retailer_Access_list",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave3/L1L2_ETL/ManualData/Retailer_Access_list",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/Retailer_Access_list",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/Retailer_Access_list"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Retailer_Access_list",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete from  [DSCC_OTHERS].[DM_DIM_Retailer_Access_List]",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_retailer_access_list_l2.retailer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Retailer",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_retailer_access_list_l2.accessid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_retailer_access_list_l2.startdate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "StartDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_retailer_access_list_l2.enddate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "EndDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_retailer_access_list_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Retailer_Access_list",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Retailer_Access_list_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/L1_L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Retailer_Access_list_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Retailer_Access_list_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/DSCC_Retailer_Access_list_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete from  [NESZ_AL].[DM_DIM_Retailer_Access_List]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Retailer",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Retailer",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "StartDate",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "StartDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "EndDate",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "EndDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DSCC_Retailer_Access_list_l2_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DM_DIM_Retailer_Access_List",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Retailer_Access_list_DL",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 2,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave3/L1L2_ETL/ManualData/Retailer_Access_list"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/L1-L2_DL/ManualData_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-07T10:03:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Rule_CompanyCode_CustomerChannel_LocalProductMid_SalesCredit')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/DW1SAP/Rule_CompanyCode_CustomerChannel_LocalProductMid_SalesCredit",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DW1SAP/CN/userdata/Rule_CustomerChannel_LocalProductMid_SalesCredit",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DW1SAP/CN/userdata/Rule_CompanyCode_CustomerChannel_LocalProductMid_SalesCredit"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/DW1SAP"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:58Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

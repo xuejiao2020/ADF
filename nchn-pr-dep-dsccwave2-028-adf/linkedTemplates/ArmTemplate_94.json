@@ -1,0 +1,3159 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_SkuWorkStateInfo_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_SkuWorkStateInfo_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_SkuWorkStateInfo_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.skucode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.skubarcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuBarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.skuname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.brandcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.storecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.storename",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.workstatecode",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "workstateCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.createtime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "createTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.updatetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "updateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_skuworkstateinfo_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_SkuWorkStateInfo_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_SkuWorkStateInfo_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StockSku')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "库存信息表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_StockSku",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10006/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_StockSku/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StockSkuExpire')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "效期库存信息表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_StockSkuExpire",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10007/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_StockSkuExpire/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StockSkuExpire_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_StockSkuExpire_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_StockSkuExpire_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.storecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.storename",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.branchname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "branchName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.cityname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "cityName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.skutitle",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuTitle",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.pddate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "pdDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.isfreeze",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "isFreeze",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.skuerpcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuErpCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "barCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.createtime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "createTime",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.updatetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "updateTime",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stockskuexpire_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StockSkuExpire_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StockSkuExpire_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StockSku_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_StockSku_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_StockSku_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.storecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.storename",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.branchname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "branchName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.cityname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "cityName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.skutitle",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuTitle",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.skuerpcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuErpCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "barCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.createtime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "createTime",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.updatetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "updateTime",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_stocksku_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StockSku_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StockSku_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StoreInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "门店信息表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_StoreInfo",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10008/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_StoreInfo/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:41Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_StoreInfo_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_StoreInfo_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/KW_Data_StoreInfo_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.storecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.storename",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.branchcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "branchCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.branchname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "branchName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.province",
+											"type": "String"
+										},
+										"sink": {
+											"name": "province",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.addressprovince",
+											"type": "String"
+										},
+										"sink": {
+											"name": "addressProvince",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.city",
+											"type": "String"
+										},
+										"sink": {
+											"name": "city",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.addresscity",
+											"type": "String"
+										},
+										"sink": {
+											"name": "addressCity",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.storegroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "storeGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.storetype",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "storeType",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_storeinfo_to.createon",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StoreInfo_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_StoreInfo_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferIn')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "调拨入库明细表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_TransferIn",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10009/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_TransferIn/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferIn_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_TransferIn_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_TransferIn_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "data_transferin_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.docode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "doCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.allocatecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "allocateCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.allocatetype",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "allocateType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.deptoutcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.deptoutname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.deptincode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.deptinname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.suppliercode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.suppliername",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.contractno",
+											"type": "String"
+										},
+										"sink": {
+											"name": "contractNo",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.brandcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.skucode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.skuname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.requireamount",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "requireAmount",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.tax",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "tax",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.billstate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "billState",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.ordergeneratetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "orderGenerateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.sysdate",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "sysDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.skubarcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuBarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferin_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferIn_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferIn_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferOrder')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "调拨订单明细表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_TransferOrder",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10010/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_TransferOrder/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferOrder_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_TransferOrder_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_TransferOrder_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "data_transferorder_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.docode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "doCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.deptoutcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.deptoutname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.deptincode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.deptinname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.suppliercode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.suppliername",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.contractno",
+											"type": "String"
+										},
+										"sink": {
+											"name": "contractNo",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.brandcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.skucode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.skuname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.requireamount",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "requireAmount",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.tax",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "tax",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.billstate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "billState",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.ordergeneratetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "orderGenerateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.sysdate",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "sysDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.skubarcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuBarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "data_transferorder_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferOrder_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferOrder_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferOut')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "调拨出库明细表",
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_TransferOut",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10011/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_TransferOut/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_TransferOut_To')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_TransferOut_To",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_TransferOut_To/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kw_data_transferout_to.id",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "id",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.docode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "doCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.allocatecode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "allocateCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.allocatetype",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "allocateType",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.deptoutcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.deptoutname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptOutName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.deptincode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.deptinname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "deptInName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.suppliercode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.suppliername",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplierName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.contractno",
+											"type": "String"
+										},
+										"sink": {
+											"name": "contractNo",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.brandcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.brandname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brandName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.skucode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.skuname",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.requireamount",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "requireAmount",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.tax",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "tax",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.billstate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "billState",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.ordergeneratetime",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "orderGenerateTime",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.sysdate",
+											"type": "Int64"
+										},
+										"sink": {
+											"name": "sysDate",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.skubarcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "skuBarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kw_data_transferout_to.createon",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CreateOn",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferOut_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_To_MVP_KW_Data_TransferOut_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADF_To_MVP/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_sync_test_byMing')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_Material",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * from [dbo].[Material] with(nolock) \nwhere [PubDate]>='20210703' and [PubDate]<'20210719'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Material",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_Material",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:54:10Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete AL Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DeleteALHiveData",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave1Manual/DeleteData/AL/AL",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteINVENTORY_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.INVENTORY_Product_D\nwhere Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteINVENTORY_Warehouse_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.INVENTORY_Warehouse_Product_D\nwhere Data_Date >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteOFFTAKE_Consumer_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Consumer_D\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteOFFTAKE_Sales_Achievement_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Sales_Achievement_D\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteOFFTAKE_Store_Sales_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Store_Sales_D\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteOFFTAKE_Order_Consumer_Detail_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Order_Consumer_Detail_D\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteSELLIN_Order_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.SELLIN_Order_D\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "deleteOFFTAKE_Order_Consumer_Detail_D_Specific",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Order_Consumer_Detail_D_Specific\nwhere  Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete BFL BF_Customerstore_Inventory')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DeleteBF_CustomerStore_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Inventory\nwhere CONVERT(date,Data_Dt,23) = CONVERT(date,dateadd(HH,8,GETDATE()),23)",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DeleteBF_CustomerStore_Inventory",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.BF_CustomerStore_Inventory \nwhere to_date(Data_dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_CustomerStore_Inventory_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_CustomerStore_Inventory_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/BFL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:20Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete BFL Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DeleteBFLHiveData",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave1Manual/DeleteData/BFL/BFL",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_CustomerDC_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerDC_Inventory\nwhere Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_CustomerDC_Warehousing",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerDC_Warehousing\nwhere Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_CustomerStore_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Inventory\nwhere Data_Dt >= '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_CustomerStore_Sales",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Sales\nwhere Data_Dt >=   '2021-04-02';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/BFL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DeleteAL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/OneALL/DeleteAL",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete INVENTORY_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.INVENTORY_Product_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete INVENTORY_Warehouse_Product_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.INVENTORY_Warehouse_Product_D\nwhere Data_Date >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete OFFTAKE_Consumer_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Consumer_D\nwhere Data_Dt >=   '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete OFFTAKE_Sales_Achievement_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Sales_Achievement_D\nwhere Data_Dt >=  '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete OFFTAKE_Store_Sales_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Store_Sales_D\nwhere Data_Dt >=   '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete OFFTAKE_Order_Consumer_Detail_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.OFFTAKE_Order_Consumer_Detail_D\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete SELLIN_Order_D",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_AL.SELLIN_Order_D\nwhere Data_Dt >=   '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete OFFTAKE_Order_Consumer_Detail_D_Specific",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete RPT.OFFTAKE_Order_Consumer_Detail_D_Specific\nwhere Data_Dt >=  '2021-01-01';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1OneALL/AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:48:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DeleteBFL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/OneALL/DeleteBFL",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete BF_CustomerDC_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerDC_Inventory\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete BF_CustomerDC_Warehousing",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerDC_Warehousing\nwhere Data_Dt >='2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete BF_CustomerStore_Inventory",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Inventory\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "delete BF_CustomerStore_Sales",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"sql": {
+									"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Sales\nwhere Data_Dt >= '2020-12-03';",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1OneALL/BFL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:48:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo_Copy_Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "FACT_Demo_Source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Fact_Demo_Target",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/Report/Demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:51:50Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

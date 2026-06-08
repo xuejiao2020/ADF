@@ -1,0 +1,900 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_SkuWorkStateInfo_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "MDM_Rawdata_Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "skuCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuBarCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "brandCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "brandName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "storeCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "storeName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "workstateCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "createTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "updateTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreateOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreateBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ModifyOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "ModifyBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RecordStatus",
+						"type": "bit"
+					},
+					{
+						"name": "MDM_Rawdata_AcStatus",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MDM_Rawdata_updatetime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Data_SkuWorkStateInfo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Data_SkuWorkStateInfo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "BFL_TO_SDM"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "kw_data_skuworkstateinfo_l2"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Account')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Acc_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Acc_InternalNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Acc_InternalNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Acc_DisplayNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Acc_DisplayNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_InternalNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_InternalNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_DisplayNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_DisplayNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_Account"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Account_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_account"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Account_Type')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AccType_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_InternalNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_InternalNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_DisplayNmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccType_DisplayNmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_Account_Type"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Account_Type_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_account_type"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Brand')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Brand_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand_Short_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand_Short_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Brand_Grp",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_Brand"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Brand_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_brand"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_BridgeNNS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "BridgeNNS_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BridgeNNS",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BridgeNNS_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BridgeNNS_Calc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_BridgeNNS"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_BridgeNNS_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_bridgenns"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Business_View')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "BusinessView_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BusinessView_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BusinessView_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Market_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Market_DescCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Market_DescEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "DIM_Business_View"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Business_View_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_business_view"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_CDPReview')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CDPReview_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CDPReview_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CDPReview_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Is_Calc",
+						"type": "bit"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_CDPReview"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_CDPReview_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_cdpreview"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_Company')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0003_FC_Automation",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_Nestfi"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "CompanyID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CompanyCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CompanyInternalName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CompanyDisplayName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SortID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InsertTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "UpdateTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "IsOption",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_Company"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_FFOHKPI')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "FFOHKPI_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FFOHKPI_InternalNm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FFOHKPI_Display_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FFOHKPI_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_FFOHKPI"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_FFOHKPI_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_ffohkpi"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_KPI')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "KPI_Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "KPI_InternalNm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "KPI_DisplayNm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "KPI_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "Dim_KPI"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_KPI_HIVE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_dim_kpi"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dim_LocalSalesChannel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0003_FC_Automation",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_Nestfi"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "LocalSalesChannelID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LocalSalesChannelInternalName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LocalSalesChannelDisplayName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ConsolidatedChannelID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SortID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InsertTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "UpdateTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "NestleChannel",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Dim_LocalSalesChannel"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

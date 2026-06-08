@@ -1,0 +1,4904 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Load_INVENTORY_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Product_D_part1_LY",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Product_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.INVENTORY_Product_D \nwhere GroupUnild='1000000LEYYOUGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "inventory_product_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.province",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.is_availablesku",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_AvailableSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.is_topsku",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_TopSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.distributed_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Distributed_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.available_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Available_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.shortage_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Shortage_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.vaild_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Vaild_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.sales_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Sales_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.etl_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "INVENTORY_Product_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INVENTORY_Product_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Load_INVENTORY_Warehouse_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part1_LY",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "part2",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part2_LY",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Warehouse_Product_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.INVENTORY_Warehouse_Product_D  \nwhere GroupUnild='1000000LEYYOUGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_UniID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_franchisewarehouse",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_FranchiseWarehouse",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_work_stats_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_work_stats_desc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Desc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.last_out_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Last_out_date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.last_out_date_store",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Last_out_date_store",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_availablesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_AvailableSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_idlesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_IdleSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_freezesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_FreezeSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P30D_Avg_Daily_Out_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_ea",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P30D_Avg_Daily_Out_Qty_Ea",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P28D_Avg_Daily_Out_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_ea",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P28D_Avg_Daily_Out_Qty_Ea",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_oos",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_OOS",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.has_stocks",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Has_Stocks",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.etl_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "INVENTORY_Warehouse_Product_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INVENTORY_Warehouse_Product_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Load_OFFTAKE_Consumer_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Consumer_D_Part1_LY",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Consumer_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Consumer_D \nwhere GroupUnild = '1000000LEYYOUGROUP' and to_date(Data_Dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_dc_regionv",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_hassnc",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerStore_HasSNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consumer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Consumer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.is_member",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.member_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Member_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.is_premium_member",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_Premium_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s2_cm",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S2_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s3_cm",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S3_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s1_p18m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S1_P18M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s2_p30m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S2_P30M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s1_p36m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S1_P36M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Consumer_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Consumer_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Load_OFFTAKE_Sales_Achievement_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part2",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Sales_Achievement_D_Part2",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Sales_Achievement_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Sales_Achievement_D \nwhere GroupUnild = '1000000LEYYOUGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.city_group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_offtake_nps_imf_gic",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_offtake_NPS_IMF_GIC",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_imf",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_IMF",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_ha",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_HA",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_imported_nan",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_Imported_NAN",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_gerber",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_Gerber",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_offtake_nps_imf_gic",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_offtake_NPS_IMF_GIC",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_imf",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_IMF",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_ha",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_HA",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_imported_nan",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_Imported_NAN",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_gerber",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_Gerber",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Sales_Achievement_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Sales_Achievement_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Load_OFFTAKE_Store_Sales_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Store_Sales_D_Part1_LY",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Store_Sales_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Store_Sales_D \nwhere GroupUnild = '1000000LEYYOUGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_hassnc",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerStore_HasSNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.offtake_channel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Offtake_Channel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "D_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "D_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "D_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "MTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "MTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "MTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "WTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "WTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "WTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "QTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "QTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "QTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "YTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "YTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "YTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Store_Sales_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Store_Sales_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Sys_ShopInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_Sys_ShopInfo",
+						"description": "LY_Sys_ShopInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/Sys_ShopInfo",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/Sys_ShopInfo/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/Sys_ShopInfo/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Sys_WarehouseInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_Sys_WarehouseInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/Sys_WarehouseInfo",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/Sys_WarehouseInfo/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/Sys_WarehouseInfo/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Link_service_Walmart_Shiloh_DLY_Delete')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_DLY",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN03AC1_MANIFEST_DLY_*','.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "FileServerWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy_DLY_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy_DLY",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN03AC1_MANIFEST_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_DLY",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Link_Service_Copy"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Link_service_Walmart_Shiloh_DLY_Delete_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_DLY",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN03AC1_MANIFEST_DLY_*','.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "FileServerWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy_DLY_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy_DLY",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN03AC1_MANIFEST_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_DLY",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Link_Service_Copy_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:59:43Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Link_service_Walmart_Shiloh_RPA')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "RPA_CCFR",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"wildcardFileName": {
+										"value": "@concat('WM_CFR_*',formatDateTime(addhours(utcnow(),8),'yyyyMMdd'),'.xlsx')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 1
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 2
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 3
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 4
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 5
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 6
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 7
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 8
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 9
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 10
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 11
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 12
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 13
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 14
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 15
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 16
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 16
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 17
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 17
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 18
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 18
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 19
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 19
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 20
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 20
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 21
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 21
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 22
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 22
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 23
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 23
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 24
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 24
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 25
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 25
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 26
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 26
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 27
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 27
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RPA_CCFR_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "WM_CFR",
+									"file": "*.xlsx"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "RPA_CCFR_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "RPA_OTIF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"wildcardFileName": {
+										"value": "@concat('WM_OTIF_*',formatDateTime(addhours(utcnow(),8),'yyyyMMdd'),'.xlsx')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 1
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 2
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RPA_OTIF_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "WM_OTIF",
+									"file": "*.xlsx"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "RPA_OTIF_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "RPA_SamsOTIF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"wildcardFileName": {
+										"value": "@concat('SAM_OTIF_*',formatDateTime(addhours(utcnow(),8),'yyyyMMdd'),'.xlsx')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 1
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 2
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RPA_Sams_OTIF_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "WM_SamsOTIF",
+									"file": "*.xlsx"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "RPA_Sams_OTIF_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "RPA_instock",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"wildcardFileName": {
+										"value": "@concat('WM_Instock_*',formatDateTime(addhours(utcnow(),8),'yyyyMMdd'),'.xlsx')",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 1
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 2
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 3
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 4
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 5
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 6
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 7
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 8
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 9
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "String",
+											"ordinal": 10
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "RPA_Instock_EXCEL",
+								"type": "DatasetReference",
+								"parameters": {
+									"path": "WM_Instock",
+									"file": "*.xlsx"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "RPA_Instock_CSV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Link_Service_Copy"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-01-23T09:54:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Link_service_Walmart_Shiloh_WKL_Delete')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_WKL",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*','.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "FileServerWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy_WKL_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy_WKL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Link_Service_Copy"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:07Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Link_service_Walmart_Shiloh_WKL_Delete_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_WKL",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": false,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*','.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "FileServerWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy_WKL_copy1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy_WKL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"fileFilter": {
+										"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.zip')}",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Walmart_Shiloh_source_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Walmart_Shiloh_sink_copy_WKL_copy1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Link_Service_Copy_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T12:00:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_Customer_Store_City_Y')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_Customer_Store_City_Y",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_Customer_Store_City_Y",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_Customer_Store_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_Customer_Store_Product_D",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_Customer_Store_Product_D",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_Customer_Store_Province_Y')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_Customer_Store_Province_Y",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_Customer_Store_Province_Y",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_Inventory_Warehouse_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_Inventory_Warehouse_Product_D",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_Inventory_Warehouse_Product_D",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:59Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_StockCover_Detail_KW_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_StockCover_Detail_KW_D",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_StockCover_Detail_KW_D",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKPI_TOP_SKU_OOS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadKPI_TOP_SKU_OOS",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/LoadKPI_TOP_SKU_OOS",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "KPI_TOP_SKU_OOS_Copy_DB",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DELETEKPI_TOP_SKU_OOS",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.date",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_nm_sc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm_Sc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_store_sale_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Product_Store_Sale_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_store_lack_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Product_Store_Lack_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.product_lack_rate",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Product_Lack_Rate",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "kpi_top_sku_oos.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "KPI_TOP_SKU_OOS_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "KPI_TOP_SKU_OOS_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DELETEKPI_TOP_SKU_OOS",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LoadKPI_TOP_SKU_OOS",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[RL_KPI_TOP_SKU_OOS]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKWOFFTAKE_Order_Consumer_Detail_D_Specific')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/OFFTAKE_Order_Consumer_Deta_part1",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Order_Consumer_Detail_D_Specific",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM dscc.OFFTAKE_Order_Consumer_Detail_D_Specific\nwhere   GroupUnild='1000000KIDSWANTGROUP'\nand to_date(Data_dt)=to_date(date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)); "
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_province",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Province",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.customerstore_hassnc",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "CustomerStore_HasSNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.offtake_channel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Offtake_Channel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.pos_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "POS_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.pos_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "POS_Num",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.cost_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Cost_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consumer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Consumer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.is_member",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.member_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Member_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.is_premium_member",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Premium_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.is_new_member",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_New_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consume_s2_cm",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Consume_S2_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consume_s3_cm",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Consume_S3_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consume_s1_p18m",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Consume_S1_P18M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consume_s2_p30m",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Consume_S2_P30M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.consume_s1_p36m",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Consume_S1_P36M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.month_end_ind",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_order_consumer_detail_d_specific.etl_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Order_Consumer_Detail_D_Specific_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Order_Consumer_Detail_D_Specific_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadKWSELLIN_Order_Intransit_Warehousing_Detail_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LoadSELLIN_Order_Intransit_Warehousing_Detail_D",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LoadKWSELLIN_Order_Intransit_Warehousing_Detail_D",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "SELLIN_Order_Intransit_Warehousing_Detail_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DELETESELLIN_Order_Intransit_Warehousing_Detail_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "select * from  dscc.SELLIN_Order_Intransit_Warehousing_Detail_D \nwhere  GroupUnild='1000000KIDSWANTGROUP'"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_create_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "PO_Create_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_expire_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "PO_Expire_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_accept_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Accept_Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_close_status",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "PO_Close_Status",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.po_lead_time_days",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "PO_Lead_Time_Days",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.dc_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_UniID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.dc_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.dc_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.dc_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customerwarehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_UniID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customerwarehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customerwarehouse_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customerwarehouse_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.customerwarehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.order_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Order_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.order_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Order_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.order_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Order_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Warehousing_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Warehousing_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Warehousing_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.warehousing_nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.acceptance_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Acceptance_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.is_intransit",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Intransit",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.intransit_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.intransit_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.intransit_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.month_end_ind",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "sellin_order_intransit_warehousing_detail_d.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SELLIN_Order_Intransit_Warehousing_Detail_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SELLIN_Order_Intransit_Warehousing_Detail_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DELETESELLIN_Order_Intransit_Warehousing_Detail_D",
+						"description": "全量数据需要删除",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LoadSELLIN_Order_Intransit_Warehousing_Detail_D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[DELETE_KW_SELLIN_Order_Intransit_Warehousing_Detail_D]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,4900 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_BU')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_BU",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_BU"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Delete_DIM_BU",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_BU] ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy_DIM_BU",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete_DIM_BU",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_bu.bu_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.bu_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.bu_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.bu_desc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_Desc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.parent_bu_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Parent_BU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.bu_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.business_domain",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Business_Domain",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bu.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_BU_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_BU",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Copy_DIM_BU",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [DSCC_NESZ].[DM_DIM_BU]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select\nBU_Cd,\nBU_NmCn,\nBU_NmEn,\nBU_Desc,\nParent_BU_Cd,\nBU_Type,\nBusiness_Domain,\nStart_Dt,\nEnd_Dt,\n'DIM_BU' as Etl_Src,\n'DM_DIM_BU' as Etl_Job,\nEtl_Tm\nfrom\nNESZ_DIM.DIM_BU",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "BU_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "BU_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_Desc",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "BU_Desc",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Parent_BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Parent_BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_Type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "BU_Type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Business_Domain",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Business_Domain",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_BU",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DM_DIM_BU",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_BUGrp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_BUGrp",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_BUGrp"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_BUGrp]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.bugrp_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BUGrp_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.bugrp_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BUGrp_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.bugrp_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BUGrp_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.bugrp_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BUGrp_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.business_domain",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Business_Domain",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_bugrp.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_BUGrp_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_BUGrp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_BUGrp_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_BUGrp_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_BUGrp_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_BU_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete_DIM_BU",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_BU] ",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy_DIM_BU",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete_DIM_BU",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_BU",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "BU_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "BU_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "BU_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_Desc",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "BU_Desc",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Parent_BU_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Parent_BU_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "BU_Type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "BU_Type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Business_Domain",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Business_Domain",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ETL_Tm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_BU_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_BU",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DIM_BU"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/DIM_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-01-10T07:46:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_BU_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_BU_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_BU_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:31Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_CALENDAR')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DIM_CALENDAR_Data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_CALENDAR",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_CALENDAR_Table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DIM_CALENDAR",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "DIM_CALENDAR_Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_CALENDAR",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_CALENDAR/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_CALENDAR/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLDIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Channel')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Channel",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Channel"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Channel]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Channel_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_desccn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Channel_DescCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_descen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Channel_DescEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_descbias",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Channel_DescBias",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Channel_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.channel_type_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Chnanel_Type_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_channel.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Channel_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Channel",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure2",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "SP_EXECUTESQL",
+							"storedProcedureParameters": {
+								"Q": {
+									"value": "DELETE [DSCC_NESZ].[DM_DIM_Channel]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT\nChannel_Cd,\nChannel_DescCn,\nChannel_DescEn,\nChannel_DescBias,\nChannel_Type_Cd,\nChnanel_Type_Nm,\nStart_Dt,\nEnd_Dt,\nEtl_Tm\nfrom \nNESZ_DIM.DIM_Channel",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Channel_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Channel_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Channel_DescCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Channel_DescEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescBias",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Channel_DescBias",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_Type_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Channel_Type_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Chnanel_Type_Nm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "Chnanel_Type_Nm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Channel",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DM_DIM_Channel",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Channel_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Channel]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Channel",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Channel_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Channel_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Channel_DescCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Channel_DescEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_DescBias",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Channel_DescBias",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_Type_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Channel_Type_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Channel_Type_Nm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Chnanel_Type_Nm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ETL_Tm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Channel_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Channel",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DIM_Channel"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/DIM_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-01-10T07:42:29Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Channel_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Channel_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Channel_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:53Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Code_Value_H')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Code_Value_H",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Code_Value_H"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Code_Value_H]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_domain_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Domain_Code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_domain_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Domain_En",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_domain_cn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Domain_Cn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_value_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Value_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_value_mdm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Value_Mdm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_desc_cn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Desc_Cn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.code_desc_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Code_Desc_En",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_code_value_h.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Code_Value_H_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Code_Value_H",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure2",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [DSCC_NESZ].[DM_DIM_MG1]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select\nCode_Value_Src,\nCode_Desc_Cn,\nCode_Desc_En,\nStart_Dt,\nEnd_Dt,\nEtl_Tm\nfrom [NESZ_DIM].[DIM_Code_Value_H]\nwhere Code_Domain_Code='PRD000002'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Code_Value_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "MG1_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Desc_Cn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "MG1_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Desc_En",
+											"type": "String",
+											"physicalType": "nvarchar"
+										},
+										"sink": {
+											"name": "MG1_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Code_Value_H",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DM_DIM_MG1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:52:33Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Code_Value_H_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Code_Value_H]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Code_Value_H",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Code_Domain_Code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Domain_Code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Domain_En",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Domain_En",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Domain_Cn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Domain_Cn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Value_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Value_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Value_Mdm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Value_Mdm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Desc_Cn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Desc_Cn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Code_Desc_En",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Code_Desc_En",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ETL_Tm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Wave2_DIM_Code_Value_H_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Code_Value_H",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DIM_Code_Value_H"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/DIM_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-01-10T07:47:46Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Code_Value_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Code_Value_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Code_Value_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:52:11Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Consumer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Consumer",
+							"defines": {
+								"ADF.database1": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Consumer",
+								"ADF.database2": "bypass"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Consumer]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_consumer.consumer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Consumer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.birth_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Birth_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.birth_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Birth_Month",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.birth_day",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Birth_Day",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.gender_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Gender_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.gender_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Gender_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.gender_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Gender_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_consumer.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Consumer_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Consumer",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Consumer_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Consumer_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Consumer_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DIM_Customer",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "MDM_CST_MST_MV_Copy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Customer",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer/DSCC",
+								"ADF.database": "dscc",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Customer"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DIM_Customer_Copy_SDM",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Initialization_DIM_Customer",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.customer_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.sales_org",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Sales_Org",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.distribution_channel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Distribution_Channel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.state",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "State",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.start_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.end_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer.etl_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Customer_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Initialization_DIM_Customer",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "DIM_Customer",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[LoadDIM_Customer]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "MDM_CST_MST_MV_Copy",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT  DISTINCT T1.CST_UNIID,\nT1.CST_NO,\nT1.CST_NAM ,\nT1.CST_SAL_ORG,\nT1.CST_DST_CHL,\nCase WHEN T1.CST_INA_FLG='N' THEN 'TRUE' ELSE 'FALSE' END as [1],\nT1.CST_STA_DT,\nT1.CST_END_DT,\nGETDATE() as [2] \nFROM [MVIEW].[MDM_CST_MST_MV] T1",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_CST_MST_MV_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_MDM_CST_MST_MV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLDIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer_Class_Group')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Customer_Class_Group",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Customer_Class_Group"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.salesorg_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.salesorg_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.salesorg_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrg_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.distchannel_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.distchannel_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.distchannel_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DistChannel_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.cust_class_grp",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Cust_Class_Grp",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.cust_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Cust_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.cushielev4_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CusHieLev4_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.cushielev4_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CusHieLev4_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.cushielev4_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CusHieLev4_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_dim_customer_class_group.etl_tm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Customer_Class_Group_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Class_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Customer_Class_Group]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:46:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer_Class_Group_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_DIM_Customer_Class_Group",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "SalesOrg_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrg_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrg_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "SalesOrg_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DistChannel_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DistChannel_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Cust_Class_Grp",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Cust_Class_Grp",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Cust_UniId",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Cust_UniId",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CusHieLev4_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CusHieLev4_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CusHieLev4_NmCn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CusHieLev4_NmCn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "CusHieLev4_NmEn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "CusHieLev4_NmEn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Start_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "End_Dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Customer_Class_Group_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Class_Group",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Notebook1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_DIM].[DIM_Customer_Class_Group]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DIM_Customer_Class_Group"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL_DL/DIM_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:38Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer_Store')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "MDM_STR_MST_MV _Copy",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT \nT1.STR_UNIID,\nT1.STR_NO,\nT1.STR_NAM,\nT1.STR_TYP_ID,\nT1.STR_TYP,\nCASE \nWHEN  STR_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT1.STR_TYP_ID='n' or (T1.STR_TYP_ID='v' and T4.WHS_TYP_CD='n') \nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  STR_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END,\nCASE \nWHEN  STR_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT1.STR_TYP_ID in ('v','DSCCSDMV')\nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  STR_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END,\nNULL,\nT1.STR_DTR_CD,\nT1.STR_DTR_NM,\nT1.NTS_REG_CD,\nT1.NTS_REG_DES,\nT1.STR_POV_CD,\nT1.STR_POV_DES,\nT1.STR_CTG_CD,\nT1.STR_CTG_M_DES_C,\nT1.STR_CTG_M_DES_E,\nT1.STR_CTY_CD,\nT1.STR_CTY_DES,\nNULL,\nNULL,\nISNULL(T1.STR_DEF_REG_DES,'undefined'),\nISNULL(T1.STR_DEF_REG,'undefined'),\nT4.WHS_UNIID,\nT1.STR_SCD,\nT1.STR_SNM,\ncase when T1.STR_XZ = 'Y' then 'TRUE' else 'FALSE' end,\nT1.STR_ACT,\nCase when T1.STR_INA_FLG='Y' then 'TRUE' else 'FALSE' END,\nT1.STR_STA_DT,\nT1.STR_END_DT,\nDATEADD(hh,8,getdate())\nFROM \n[MVIEW].MDM_STR_MST_MV  T1\nLEFT JOIN [MVIEW].MDM_WHS_MST_MV T4 ON T1.STR_DTR_CD = T4.WHS_DTR_CD and T4.WHS_CD = T1.STR_SCD and \nT4.WHS_INA_FLG!='Y'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_STR_MST_MV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Store",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DIM_Customer_Store",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "MDM_STR_MST_MV _Copy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Customer_Store",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer_Store/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Customer_Store/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DIM_Customer_Store_Copy_SDM",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Initialization_DIM_Customer_Store",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.is_franchise",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Franchise",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.is_virtual",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Virtual",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.outletchannel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "OutletChannel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.region_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.region_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.province_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.province_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.city_group_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.city_group_nm_sc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Nm_Sc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.city_group_nm_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Nm_En",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.city_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.district_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "District_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.district_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "District_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.customer_region_nm_sc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Region_Nm_Sc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.customer_region_nm_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Region_Nm_En",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_warehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Warehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_warehouse_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Warehouse_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_warehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_Warehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.have_online",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Have_Online",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.store_state",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Store_State",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.have_snc",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Have_SNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.state",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "State",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_store.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Customer_Store_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Store_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Initialization_DIM_Customer_Store",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "DIM_Customer_Store",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[LoadDIM_Customer_Store]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLDIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:41:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer_V_C')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Customer_V_C",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Customer_V_C"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:50:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Customer_Warehouse')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "MDM_WHS_MST_MV_Copy",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT\nT1.WHS_UNIID,\nT1.WHS_CD,\nT1.WHS_NM,\nNULL [1],\nT1.WHS_DTR_CD,\nT1.WHS_DTR_NM,\nT1.NTS_REG_CD,\nT1.NTS_REG_DES,\nT1.WHS_POV_CD,\nT1.WHS_POV_DES,\nT1.WHS_CTG_CD,\nT1.WHS_CTG_M_DES,\nT1.WHS_CTG_M_DES_E,\nT1.WHS_CTY_CD,\nT1.WHS_CTY_DES,\nNULL [2],\nNULL [3],\nT1.WHS_DEF_REG_DES,\nT1.WHS_DEF_REG,\nT1.WHS_SCD,\nT1.WHS_SNM,\nT1.WHS_TYP_CD,\nT1.WHS_TYP_DES,\ncase when T1.WHS_TYP_CD in ('0','n','nn','z','xz') then 1 \nwhen T1.WHS_TYP_CD in ('1','2','c','xc') then 2\nelse 0 end [4],\ncase when T1.WHS_TYP_CD in ('0','n','nn','z','xz') then N'门店仓库'\nwhen T1.WHS_TYP_CD in ('1','2','c','xc') then N'客户大仓'\nelse N'其他' end [5],\nCASE \nWHEN  WHS_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT1.WHS_TYP_CD in ('n')\nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  WHS_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END as Is_Franchise,\nCASE \nWHEN  WHS_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT2.STR_TYP_ID in ('v','DSCCSDMV')\nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  WHS_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END as Is_Virtual,\n\nCase when T1.WHS_INA_FLG='Y' THEN 'TRUE' ELSE 'FALSE' END [6],\nT1.WHS_STA_DT,\nT1.WHS_END_DT,\ndateadd(hh,8, GETDATE()) [7] FROM  [MVIEW].MDM_WHS_MST_MV T1\nLEFT JOIN [MVIEW].MDM_STR_MST_MV T2 ON T2.STR_DTR_CD = T1.WHS_DTR_CD and T1.WHS_CD = T2.STR_SCD \nand T2.STR_INA_FLG!='Y'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "MDM_WHS_MST_MV",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Warehouse",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DIM_Customer_Warehouse",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "MDM_WHS_MST_MV_Copy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Customer_Warehouse",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer_Warehouse",
+								"ADF.database": "dscc",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Customer_Warehouse"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DIM_Customer_Warehouse_Copy_SDM",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Initialization_DIM_Customer_Warehouse",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customerwarehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customerwarehouse_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customerwarehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.outletchannel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "OutletChannel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.region_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.region_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.province_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.province_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.city_group_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.city_group_nm_sc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Nm_Sc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.city_group_nm_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group_Nm_En",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.city_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.district_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "District_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.district_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "District_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customer_region_nm_sc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Region_Nm_Sc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customer_region_nm_en",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Region_Nm_En",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.parentwarehouse_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ParentWarehouse_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.parentwarehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ParentWarehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customerwarehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.customerwarehouse_type_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.warehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Warehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.warehouse_type_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Warehouse_Type_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.is_franchise",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Franchise",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.is_virtual",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Virtual",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.state",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "State",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.start_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Start_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.end_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "End_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "nesz_sdm_al_dim_customer_warehouse.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Customer_Warehouse_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_Customer_Warehouse_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Initialization_DIM_Customer_Warehouse",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "DIM_Customer_Warehouse",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[LoadDIM_Customer_Warehouse]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETLDIM"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

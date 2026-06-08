@@ -1,0 +1,3104 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/stg_Schedule')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "stg_walmart_f_sales_full_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "stg_walmart_f_sales_full_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "stg_walmart_f_stock_full_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "stg_walmart_f_stock_full_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/STG"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:38:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/stg_Schedule_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "stg_walmart_f_sales_full_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "stg_walmart_f_sales_full_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "stg_walmart_f_stock_full_DL",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "stg_walmart_f_stock_full_DL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/STG_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:39:05Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/003_LOG')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Secondary",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string",
+						"defaultValue": "HiveQueryJobs/69a54e0b-26d6-498d-bf5f-15ad76f23f93/04_02_2021_08_56_56_097/Status"
+					},
+					"filename": {
+						"type": "string",
+						"defaultValue": "stderr"
+					}
+				},
+				"folder": {
+					"name": "DSA"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						},
+						"fileSystem": "workspace"
+					},
+					"columnDelimiter": "",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Customer_Store_City_Y')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Customer_Store_Province_Y')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Inventory_Warehouse_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_MAP')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_StockCover_Detail_KW_D')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_BFL",
+					"table": "BF_CustomerStore_Sales"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_StockCover_Detail_LY_D')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_BFL",
+					"table": "BF_CustomerDC_Inventory"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Stock_Cover_By_Case_D')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Stock_Cover_By_Value_D')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Stock_Cover_By_Value_M')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Warehouse_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_Stock_Cover_By_Value_W')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "INVENTORY_Product_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_KPI_TOP_SKU_OOS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_BFL",
+					"table": "BF_CustomerStore_Sales"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/1SDM_To_OFFTAKE_Order_Consumer_Detail_D_Specific')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "SDM_TO_Report"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Week_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Month_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Quarter_Of_Year",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Year_YYYY",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Quarter",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Day_Of_Week",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Quarter_End",
+						"type": "date"
+					},
+					{
+						"name": "Quarter_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Year_Month",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Finance_Year_Qtr",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "Day_Of_Finance_Month",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Finance_Month_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Month_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Month_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Day_Of_Finance_Quarter",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_Begin",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_Begin_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Quarter_End",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Quarter_End_Ind",
+						"type": "date"
+					},
+					{
+						"name": "Day_Of_Finance_Year",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_Begin",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_Begin_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Finance_Year_End",
+						"type": "date"
+					},
+					{
+						"name": "Finance_Year_End_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Lstm_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Lsty_Finance_Year_Data_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Holiday_Ind",
+						"type": "bit"
+					},
+					{
+						"name": "Holiday_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Holiday_Days",
+						"type": "smallint",
+						"precision": 5
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_SDM_AL",
+					"table": "OFFTAKE_Order_Consumer_Detail_D"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_To_MVP_KW_Data_InSkuInfo_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ShenZhouDSCKidswant",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADF_TO_MVP/KW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "storeCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "storeName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "branchName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "cityName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "inOrderNum",
+						"type": "nvarchar"
+					},
+					{
+						"name": "brandName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuTitle",
+						"type": "nvarchar"
+					},
+					{
+						"name": "inNum",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "barCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "originNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "createTime",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "updateTime",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "skuErpCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "inType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreateOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreateBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ModifyOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "ModifyBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RecordStatus",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Data_InSkuInfo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_To_MVP_KW_Data_InSkuInfo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "采购收货，退货收货Table",
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADF_TO_MVP/KW"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "kw_data_inskuinfo_to"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_To_MVP_KW_Data_OutSkuInfo_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ShenZhouDSCKidswant",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADF_TO_MVP/KW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "storeCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "storeName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "branchName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "cityName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "outOrderNum",
+						"type": "nvarchar"
+					},
+					{
+						"name": "totalMoney",
+						"type": "decimal",
+						"precision": 28,
+						"scale": 10
+					},
+					{
+						"name": "brandName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuTitle",
+						"type": "nvarchar"
+					},
+					{
+						"name": "num",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "createTime",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "updateTime",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "orderstatus",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "skuErpCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreateOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreateBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ModifyOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "ModifyBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RecordStatus",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Data_OutSkuInfo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_To_MVP_KW_Data_OutSkuInfo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADF_TO_MVP/KW"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "kw_data_outskuinfo_to"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_To_MVP_KW_Data_PurchaseOrder_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ShenZhouDSCKidswant",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "ADF_TO_MVP/KW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "poCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "deptInCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "deptInName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "supplierCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "supplierName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "contractNo",
+						"type": "nvarchar"
+					},
+					{
+						"name": "brandCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "brandName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "requireAmount",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "price",
+						"type": "decimal",
+						"precision": 28,
+						"scale": 10
+					},
+					{
+						"name": "tax",
+						"type": "decimal",
+						"precision": 28,
+						"scale": 10
+					},
+					{
+						"name": "billState",
+						"type": "nvarchar"
+					},
+					{
+						"name": "orderGenerateTime",
+						"type": "nvarchar"
+					},
+					{
+						"name": "sysDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "skuBarCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "effectiveDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CreateOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreateBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ModifyOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "ModifyBy",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RecordStatus",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Data_PurchaseOrder"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,5134 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Data_SalesTarget')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KW_Data_SalesTarget",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/KW_Data_SalesTarget",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/Data_SalesTarget/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_SalesTarget/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Data_ShopWarhouseReginInfo_DataBak')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave1Manual/bak/bak",
+							"defines": {
+								"ADF.L2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/KW_Data_ShopWarhouseReginInfo_L2_bak/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Data_ShopWarhouseReginInfo_Manual')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Manual/L2ETL/KW/Data_ShopWarhouseReginInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave1Manual/L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:56:20Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Data_SkuMaping')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data_SkuMaping",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_SkuMaping",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/Data_SkuMaping/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_SkuMaping/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Load_INVENTORY_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Product_D_part1_KW",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Product_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.INVENTORY_Product_D \nwhere GroupUnild='1000000KIDSWANTGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "inventory_product_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.province",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Province",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.is_availablesku",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_AvailableSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.is_topsku",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_TopSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.distributed_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Distributed_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.available_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Available_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.shortage_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Shortage_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.vaild_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Vaild_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.sales_store_num",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Sales_Store_Num",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_product_d.etl_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "INVENTORY_Product_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INVENTORY_Product_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Load_INVENTORY_Warehouse_Product_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part2",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part2_KW",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "INVENTORY_Warehouse_Product_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.INVENTORY_Warehouse_Product_D  \nwhere GroupUnild='1000000KIDSWANTGROUP' and to_date(Data_Date)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_UniID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.customerwarehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_franchisewarehouse",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_FranchiseWarehouse",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_work_stats_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.product_work_stats_desc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Desc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.last_out_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Last_out_date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.last_out_date_store",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Last_out_date_store",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_availablesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_AvailableSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_idlesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_IdleSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_freezesku",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_FreezeSKU",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P30D_Avg_Daily_Out_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_ea",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P30D_Avg_Daily_Out_Qty_Ea",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P28D_Avg_Daily_Out_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_ea",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "P28D_Avg_Daily_Out_Qty_Ea",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.is_oos",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Is_OOS",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Intransit_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.intransit_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Intransit_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.has_stocks",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Has_Stocks",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.data_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_warehouse_product_d.etl_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "INVENTORY_Warehouse_Product_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INVENTORY_Warehouse_Product_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part1_KW",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Load_OFFTAKE_Consumer_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Consumer_D_Part1_KW",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Consumer_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Consumer_D \nwhere GroupUnild = '1000000KIDSWANTGROUP' and to_date(Data_Dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customer_dc_regionv",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.customerstore_hassnc",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerStore_HasSNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consumer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Consumer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.is_member",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.member_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Member_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.is_premium_member",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Is_Premium_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s2_cm",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S2_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s3_cm",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S3_CM",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s1_p18m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S1_P18M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s2_p30m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S2_P30M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.consume_s1_p36m",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Consume_S1_P36M",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_consumer_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Consumer_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Consumer_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Load_OFFTAKE_Sales_Achievement_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "part1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Sales_Achievement_D_Part1",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Sales_Achievement_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "part1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Sales_Achievement_D \nwhere GroupUnild = '1000000KIDSWANTGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.city_group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "City_Group",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_offtake_nps_imf_gic",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_offtake_NPS_IMF_GIC",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_imf",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_IMF",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_ha",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_HA",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_imported_nan",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_Imported_NAN",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.target_gerber",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Target_Gerber",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_offtake_nps_imf_gic",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_offtake_NPS_IMF_GIC",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_imf",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_IMF",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_ha",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_HA",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_imported_nan",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_Imported_NAN",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.actual_gerber",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Actual_Gerber",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_sales_achievement_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Sales_Achievement_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Sales_Achievement_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Load_OFFTAKE_Store_Sales_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Store_Sales_D_Part1_KW",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "OFFTAKE_Store_Sales_D",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Hive1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.OFFTAKE_Store_Sales_D \nwhere GroupUnild = '1000000KIDSWANTGROUP' and to_date(dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_city_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_citygroup",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_CityGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.customerstore_hassnc",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerStore_HasSNC",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.offtake_channel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Offtake_Channel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_category_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_category_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Category_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.product_mg1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_MG1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "D_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "D_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.d_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "D_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "MTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "MTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.mtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "MTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "WTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "WTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.wtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "WTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "QTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "QTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.qtd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "QTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "YTD_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_pos_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "YTD_POS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.ytd_offtake_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "YTD_Offtake_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.month_end_ind",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Month_End_Ind",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.data_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "offtake_store_sales_d.etl_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ETL_Time",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "OFFTAKE_Store_Sales_D_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OFFTAKE_Store_Sales_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL_AL/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Sys_KPIStandard')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "KPI达标标准",
+				"activities": [
+					{
+						"name": "Sys_KPIStandard",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Sys_KPIStandard",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/Sys_KPIStandard/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Sys_KPIStandard/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/KW_Sys_WarehouseDCMap')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "KW_Sys_WarehouseDCMap",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Sys_WarehouseDCMap",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/Sys_WarehouseDCMap/",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Sys_WarehouseDCMap/",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/KW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/L1 L2 COUNT_CHECK')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "L1 COUNT CHECK",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/dsa_trail/l1_count_check.sql",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/DSCC_BW/CCFR_order_change_order_qty",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/sap_bw_data/CCFR_order_change_order_qty_sap"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "L2 COUNT CHECK",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/dsa_trail/l2_count_check.sql",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/DSCC_BW/CCFR_order_change_order_qty",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/sap_bw_data/CCFR_order_change_order_qty_sap"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "DSA/L1-2 - COUNT_CHECK"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:52:33Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_CustomerDC_Inventory')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_StockInfo2",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/StockInfo2",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_CustomerDC_Inventory",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_StockInfo2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.BF_CustomerDC_Inventory \nwhere GroupUnild='1000000LEYYOUGROUP'\nAND  to_date(dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerdc_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerdc_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerdc_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerwarehouse_type_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerWarehouse_Type_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customerdc_city",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.product_work_stats_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.product_work_stats_desc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Desc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.pd_date",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Pd_Date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.valid_days_total",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Valid_Days_Total",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.valid_days_remain",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Valid_Days_Remain",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.unit_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Unit_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.goods_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Goods_Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.inventory_stat_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Inventory_Stat_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_inventory.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_CustomerDC_Inventory_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_CustomerDC_Inventory_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_CustomerDC_Warehousing')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_PurchaseOrderInfo2",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/LY/Test/PurchaseOrderInfo2",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_CustomerDC_Warehousing",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_PurchaseOrderInfo2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.BF_CustomerDC_Warehousing   \nwhere GroupUnild='1000000LEYYOUGROUP'\nand to_date(dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customerdc_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customerdc_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customerdc_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customerdc_city",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.acceptance_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Acceptance_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.po_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.warehousing_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Warehousing_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.warehousing_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Warehousing_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.warehousing_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.unit_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Unit_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.warehousing_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.warehousing_nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Warehousing_NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.acceptance_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Acceptance_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerdc_warehousing.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_CustomerDC_Warehousing_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_CustomerDC_Warehousing_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_CustomerStore_Inventory')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_StockInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_StockInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_CustomerStore_Inventory",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_StockInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM  dscc.BF_CustomerStore_Inventory \nwhere   GroupUnild='1000000LEYYOUGROUP'\nand to_date(dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_warehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_warehouse_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_warehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customerstore_city",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_dc_region",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_DC_Region",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.product_work_stats_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.product_work_stats_desc",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Work_Stats_Desc",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.unit_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Unit_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.goods_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Goods_Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.inventory_stat_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Inventory_Stat_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_inventory.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_CustomerStore_Inventory_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_CustomerStore_Inventory_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_CustomerStore_Sales')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_FullChannelSalesInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_StoreSalesInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_FullChannelSalesInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_CustomerStore_Sales",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_FullChannelSalesInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM dscc.BF_CustomerStore_Sales \nwhere   GroupUnild='1000000LEYYOUGROUP'\nand  to_date(dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd') "
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customerstore_sales.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_warehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_warehouse_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_warehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Warehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_city",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.offtake_channel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Offtake_Channel",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.trans_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Trans_Code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.pos_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "POS_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customerstore_level",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerStore_Level",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.sale_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Sale_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.total_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Total_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.cost_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Cost_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.consumer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Consumer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.is_premium_member",
+											"type": "Boolean"
+										},
+										"sink": {
+											"name": "Is_Premium_Member",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.offtake_order_time",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Offtake_Order_Time",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customerstore_sales.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_CustomerStore_Sales_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_CustomerStore_Sales_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "LY_BFL_StoreSalesInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_StoreSalesInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_Customer_DC_Store_Allocate')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_ShipmentInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_FranchiseeReceDetail",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_ShipmentInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_Customer_DC_Store_Allocate",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DeleteProcedure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM dscc.BF_Customer_DC_Store_Allocate \nwhere   GroupUnild='1000000LEYYOUGROUP'"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allopo_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "AlloPO_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allopo_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "AlloPO_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allo_qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Allo_Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allo_qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Allo_Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.unit_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Unit_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.tax",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Tax",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allo_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Allo_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.allo_nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Allo_NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.outbound_warehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Outbound_Warehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.outbound_warehouse_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Outbound_Warehouse_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.outbound_warehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Outbound_Warehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.outbound_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Outbound_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.outbound_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Outbound_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_warehouse_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Warehouse_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_warehouse_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Warehouse_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_warehouse_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Warehouse_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_warehouse_customerbranch_area",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Warehouse_CustomerBranch_Area",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_store_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Store_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_store_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Store_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_store_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Store_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.receive_store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Receive_Store_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.warehousing_entry_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Warehousing_Entry_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.warehousing_entry_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Warehousing_Entry_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_dc_store_allocate.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_Customer_DC_Store_Allocate_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_Customer_DC_Store_Allocate_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DeleteProcedure",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_ShipmentInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Delete_LY_BF_Customer_DC_Store_Allocate_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LY_BFL_FranchiseeReceDetail",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_FranchiseeReceDetail",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_BFL_BF_Customer_Purchase')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_BFL_PurchaseOrderInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_PoIntransitInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_PurchaseOrderInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "DeleteBF_Customer_Purchase",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "LY_BFL_PurchaseOrderInfo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DeleteBF_Customer_Purchase",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "BF_Customer_Purchase_Copy_SDM",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Delete_BF_Customer_Purchase",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "SELECT * FROM dscc.BF_Customer_Purchase where   GroupUnild='1000000LEYYOUGROUP'"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "bf_customer_purchase.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.supplier_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Supplier_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.supplier_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Supplier_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customerdc_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customerdc_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Id",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customerdc_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerDC_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.contract_no",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Contract_No",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.product_uniid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_UniId",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.product_barcode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_BarCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.product_brand_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.product_brand_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Product_Brand_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_product_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Product_Type",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_sku_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.customer_sku_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_SKU_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.qty_ea",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Qty_Ea",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.qty_cs",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Qty_Cs",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.unit_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Unit_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "PO_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.nps_price",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Price",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.nps_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "NPS_Amt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.tax",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Tax",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_create_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "PO_Create_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_expire_date",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "PO_Expire_date",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_accept_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Accept_Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.po_close_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PO_Close_Status",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.data_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Data_Dt",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.etl_src_tb",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src_Tb",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "bf_customer_purchase.etl_dt",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Dt",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "BF_Customer_Purchase_HIVE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BF_Customer_Purchase_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Delete_BF_Customer_Purchase",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "DeleteBF_Customer_Purchase",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[Delete_LY_BF_Customer_Purchase_Procedure]"
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "LY_BFL_PoIntransitInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_PoIntransitInfo",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ETL BFL/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:34Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Data_LYShopInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_Data_LYShopInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/Data_LYShopInfo",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/Data_LYShopInfo",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/Data_LYShopInfo"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:45:08Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LY_Data_LYWarehouseInfo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LY_Data_LYWarehouseInfo",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/L2ETL/LY/Data_LYWarehouseInfo",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/LY/Data_LYWarehouseInfo",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/LY/Data_LYWarehouseInfo"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "L1-L2/LY"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:45:09Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

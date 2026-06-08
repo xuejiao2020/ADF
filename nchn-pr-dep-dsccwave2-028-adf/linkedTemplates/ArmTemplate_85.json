@@ -1,0 +1,6186 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_M_SDM_DataCheck_NIN')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NIN",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NIN",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NIN_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NIN_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_M]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NIN'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_m_NIN"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_M_NIN"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_M_NIN"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:10:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_M_SDM_DataCheck_NP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NP",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NP_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_d_Parquet_Datacheck_NP_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_M]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NP'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_m_NP"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_M_NP"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_M_NP"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:10:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customer_Inventory_M_SDM_DataCheck_NPP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NPP",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NPP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup2",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NPP_qty",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NPP_qty",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Lookup3",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Lookup2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_M]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NPP'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Customer_Inventory_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[UDP_SDMExtDataCheck]",
+							"storedProcedureParameters": {
+								"Hive_Count": {
+									"value": {
+										"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Hive_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.DSCC_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_Count": {
+									"value": {
+										"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"SDM_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDM_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_Count": {
+									"value": {
+										"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"Src_TableName": {
+									"value": {
+										"value": "@pipeline().parameters.SDMEXT_Table",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"SDMEXT_Table": {
+						"type": "string",
+						"defaultValue": "sdmext.customer_inventory_m_NPP"
+					},
+					"DSCC_Table": {
+						"type": "string",
+						"defaultValue": "dscc.Wave2_Customer_Inventory_M_NPP"
+					},
+					"SDM_Table": {
+						"type": "string",
+						"defaultValue": "NESZ_STG.Customer_Inventory_M_NPP"
+					}
+				},
+				"folder": {
+					"name": "DataCheck_mail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-24T03:10:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_order_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete\nDSCC_OTHERS.DATA_Wumart_Nestle_order_D",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.po_no",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.group_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.group_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.vender_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.store_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.store_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.supplier_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.supplier_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.supplier_vlt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_vlt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.po_biz_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_biz_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.po_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.po_status",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_status",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.close_flag",
+											"type": "String"
+										},
+										"sink": {
+											"name": "close_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.delay_flag",
+											"type": "String"
+										},
+										"sink": {
+											"name": "delay_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.delay_reason",
+											"type": "String"
+										},
+										"sink": {
+											"name": "delay_reason",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.expect_dc_delivery_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "expect_dc_delivery_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.expect_store_delivery_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "expect_store_delivery_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.receive_complete_flag",
+											"type": "String"
+										},
+										"sink": {
+											"name": "receive_complete_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.receive_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "receive_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.sell_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sell_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.po_item_no",
+											"type": "String"
+										},
+										"sink": {
+											"name": "po_item_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.matnr",
+											"type": "String"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.item_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "item_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.ware_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_tax_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_tax_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_tax_rate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_tax_rate",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.promotion_title",
+											"type": "String"
+										},
+										"sink": {
+											"name": "promotion_title",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.promotion_schedule_no",
+											"type": "String"
+										},
+										"sink": {
+											"name": "promotion_schedule_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.promotion_level",
+											"type": "String"
+										},
+										"sink": {
+											"name": "promotion_level",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.promotion_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "promotion_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.original_book_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "original_book_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.book_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "book_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.book_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "book_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.book_cf",
+											"type": "String"
+										},
+										"sink": {
+											"name": "book_cf",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.supplier_confirm_purchase_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_confirm_purchase_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_cf",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_cf",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.purchase_taxed_price",
+											"type": "String"
+										},
+										"sink": {
+											"name": "purchase_taxed_price",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.gift_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "gift_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.base_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "base_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.receive_ware_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "receive_ware_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.book_taxed_amount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "book_taxed_amount",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.receive_taxed_amount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "receive_taxed_amount",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.source_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_order_d_l2.dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_order_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_order_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_order_D_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/dscc_wumart_nin_order_d_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "truncate table [NESZ_AL].[DATA_Wumart_Nestle_order_D]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "po_no",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "po_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "vender_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_vlt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_vlt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "po_biz_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "po_biz_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "po_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "po_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "po_status",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "po_status",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "close_flag",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "close_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "delay_flag",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "delay_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "delay_reason",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "delay_reason",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_time",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "expect_dc_delivery_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "expect_dc_delivery_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "expect_store_delivery_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "expect_store_delivery_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "receive_complete_flag",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "receive_complete_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "receive_time",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "receive_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "sell_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "sell_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "po_item_no",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "po_item_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "item_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "item_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_tax_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_tax_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_tax_rate",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_tax_rate",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "promotion_title",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "promotion_title",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "promotion_schedule_no",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "promotion_schedule_no",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "promotion_level",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "promotion_level",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "promotion_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "promotion_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "original_book_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "original_book_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "book_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "book_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "book_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "book_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "book_cf",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "book_cf",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_confirm_purchase_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_confirm_purchase_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_cf",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_cf",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "purchase_taxed_price",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "purchase_taxed_price",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "gift_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "gift_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "base_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "base_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "receive_ware_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "receive_ware_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "book_taxed_amount",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "book_taxed_amount",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "receive_taxed_amount",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "receive_taxed_amount",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "wumart_nin_order_d_l2_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DATA_Wumart_Nestle_order_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:09:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_product')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DATA_Wumart_Nestle_product",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.matnr",
+											"type": "String"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.ware_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.is_brand",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_brand",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.mc_category_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "mc_category_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.mc_category_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "mc_category_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.brand_cn_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "brand_cn_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.ware_life",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_life",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.spec_qt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "spec_qt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.spec_ut",
+											"type": "String"
+										},
+										"sink": {
+											"name": "spec_ut",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.package_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "package_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.unit_qt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "unit_qt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.item_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.length",
+											"type": "String"
+										},
+										"sink": {
+											"name": "length",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.width",
+											"type": "String"
+										},
+										"sink": {
+											"name": "width",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.high",
+											"type": "String"
+										},
+										"sink": {
+											"name": "high",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.size_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "size_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.weight",
+											"type": "String"
+										},
+										"sink": {
+											"name": "weight",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.weight_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "weight_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_product_l2.dscc_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_product",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_product_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_product_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/dscc_wumart_nin_product_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "truncate table  [NESZ_AL].[DATA_Wumart_Nestle_product]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_Name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "is_brand",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "is_brand",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "mc_category_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "mc_category_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "mc_category_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "mc_category_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "brand_cn_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "brand_cn_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_life",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_life",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "spec_qt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "spec_qt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "spec_ut",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "spec_ut",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "package_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "package_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "unit_qt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "unit_qt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "length",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "length",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "width",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "width",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "high",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "high",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "size_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "size_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "weight",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "weight",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "weight_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "weight_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dscc_wumart_nin_product_l2_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DATA_Wumart_Nestle_product",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:09:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_sales_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DATA_Wumart_Nestle_sales_D",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.order_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.parent_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "parent_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.order_sn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_sn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.ware_db_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_db_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.is_ref",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_ref",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.order_model_flag",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_model_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.trade_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "trade_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.matnr",
+											"type": "String"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.item_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.ware_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.ware_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.supplier_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.store_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.sale_num",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sale_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.sale_amt_taxed",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sale_amt_taxed",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.sale_amt_untaxed",
+											"type": "String"
+										},
+										"sink": {
+											"name": "sale_amt_untaxed",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.ware_total_price",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_total_price",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.order_gmv",
+											"type": "String"
+										},
+										"sink": {
+											"name": "order_gmv",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.final_amt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "final_amt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.complete_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "complete_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.promotion_sch",
+											"type": "String"
+										},
+										"sink": {
+											"name": "promotion_sch",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.source_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_sales_d_l2.dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_sales_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_sales_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_sales_D_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/dscc_wumart_nin_sales_d_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": " truncate table [NESZ_AL].[DATA_Wumart_Nestle_sales_D]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "order_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "order_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "parent_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "parent_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "order_sn",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "order_sn",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_db_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_db_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "is_ref",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "is_ref",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "order_model_flag",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "order_model_flag",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "trade_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "trade_type",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "sale_num",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "sale_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "sale_amt_taxed",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "sale_amt_taxed",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "sale_amt_untaxed",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "sale_amt_untaxed",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_total_price",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_total_price",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "order_gmv",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "order_gmv",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "final_amt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "final_amt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "complete_time",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "complete_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "promotion_sch",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "promotion_sch",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "wumart_nin_sales_d_l2_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DATA_Wumart_Nestle_sales_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:09:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_stock_D')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DATA_Wumart_Nestle_stock_D",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.item_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.matnr",
+											"type": "String"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.ware_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.is_brand",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_brand",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.is_supplier",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_supplier",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.supplier_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.supplier_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.mmsta",
+											"type": "String"
+										},
+										"sink": {
+											"name": "mmsta",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.unit_tax_cost",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "unit_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.total_stock_num",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "total_stock_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.stock_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "stock_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.last_receive_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "last_receive_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.lack_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "lack_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.extra_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "extra_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.stasis_sales",
+											"type": "String"
+										},
+										"sink": {
+											"name": "stasis_sales",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.overdue_ware",
+											"type": "String"
+										},
+										"sink": {
+											"name": "overdue_ware",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.zero_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "zero_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dc_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dc_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dc_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dc_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.source_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dms",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dms",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.end_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "end_amt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.end_tax_cost",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "end_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.inventory_turnover_day",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "inventory_turnover_day",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_stock_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_stock_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_stock_D_INC')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource",
+								"query": "select *\nfrom dscc.dscc_wumart_nin_stock_d_l2\nwhere dt = date_format(date_sub(current_date(),1),'yyyyMMdd')"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.item_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.matnr",
+											"type": "String"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.ware_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.is_brand",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_brand",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.is_supplier",
+											"type": "String"
+										},
+										"sink": {
+											"name": "is_supplier",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.supplier_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.supplier_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.mmsta",
+											"type": "String"
+										},
+										"sink": {
+											"name": "mmsta",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.unit_tax_cost",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "unit_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.total_stock_num",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "total_stock_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.stock_unit",
+											"type": "String"
+										},
+										"sink": {
+											"name": "stock_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.last_receive_time",
+											"type": "String"
+										},
+										"sink": {
+											"name": "last_receive_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.lack_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "lack_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.extra_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "extra_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.stasis_sales",
+											"type": "String"
+										},
+										"sink": {
+											"name": "stasis_sales",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.overdue_ware",
+											"type": "String"
+										},
+										"sink": {
+											"name": "overdue_ware",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.zero_stock",
+											"type": "String"
+										},
+										"sink": {
+											"name": "zero_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dc_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dc_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dc_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dc_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.source_dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dms",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dms",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.end_amt",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "end_amt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.end_tax_cost",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "end_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.inventory_turnover_day",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "inventory_turnover_day",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_nin_stock_d_l2.dt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_stock_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_Nestle_stock_D_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_Nestle_stock_D_INC_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dscc_wumart_nin_stock_d_l2",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/dscc_wumart_nin_stock_d_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete from [NESZ_AL].[DATA_Wumart_Nestle_stock_D]\nwhere dt>=format(DATEADD(month,-1,DATEADD(HOUR, 8, getdate())),'yyyyMM01')",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "item_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "matnr",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "ware_Name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "ware_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "is_brand",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "is_brand",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "is_supplier",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "is_supplier",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "supplier_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "MMSTA",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "mmsta",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "unit_tax_cost",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 3,
+											"precision": 20
+										},
+										"sink": {
+											"name": "unit_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "total_stock_num",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 24
+										},
+										"sink": {
+											"name": "total_stock_num",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "stock_unit",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "stock_unit",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "last_receive_time",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "last_receive_time",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "lack_stock",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "lack_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "extra_stock",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "extra_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "stasis_sales",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "stasis_sales",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "overdue_ware",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "overdue_ware",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "zero_stock",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "zero_stock",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dc_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dc_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dc_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dc_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "source_dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DMS",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dms",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "end_amt",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 24
+										},
+										"sink": {
+											"name": "end_amt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "end_tax_cost",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 3,
+											"precision": 20
+										},
+										"sink": {
+											"name": "end_tax_cost",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "inventory_turnover_day",
+											"type": "Decimal",
+											"physicalType": "DECIMAL",
+											"scale": 4,
+											"precision": 24
+										},
+										"sink": {
+											"name": "inventory_turnover_day",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dt",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dscc_wumart_nin_stock_d_l2_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DATA_Wumart_Nestle_stock_D",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:09:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_store')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DATA_Wumart_store",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.vender_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_type",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_provincial_level_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_provincial_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_provincial_level_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_provincial_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_municipal_level_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_municipal_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_municipal_level_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_municipal_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_district_level_id",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_district_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_district_level_name",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_district_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_code1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_code1",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_name1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_name1",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_code2",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_code2",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_name2",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_name2",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_code3",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_code3",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_name3",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_name3",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_code4",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_code4",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.group_tree_name4",
+											"type": "String"
+										},
+										"sink": {
+											"name": "group_tree_name4",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.normal_business",
+											"type": "String"
+										},
+										"sink": {
+											"name": "normal_business",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.store_address",
+											"type": "String"
+										},
+										"sink": {
+											"name": "store_address",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.offline_open_store_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "offline_open_store_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.open_store_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "open_store_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_wumart_store_l2.dscc_date",
+											"type": "String"
+										},
+										"sink": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DATA_Wumart_store",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DATA_Wumart_store_DB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Report/Report/ONEALL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DATA_Wumart_store_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 300,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/dscc_wumart_store_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "truncate table [NESZ_AL].[DATA_Wumart_store]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "vender_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_code",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_id",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_type",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_type",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "store_provincial_level_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_provincial_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "store_provincial_level_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_provincial_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_municipal_level_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_municipal_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "store_municipal_level_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_municipal_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_district_level_id",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_district_level_id",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "store_district_level_name",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_district_level_name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_code1",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_code1",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_name1",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_name1",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_code2",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_code2",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_name2",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_name2",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_code3",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_code3",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_name3",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_name3",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_code4",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_code4",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "group_tree_name4",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "group_tree_name4",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "normal_business",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "normal_business",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "store_address",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "store_address",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "offline_open_store_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "offline_open_store_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "open_store_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "open_store_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "etl_tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "dscc_date",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "dscc_wumart_store_l2_Parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SDM_DATA_Wumart_store",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-25T06:09:27Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DB_Sync_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "INC_AmendmentSF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select *, getdate() CreateON_L1  from [dbo].[AmendmentSF] with(nolock) \nwhere [ledgerperiod] ='202104'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "AmendmentSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_AmendmentSF",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:30Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DELETE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "hive1-test/test/test",
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/Delete Text"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:53:47Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DELETE_Wave2_AL_KPIs_SC_Dashboard')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wave2_AL_KPIs_SC_Dashboard",
+						"description": "添加到AL_KPI_SC_Dashboard的表太多，无法执行，所以拆分成4个hive，每个hive最多执行10个表",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/AL/AL_KPI_SC_Dashboard",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/AL_KPI_SC_Dashboard"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Wave2_AL_KPIs_SC_Dashboard_11-20",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "Wave2_AL_KPIs_SC_Dashboard",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/AL/AL_KPI_SC_Dashboard11-20",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/AL_KPI_SC_Dashboard",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Wave2_AL_KPIs_SC_Dashboard_21-30",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "Wave2_AL_KPIs_SC_Dashboard_11-20",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/AL/AL_KPI_SC_Dashboard21-31",
+							"defines": {
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/AL_KPI_SC_Dashboard",
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Wave2_AL_KPIs_SC_Dashboard_31",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "Wave2_AL_KPIs_SC_Dashboard_21-30",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/AL/AL_KPI_SC_Dashboard31",
+							"defines": {
+								"ADF.database": "dscc"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.uuid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UUID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.bu_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.bu_nmen",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_NmEn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.bu_nmcn",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BU_NmCn",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.kpi_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "KPI_Cd",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.kpi_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "KPI_Nm",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.value_month",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Value_Month",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.value_ytd",
+											"type": "Decimal"
+										},
+										"sink": {
+											"name": "Value_YTD",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.data_year",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Year",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.data_month",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "Data_Month",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.etl_src",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Src",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "wave2_kpis_sc_dashboard.etl_job",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Etl_Job",
+											"type": "String"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Wave2_AL_KPI_SC_Dashboard_Hive",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Wave2_AL_KPI_SC_Dashboard",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Wave2_AL_KPIs_SC_Dashboard_31",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "sp_executesql",
+							"storedProcedureParameters": {
+								"q": {
+									"value": "delete [NESZ_AL].[KPIs_SC_Dashboard]",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AZURE_SSDB_AppSdm",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/AL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:52:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Access_Manual_List')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DIM_Access_Manual_List",
+						"type": "HDInsightHive",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave3/L1L2_ETL/ManualData/DIM_Access_Manual_List",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/Access_Manual_List",
+								"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/Access_Manual_List"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DIM_Access_Manual_List",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "HiveSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DM_DIM_Access_Manual_List;\nINSERT INTO [DSCC_OTHERS].[DM_DIM_Access_Manual_List] ([Customer_Cd], [Customer_Nm], [DT_Group], [AccessID],[Etl_Tm]) VALUES ('ALL', NULL, NULL, 'haiman.zheng@cn.nestle.com',NULL);",
+								"writeBehavior": "insert",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.customer_cd",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.customer_nm",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.dt_group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DT_Group",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.accessid",
+											"type": "String"
+										},
+										"sink": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.startdate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "StartDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.enddate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "EndDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "dim_access_manual_list_l2.etl_tm",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Access_Manual_List_l2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Wave3_DM_DIM_Access_Manual_List",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3/L1_L2/ManualData"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:54:29Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_Access_Manual_List_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "DIM_Access_Manual_List_DL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/DIM_Access_Manual_List_l2",
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "delete DSCC_OTHERS.DM_DIM_Access_Manual_List;\nINSERT INTO [DSCC_OTHERS].[DM_DIM_Access_Manual_List] ([Customer_Cd], [Customer_Nm], [DT_Group], [AccessID],[Etl_Tm]) VALUES ('ALL', NULL, NULL, 'haiman.zheng@cn.nestle.com',NULL);",
+								"writeBehavior": "insert",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Customer_Cd",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Customer_Cd",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer_Nm",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "Customer_Nm",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "DT_Group",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "DT_Group",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "AccessID",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "StartDate",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "StartDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "EndDate",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "EndDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "INT96"
+										},
+										"sink": {
+											"name": "Etl_Tm",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DIM_Access_Manual_List_l2_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Wave3_DM_DIM_Access_Manual_List",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "DIM_Access_Manual_List_DL",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/dscc/dsccwave2/Wave3/L1L2_ETL/ManualData/DIM_Access_Manual_List"
+						},
+						"linkedServiceName": {
+							"referenceName": "ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave3_DL/L1-L2_DL/ManualData_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-06-09T08:59:54Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DIM_App')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select App_Cd,App_NmCn,App_NmEn,Start_Dt,End_Dt from NESZ_DIM.DIM_App",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "SDM_DIM_App",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DIM_App_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Hive1",
+						"type": "HDInsightHive",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DB_Table/DIM_App",
+							"defines": {
+								"ADF.database": "dscc",
+								"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/DIM_App"
+							},
+							"scriptLinkedService": {
+								"referenceName": "DataLake_Secondary",
+								"type": "LinkedServiceReference"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "HDI_Hadoop",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Wave2ETL/DIM/DB_Table"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

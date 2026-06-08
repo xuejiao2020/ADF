@@ -1,0 +1,1691 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Offtake_By_Store_D_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_offtake_by_store_d"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PR_DP_Code_Value_H_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Code_Domain_En",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Code_Domain_Cn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Code_Value",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Code_Desc_Cn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Code_Desc_En",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Comment",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Start_Dt",
+						"type": "date"
+					},
+					{
+						"name": "End_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "PR_DP_Code_Value_H"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pending')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0013_DW2SAP_DW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_DW2SAP"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "Source",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesDocument",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesDocumentItem",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ItemCategory",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Channel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Customer_Desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Plant",
+						"type": "nvarchar"
+					},
+					{
+						"name": "xMaterialNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "xMaterialDescription",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DeliveryDocument",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOffice",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ReportingDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DocumentCrationDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OrderType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Open_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ATP_Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OpenQty",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "GPS",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "TotalTax",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ItemTax",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "NetPrice",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "NetValue",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "SalesOrg",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Pending"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Price')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0013_DW1SAP_DW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_DW1SAP"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "Rid",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "ChangeFlag",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerName2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerName3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerName4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SearchTerm1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SearchTerm2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Building",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Room",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Floor",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street",
+						"type": "nvarchar"
+					},
+					{
+						"name": "StreetNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "House",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "District",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerClass",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Industry",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IndustryCode1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistributionChannel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Division",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesDistrict",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOffice",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DeliveryPlant",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccountingGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Street1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ContactPersonName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ContactPersonFirstName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ContactPersonTele",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PostalCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "VATRegistrationNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TelephoneNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BankAccountNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AccountHolderName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FlexiblePlanningNode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerChineseName1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerChineseName2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerChineseName3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerChineseName4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseSearchTerm1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseSearchTerm2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseBuilding",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseRoom",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseFloor",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreet2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreet3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreet",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreetNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseHouse",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreet4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseStreet5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseDistrict",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseCity",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseCountry",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseRegion",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PricingGroup",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EnglishBankName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ChineseBankName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FileDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PubDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LedgerPeriod",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Price"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Price_GPR')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0013_DW1SAP_DW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_DW1SAP"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "SalesOrg",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistributionChannel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MaterialNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerHier6",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerHier5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerHier4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "GPR",
+						"type": "decimal",
+						"precision": 24,
+						"scale": 6
+					},
+					{
+						"name": "RSF_Source",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Price_GPR"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProductHierarchy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0013_DW1SAP_DW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_DW1SAP"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ProductHierarchy"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_Category_Group')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZCN2D0001_NESTLEBI",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_ECMS"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Version",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SKU_Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SKU_Group",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Segment1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Segment2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Promotion_Pack",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date_From",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Date_To",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Active",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Short_Name_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Short_Name_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Copacker",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SKU_Cluster",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranking",
+						"type": "nvarchar"
+					},
+					{
+						"name": "insertUser",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CreateTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "UpdateTime",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "material_id",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Product_Category_Group"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_On_Shelf_M_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "UUID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistChannel_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistChannel_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistChannel_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_Nestle_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_City_Tier",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_Province_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_Province_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_Province_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Store_Chl",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DD_DT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "GT_MT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Kac_Grp_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Kac_Grp_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Kac_Grp_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "KA_Team",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_BU",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Sku_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_BU_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_BU_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_BU_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_MG1_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_MG1_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_MG1_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Prod_Sales_Type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Check_Status_Cd",
+						"type": "char"
+					},
+					{
+						"name": "Check_Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Status_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Product_Status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Is_On_Shelf",
+						"type": "bit"
+					},
+					{
+						"name": "Check_Dt",
+						"type": "date"
+					},
+					{
+						"name": "Check_Pic_Url",
+						"type": "varchar"
+					},
+					{
+						"name": "Data_YM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Data_Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Data_Month",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_STG",
+					"table": "Product_On_Shelf_M"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_On_Shelf_M_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_product_on_shelf_m"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_Puree')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Customer_UniId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SKU_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SKU_Nm",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ETL_Time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "RPT",
+					"table": "Product_Puree"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Product_Puree_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "product_puree"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_CCFR')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@concat('WM_CFR_',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.xlsx')",
+							"type": "Expression"
+						},
+						"folderPath": "WM_CFR"
+					},
+					"sheetIndex": {
+						"value": "@concat('0')",
+						"type": "Expression"
+					},
+					"range": "A24"
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_CCFR_EXCEL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						}
+					},
+					"sheetIndex": {
+						"value": "@concat('0')",
+						"type": "Expression"
+					},
+					"range": "A24"
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_InStock')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@concat('WM_Instock_',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.xlsx')",
+							"type": "Expression"
+						},
+						"folderPath": "WM_Instock"
+					},
+					"sheetIndex": {
+						"value": "@concat('0')",
+						"type": "Expression"
+					},
+					"range": "A24"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_Instock_EXCEL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						}
+					},
+					"sheetIndex": {
+						"value": "@concat('0')",
+						"type": "Expression"
+					},
+					"range": "A24"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_OTIF')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@concat('WM_OTIF_',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.xlsx')",
+							"type": "Expression"
+						},
+						"folderPath": "WM_OTIF"
+					},
+					"sheetIndex": {
+						"value": "@concat('2')",
+						"type": "Expression"
+					},
+					"range": "A3"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_OTIF_EXCEL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						}
+					},
+					"sheetIndex": {
+						"value": "@concat('2')",
+						"type": "Expression"
+					},
+					"range": "A3"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_SamsOTIF')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@concat('SAM_OTIF_',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.xlsx')",
+							"type": "Expression"
+						},
+						"folderPath": "WM_SamsOTIF"
+					},
+					"sheetIndex": {
+						"value": "@concat('2')",
+						"type": "Expression"
+					},
+					"range": "A3"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RPA_Sams_OTIF_EXCEL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RPA_AZCNN2PRRPAAPP_Walmart",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"path": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().path",
+							"type": "Expression"
+						}
+					},
+					"sheetIndex": {
+						"value": "@concat('2')",
+						"type": "Expression"
+					},
+					"range": "A3"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RSF')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "CNBEID0013_DW2SAP_DW",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DB_DW2SAP"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "SorPeriod",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LedgerPeriod",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FYEAR",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FMONTH",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrg",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DistributionChannel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MaterialNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerHier",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CL4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cases",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Ton",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Amount",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "PubDate",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Source",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TradeSampleCases",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "TradeSampleTon",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ConsumerSampleCases",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ConsumerSampleTon",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "LocalSalesChannel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LoadingSource",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Plant",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RASO_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "NestleSalesChannel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ton_Bonus",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "SampleTon_Bonus",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "Per_TSA",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "Per_TEA",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "Per_CPR",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "TSA_Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "TEA_Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "CPR_Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "NNS_Amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 4
+					},
+					{
+						"name": "RSF_Source",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "RSF"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

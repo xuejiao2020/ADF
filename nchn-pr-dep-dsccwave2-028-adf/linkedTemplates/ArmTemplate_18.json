@@ -1,0 +1,706 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_CL6_Region_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_MAP_CL6_Region",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Cust_UniId",
+						"type": "UTF8"
+					},
+					{
+						"name": "CusHieLev6_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "CusHieLev6_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "CusHieLev6_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MAP_Product",
+						"folderPath": "prod/inbound/DSCC/CN/customer/ETLDIM/MAP_Product",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Sku_Grp_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_MAP_Sku_Grp",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "SkuGrp_Version",
+						"type": "UTF8"
+					},
+					{
+						"name": "Product_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "SkuGrp_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "SkuGrp_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "SkuGrp_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "SkuGrp_Segment1",
+						"type": "UTF8"
+					},
+					{
+						"name": "SkuGrp_Segment2",
+						"type": "UTF8"
+					},
+					{
+						"name": "Is_SkuGrp_Active",
+						"type": "INT_16"
+					},
+					{
+						"name": "SkuGrp_Cluster",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_StandardCity_Region_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MAP_StandardCity_Region",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/MAP_StandardCity_Region",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Standard_Geo_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "prod/process/DSCC/CN/customer/targetDate/Wave2_MAP_Standard_Geo",
+						"fileSystem": "prddatalake"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Country_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Country_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Country_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Province_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "Province_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Province_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "District_Cd",
+						"type": "UTF8"
+					},
+					{
+						"name": "District_NmCn",
+						"type": "UTF8"
+					},
+					{
+						"name": "District_NmEn",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "UTF8"
+					},
+					{
+						"name": "Etl_Tm",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_ACC_MST_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_ACC_MST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_ACC_MST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BRD_BU_MAP_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_BRD_BU_MAP_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_BRD_BU_MAP_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BRD_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_BRD_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_BRD_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BYS_CST_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_BYS_CST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_BYS_CST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CSTL4_CLS_GRP_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CSTL4_CLS_GRP_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CSTL4_CLS_GRP_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CSTL6_REG_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CSTL6_REG_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CSTL6_REG_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_HIE_MST_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CST_HIE_MST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CST_HIE_MST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_MST_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CST_MST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CST_MST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_SRC_CTY_MAP_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CST_SRC_CTY_MAP_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CST_SRC_CTY_MAP_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CTG_BU_MAP_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_CTG_BU_MAP",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_CTG_BU_MAP",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_EMP_MST_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Wave2DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_EMP_MST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_EMP_MST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LED_SRC_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_LED_SRC_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_LED_SRC_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LKGPRD_MST_MAPPING_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DIM"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_LKGPRD_MST_MAPPING",
+						"folderPath": "prod/inbound/DSCC/CN/customer/ETLDIM/MDM_LKGPRD_MST_MAPPING",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LOC_UNI_MV_Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_LOC_UNI_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_LOC_UNI_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_MAC_MST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DataLake_Primary",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "MDM_MAC_MST_MV",
+						"folderPath": "prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_MAC_MST_MV",
+						"fileSystem": "prddatalake"
+					},
+					"columnDelimiter": "\u0001",
+					"escapeChar": "\\",
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		}
+	]
+}

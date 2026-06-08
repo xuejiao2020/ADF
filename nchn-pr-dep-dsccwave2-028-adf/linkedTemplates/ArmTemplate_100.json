@@ -1,0 +1,1355 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_PRODUCT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_PRODUCT",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[DM_D_PRODUCT] with(nolock) ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_PRODUCT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_D_PRODUCT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_PRODUCT_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_PRODUCT",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[DM_D_PRODUCT] with(nolock) ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_PRODUCT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_D_PRODUCT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_SKU_GROUP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_SKU_GROUP",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select \nREPLACE(REPLACE(REPLACE(ID,CHAR(10),''),CHAR(13),''),' ','') AS ID,\nREPLACE(REPLACE(REPLACE(YearMonth,CHAR(10),''),CHAR(13),''),' ','') AS YearMonth,\nREPLACE(REPLACE(REPLACE(SKU_Code,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Code,\nREPLACE(REPLACE(REPLACE(Unit_Quantity,CHAR(10),''),CHAR(13),''),' ','') AS Unit_Quantity,\nREPLACE(REPLACE(REPLACE(RRP_EA,CHAR(10),''),CHAR(13),''),' ','') AS RRP_EA,\nREPLACE(REPLACE(REPLACE(RRP_Cases,CHAR(10),''),CHAR(13),''),' ','') AS RRP_Cases,\nREPLACE(REPLACE(REPLACE(SKU_Group,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group,\nREPLACE(REPLACE(REPLACE(Key_SKU,CHAR(10),''),CHAR(13),''),' ','') AS Key_SKU,\nREPLACE(REPLACE(REPLACE(SKU_Group_DSA,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group_DSA,\nREPLACE(REPLACE(REPLACE(KEY_Group_DSA,CHAR(10),''),CHAR(13),''),' ','') AS KEY_Group_DSA,\nREPLACE(REPLACE(REPLACE(SKU_GroupCode_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS SKU_GroupCode_KEYSKU,\nREPLACE(REPLACE(REPLACE(KEY_GroupName_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS KEY_GroupName_KEYSKU,\nREPLACE(REPLACE(REPLACE(insertUser,CHAR(10),''),CHAR(13),''),' ','') AS insertUser,\nCreateTime,\nUpdateTime,\nREPLACE(REPLACE(REPLACE(KEY_SKU_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS KEY_SKU_KEYSKU,\nREPLACE(REPLACE(REPLACE(SKU_Group_DSA_Name,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group_DSA_Name,\ngetdate() CreateON_L1 from [dbo].[DM_D_SKU_GROUP]",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_SKU_GROUP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_D_SKU_GROUP",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_SO_CUSTOMER_ACTIVE_Keeping')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_CUSTOMER",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:49:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_SO_ORDER_TYPE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_SO_ORDER_TYPE",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from  [dbo].[DM_D_SO_ORDER_TYPE] with(nolock) ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_SO_ORDER_TYPE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_D_SO_ORDER_TYPE",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_SO_OUTLET_SD2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_SO_OUTLET_SD2",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select \nREPLACE(REPLACE(Replace(outlet_id,' ',''),CHAR(13),''),CHAR(10),'')outlet_id,\nREPLACE(REPLACE(Replace(outlet_uniqueId,' ',''),CHAR(13),''),CHAR(10),'')outlet_uniqueId,\nREPLACE(REPLACE(Replace(parent_customer_number,' ',''),CHAR(13),''),CHAR(10),'')parent_customer_number,\nREPLACE(REPLACE(Replace(outlet_code,' ',''),CHAR(13),''),CHAR(10),'')outlet_code,\nREPLACE(REPLACE(Replace(distribution_channel,' ',''),CHAR(13),''),CHAR(10),'')distribution_channel,\nREPLACE(REPLACE(Replace(customer_grpName,' ',''),CHAR(13),''),CHAR(10),'')customer_grpName,\nREPLACE(REPLACE(Replace(nestle_outlet_code,' ',''),CHAR(13),''),CHAR(10),'')nestle_outlet_code,\nREPLACE(REPLACE(Replace(nestle_outlet_flag,' ',''),CHAR(13),''),CHAR(10),'')nestle_outlet_flag,\nREPLACE(REPLACE(Replace(kac_code,' ',''),CHAR(13),''),CHAR(10),'')kac_code,\nREPLACE(REPLACE(Replace(large_storehouse_code,' ',''),CHAR(13),''),CHAR(10),'')large_storehouse_code,\nREPLACE(REPLACE(Replace(large_storehouse_name,' ',''),CHAR(13),''),CHAR(10),'')large_storehouse_name,\nREPLACE(REPLACE(Replace(sales_person_code,' ',''),CHAR(13),''),CHAR(10),'')sales_person_code,\nREPLACE(REPLACE(Replace(sales_person_cn,' ',''),CHAR(13),''),CHAR(10),'')sales_person_cn,\nREPLACE(REPLACE(Replace(sales_person_en,' ',''),CHAR(13),''),CHAR(10),'')sales_person_en,\nREPLACE(REPLACE(Replace(sales_sifunction,' ',''),CHAR(13),''),CHAR(10),'')sales_sifunction,\nREPLACE(REPLACE(Replace(outlet_name,' ',''),CHAR(13),''),CHAR(10),'')outlet_name,\nREPLACE(REPLACE(Replace(outlet_address,' ',''),CHAR(13),''),CHAR(10),'')outlet_address,\nREPLACE(REPLACE(Replace(outlet_channel,' ',''),CHAR(13),''),CHAR(10),'')outlet_channel,\nREPLACE(REPLACE(Replace(Is_active,' ',''),CHAR(13),''),CHAR(10),'')Is_active,\nREPLACE(REPLACE(Replace(parent_dc,' ',''),CHAR(13),''),CHAR(10),'')parent_dc,\nREPLACE(REPLACE(Replace(area_sq,' ',''),CHAR(13),''),CHAR(10),'')area_sq,\nREPLACE(REPLACE(Replace(city_code,' ',''),CHAR(13),''),CHAR(10),'')city_code,\nREPLACE(REPLACE(Replace([cg-1_code],' ',''),CHAR(13),''),CHAR(10),'')[cg-1_code],\nREPLACE(REPLACE(Replace(Is_dc,' ',''),CHAR(13),''),CHAR(10),'')Is_dc,\nREPLACE(REPLACE(Replace(Is_ndsc,' ',''),CHAR(13),''),CHAR(10),'')Is_ndsc,\nREPLACE(REPLACE(Replace(kanka,' ',''),CHAR(13),''),CHAR(10),'')kanka,\nREPLACE(REPLACE(Replace(lat_lng,' ',''),CHAR(13),''),CHAR(10),'')lat_lng,\nREPLACE(REPLACE(Replace(location,' ',''),CHAR(13),''),CHAR(10),'')location,\n                insert_date,\nREPLACE(REPLACE(Replace(store_no,' ',''),CHAR(13),''),CHAR(10),'')store_no,\nREPLACE(REPLACE(Replace(dc_store_no,' ',''),CHAR(13),''),CHAR(10),'')dc_store_no,\nREPLACE(REPLACE(Replace(special_flag,' ',''),CHAR(13),''),CHAR(10),'')special_flag,\nREPLACE(REPLACE(Replace(OOH,' ',''),CHAR(13),''),CHAR(10),'')OOH,\nREPLACE(REPLACE(Replace(PrimaryContact,' ',''),CHAR(13),''),CHAR(10),'')PrimaryContact,\nREPLACE(REPLACE(Replace(Telephone,' ',''),CHAR(13),''),CHAR(10),'')Telephone,\nREPLACE(REPLACE(Replace(kac_name_cn,' ',''),CHAR(13),''),CHAR(10),'')kac_name_cn,\nREPLACE(REPLACE(Replace(kac_name_en,' ',''),CHAR(13),''),CHAR(10),'')kac_name_en,\nREPLACE(REPLACE(Replace(kac_group_code,' ',''),CHAR(13),''),CHAR(10),'')kac_group_code,\nREPLACE(REPLACE(Replace(kac_group_name,' ',''),CHAR(13),''),CHAR(10),'')kac_group_name,\nREPLACE(REPLACE(Replace(ka_agg1,' ',''),CHAR(13),''),CHAR(10),'')ka_agg1,\nREPLACE(REPLACE(Replace(ka_agg2,' ',''),CHAR(13),''),CHAR(10),'')ka_agg2,\nREPLACE(REPLACE(Replace(ka_or_channel,' ',''),CHAR(13),''),CHAR(10),'')ka_or_channel,\nREPLACE(REPLACE(Replace(ka_team_seq_id,' ',''),CHAR(13),''),CHAR(10),'')ka_team_seq_id,\nREPLACE(REPLACE(Replace(ka_team_topclass,' ',''),CHAR(13),''),CHAR(10),'')ka_team_topclass,\nREPLACE(REPLACE(Replace(outlet_channel_group,' ',''),CHAR(13),''),CHAR(10),'')outlet_channel_group,\nREPLACE(REPLACE(Replace(outlet_channel_seq_id,' ',''),CHAR(13),''),CHAR(10),'')outlet_channel_seq_id,\nREPLACE(REPLACE(Replace(outlet_channel2_seq_id,' ',''),CHAR(13),''),CHAR(10),'')outlet_channel2_seq_id,\nREPLACE(REPLACE(Replace(customer_class_group_new,' ',''),CHAR(13),''),CHAR(10),'')customer_class_group_new,\nREPLACE(REPLACE(Replace(customer_class_group_old,' ',''),CHAR(13),''),CHAR(10),'')customer_class_group_old,\nREPLACE(REPLACE(Replace(customer_channel,' ',''),CHAR(13),''),CHAR(10),'')customer_channel,\nREPLACE(REPLACE(Replace(OutletSubChannel,' ',''),CHAR(13),''),CHAR(10),'')OutletSubChannel,\n\tOutletCreationTime,\n\tUpdateTime,\n    getdate() CreateON_L1 \nfrom  [dbo].[DM_D_SO_OUTLET_SD2] with(nolock) ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_SO_OUTLET_SD2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_D_SO_OUTLET_SD2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:40:35Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_S_FRESHNESS_STOCK_Attribut')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_S_FRESHNESS_STOCK_Attribut",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_S_FRESHNESS_STOCK_Attribut",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_D_S_FRESHNESS_STOCK_Attribut",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:43:21Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_D_S_FRESHNESS_STOCK_Attribut_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_D_S_FRESHNESS_STOCK_Attribut",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_D_S_FRESHNESS_STOCK_Attribut",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_D_S_FRESHNESS_STOCK_Attribut",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_OT_SALES')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_OT_SALES",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[DM_F_OT_SALES] with(nolock) ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_OT_SALES",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_F_OT_SALES",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:51:50Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_OT_STOCK')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_OT_STOCK",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select  * , getdate() CreateON_L1 from [dbo].[DM_F_OT_STOCK] with(nolock)  \nwhere\nkac_group_code in ('A005','B093','B046','A009')\nand date_key>=20200101",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_OT_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_F_OT_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Wave3/Data_TO_L1/ECMS_TO_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:55:24Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_SO_CDP_TARGET')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_SO_CDP_TARGET",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1  from [dbo].[DM_F_SO_CDP_TARGET]",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_SO_CDP_TARGET",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_F_SO_CDP_TARGET",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_SO_FORECAST')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_SO_FORECAST",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select  * , getdate() CreateON_L1 from [dbo].[DM_F_SO_FORECAST] with(nolock)  ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_SO_FORECAST",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_F_SO_FORECAST",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_SO_SALES')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_SO_SALES",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select  * , getdate() CreateON_L1 from [dbo].[DM_F_SO_SALES] with(nolock)  ",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_SO_SALES",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_F_SO_SALES",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:48:39Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_SO_SALES_CG_1_SD2_ACTUAL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_SO_SALES_CG_1_SD2_ACTUAL",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_SO_SALES_CG_1_SD2_ACTUAL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DM_F_SO_SALES_CG_1_SD2_ACTUAL",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_S_FRESHNESS_STOCK')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_S_FRESHNESS_STOCK",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[DM_F_S_FRESHNESS_STOCK] ",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_S_FRESHNESS_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_F_S_FRESHNESS_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DM_F_S_FRESHNESS_STOCK_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DM_F_S_FRESHNESS_STOCK",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "select * , getdate() CreateON_L1 from [dbo].[DM_F_S_FRESHNESS_STOCK] ",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DM_F_S_FRESHNESS_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DM_F_S_FRESHNESS_STOCK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MyWindowStart": {
+						"type": "string"
+					},
+					"MyWindowEnd": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:18Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DW_D_SO_GPR')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DW_D_SO_GPR",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DW_D_SO_GPR",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DW_D_SO_GPR",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DW_D_SO_GPR_DL')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DW_D_SO_GPR",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DW_D_SO_GPR",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "FULL_DW_D_SO_GPR",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1_DL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:57:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DW_F_S_INTRANSIT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DW_F_S_INTRANSIT",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select * , getdate() CreateON_L1 from [dbo].[DW_F_S_INTRANSIT] with(nolock) where Convert(varchar(100),datekey_schedule,23)  >='20190101'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DW_F_S_INTRANSIT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DW_F_S_INTRANSIT",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FULL_DW_F_S_INTRANSIT_Daily')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "FULL_DW_F_S_INTRANSIT_Daily",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DW_F_S_INTRANSIT_Daily",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "INC_DW_F_S_INTRANSIT_Daily",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ECMS_TO_DL_L1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-28T11:44:52Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

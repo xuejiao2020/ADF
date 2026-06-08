@@ -1,0 +1,1776 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "数据工厂名称",
+			"defaultValue": "nchn-pr-dep-dsccwave2-028-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Standard_Geo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Country_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Province_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Province_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Province_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "City_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "District_Cd",
+						"type": "nvarchar"
+					},
+					{
+						"name": "District_NmCn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "District_NmEn",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Src",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Job",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Etl_Dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "NESZ_DIM",
+					"table": "MAP_Standard_Geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MAP_Standard_Geo_Hive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop_Hive",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "HiveObject",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dscc",
+					"table": "wave2_map_standard_geo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_ACC_MST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ACC_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_INM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_INM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_DNM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_DNM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_TYP_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_TYP_INM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_TYP_INM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_TYP_DNM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ACC_TYP_DNM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_ACC_MST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BRD_BU_MAP_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "BU_BRD_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BU_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BU_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BU_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_BRD_BU_MAP_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BRD_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "BRD_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_DES_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_SHR_DES_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_SHR_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "BRD_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_BRD_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_BYS_CST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SMDM_KEY",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_MDM_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CRY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_BYS_CST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CSTL4_CLS_GRP_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SAL_ORG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CMP_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CMP_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DST_CHL_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CHL_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CHL_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CLS_GRP",
+						"type": "varchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "varchar"
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CSTL4_CLS_GRP_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CSTL6_REG_MV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CL6_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_REG_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_REG_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PUB_DAT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REG_STA_DT",
+						"type": "varchar"
+					},
+					{
+						"name": "REG_END_DT",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CSTL6_REG_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_HIE_MST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SAL_ORG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CMP_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CMP_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DST_CHL_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CHL_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CHL_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L6_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L6_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L6_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L5_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L5_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L5_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L4_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L4_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L4_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L3_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L3_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_L3_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CHL_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CST_HIE_MST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_MST_MV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "MDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "varchar"
+					},
+					{
+						"name": "CST_SMDM_KEY",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SAL_ORG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CMP_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DST_CHL",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_CHL_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ACC_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ACC_GRP_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_BAK_ACC_NUM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ACC_HLD_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SER_TRM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TEL_NUM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_IND",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_IND_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CLS",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DEL_PLT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "REF_PLT_NAM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_BLD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ROM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_FLR",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STR",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STR_NUM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_HOS",
+						"type": "nvarchar"
+					},
+					{
+						"name": "NTS_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "NTS_REG_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CL6_HIE",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP",
+						"type": "varchar"
+					},
+					{
+						"name": "CST_CTG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTG_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTG_DES_E",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DST_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DST_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CRY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DIV",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SDT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SGP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CST_MST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_MST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SMDM_KEY",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NAM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_GRP_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_GRP_DES_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ACC_GRP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_ACC_GRP_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CST_MST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CST_SRC_CTY_MAP_MV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CTY_ORN_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_CD",
+						"type": "varchar"
+					},
+					{
+						"name": "SRC_NM",
+						"type": "varchar"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CST_SRC_CTY_MAP_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_CTG_BU_MAP_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CAG_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CAG_PRD_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CAG_PRD_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CAG_BU_MDCD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CAG_BRD_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CAG_MBS",
+						"type": "nvarchar"
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_CTG_BU_MAP"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_EMP_MST_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Wave2DIM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "EMP_SRK",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EMP_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_CNM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_ENM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_TYP",
+						"type": "varchar"
+					},
+					{
+						"name": "EMP_ALI_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_ORG_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_DSO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_DSO_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_REG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_REG_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EMP_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "EMP_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_EMP_MST_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LED_SRC_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LED_SRC_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LED_SRC_ENM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LED_SRC_CNM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LED_SRC_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_LED_SRC_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LKGPRD_MST_MAPPING')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "MDM"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "PRD_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_PRD_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_PRD_CD_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_SYS_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_SYS_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SRC_SYS_CD_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STA_DT",
+						"type": "date"
+					},
+					{
+						"name": "END_DT",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_LKGPRD_MST_MAPPING"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_LOC_UNI_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LOC_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_SRK",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "LOC_POV_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_POV_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_POV_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_CTY_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_CTY_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_DST_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_DST_DES_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_DST_DES_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STR_SUB_DST_DES_L1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STR_SUB_DST_DES_L2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_DEL_ADR",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_MAN_ROD_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_SEC_ROD_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_HUS_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_LAT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_LNG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_ZON_ADR",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_BUL_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_ROM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_LOC_UNI_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_MAP_MV_DB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "MPN_SRK",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MAP_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_ENM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_CNM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_CST_UID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_CST_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_CST_CTY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_MAC_ID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_MAC_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_MAC_SOL",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_EMP_NUM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MAP_EMP_NUM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EMP_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAP_WOR_NUM",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "MAP_WOR_DAY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MAC_POS_LOC",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOC_UNI_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "BCH_NO",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MDM_MAP_MV"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_MIC_Customer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SMDM_KEY",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_MDM_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CRY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MIC_Customer"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDM_MIC_CustomerHierarchy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_Mdm2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CST_UNIID",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_SMDM_KEY",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CST_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_MDM_NO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_EN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_NM_CN",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_TYP_DES",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CRY",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_POV_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_CTY_NM",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_REG",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO_CD",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_DSO",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CST_STA_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CST_END_DT",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "INA_FLG",
+						"type": "char"
+					},
+					{
+						"name": "REC_CREATE_TS",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "MVIEW",
+					"table": "MIC_CustomerHierarchy"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
