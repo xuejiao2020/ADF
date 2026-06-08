@@ -1,0 +1,64 @@
+{
+	"name": "SET_VARABLE",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set T",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "T",
+					"value": {
+						"value": "@formatDateTime(subtractFromTime(utcnow(), 0, 'Day'), 'yyyy-MM-dd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SET_PARAMETER",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Set T",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SET_PARAMETER",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"today": {
+							"value": "@variables('T')",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"variables": {
+			"T": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "DSA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:01:42Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

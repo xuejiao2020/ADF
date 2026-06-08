@@ -1,0 +1,101 @@
+{
+	"name": "SI_Sales_IC_Master_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Delete_MDM_MIC_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Patch": "prod/outbound/Hand/CN/Sales/Salesorder/IC/SI_Sales/"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \r\n'Num' as Num,\r\n'Billing_Type_Cd' as Billing_Type_Cd ,\r\n'Fiscal_Year' as   Fiscal_Year,\r\n'Posting_Period' as    Posting_Period,\r\n'Soldto_Cust_UniId' as   Soldto_Cust_UniId,\r\n'Soldto_Cust_Cd' as   Soldto_Cust_Cd ,\r\n'Invoice_Dt' as   Invoice_Dt ,\r\n'Company_Cd' as   Company_Cd ,\r\n'SalesOrg_Cd' as SalesOrg_Cd  ,\r\n'DistChannel_Cd' as DistChannel_Cd   ,\r\n'Billing_Document_Id' as  Billing_Document_Id ,\r\n'Document_Currency' as  Document_Currency ,\r\n'Payer_Cust_UniId' as Payer_Cust_UniId ,\r\n'Payer_Cust_Cd' as   Payer_Cust_Cd  ,\r\n'PO_Number' as PO_Number ,\r\n'Sales_Document_Id' as  Sales_Document_Id ,\r\n'Order_Type_Cd' as   Order_Type_Cd ,\r\n'Reason_Cd' as Reason_Cd ,\r\n'Billing_Item' as Billing_Item ,\r\n'Product_UniId' as    Product_UniId ,\r\n'Product_Sku_Cd' as  Product_Sku_Cd  ,\r\n'Product_Type_Cd' as  Product_Type_Cd ,\r\n'Product_Type_Nm' as   Product_Type_Nm,\r\n'Item_Category_Cd' as  Item_Category_Cd,\r\n'Exchange_Rate' as   Exchange_Rate  ,\r\n'Invoice_Qty' as  Invoice_Qty ,\r\n'Uom_of_Sales' as  Uom_of_Sales,\r\n'Invoice_Qty_Cs' as  Invoice_Qty_Cs  ,\r\n'Net_Value_Local_Currency' as  Net_Value_Local_Currency  ,\r\n'Net_Value_Billing_Document' as Net_Value_Billing_Document  ,\r\n'Net_Weight' as Net_Weight  ,\r\n'Grs_Weight' as   Grs_Weight ,\r\n'Volume' as  Volume ,\r\n'Uom_of_vol' as  Uom_of_vol  ,\r\n'Net_Vol_L' as  Net_Vol_L,\r\n'Tax_Value' as Tax_Value ,\r\n'GPS' as  GPS  ,\r\n'GPS_Local' as  GPS_Local,\r\n'GPR' as GPR   ,\r\n'NPS' as    NPS,\r\n'DC_UniId' as   DC_UniId,\r\n'DC_Cd' as DC_Cd ,\r\n'Storage_Location' as Storage_Location ,\r\n'Shipping_Point_Cd' as  Shipping_Point_Cd ,\r\n'Shipto_Cust_UniId' as  Shipto_Cust_UniId ,\r\n'Shipto_Cust_Cd' as   Shipto_Cust_Cd ,\r\n'Route_Cd' as  Route_Cd ,\r\n'Local_Sales_Chl' as   Local_Sales_Chl,\r\n'Nestle_Sales_Chl_Cd' as  Nestle_Sales_Chl_Cd ,\r\n'Creation_Tm_GMT' as  Creation_Tm_GMT ,\r\n'Reference_Document' as Reference_Document ,\r\n'Cancel_Status_Cd' as Cancel_Status_Cd ,\r\n'Billto_Cust_UniId' as   Billto_Cust_UniId,\r\n'Billto_Cust_Cd' as   Billto_Cust_Cd ,\r\n'File_Dt' as File_Dt ,\r\n'Pub_Dt' as   Pub_Dt,\r\n'Week_Id' as  Week_Id,\r\n'Source' as   Source,\r\n'Ledger_Period' as  Ledger_Period   ,\r\n'Prod_Type_Cd' as Prod_Type_Cd ,\r\n'Post_CL6_Cd' as  Post_CL6_Cd ,\r\n'Post_CL5_Cd' as  Post_CL5_Cd ,\r\n'Post_CL4_Cd' as  Post_CL4_Cd ,\r\n'Post_CL3_Cd' as   Post_CL3_Cd,\r\n'Reference_Id' as Reference_Id ,\r\n'Cust_Chl_Cd' as  Cust_Chl_Cd ,\r\n'Creation_Tm' as  Creation_Tm ,\r\n'Cust_Surcharge' as  Cust_Surcharge  ,\r\n'Etl_Tm' as   Etl_Tm,\r\n'Etl_Src' as  Etl_Src\r\nunion all\r\nselect \r\nstr(Num) as Num,\r\nBilling_Type_Cd ,\r\n    cast(Fiscal_Year as nvarchar) as Fiscal_Year   ,\r\n     cast(Posting_Period  as nvarchar) as  Posting_Period,\r\n    Soldto_Cust_UniId ,\r\n    Soldto_Cust_Cd,\r\n    cast(Invoice_Dt  as nvarchar) as   Invoice_Dt    ,\r\n    Company_Cd      ,\r\n    SalesOrg_Cd     ,\r\n    DistChannel_Cd  ,\r\n    Billing_Document_Id ,\r\n    Document_Currency ,\r\n    Payer_Cust_UniId,\r\n    Payer_Cust_Cd   ,\r\n    PO_Number,\r\n    Sales_Document_Id ,\r\n    Order_Type_Cd   ,\r\n    Reason_Cd,\r\n    Billing_Item    ,\r\n    Product_UniId   ,\r\n    Product_Sku_Cd  ,\r\n    Product_Type_Cd ,\r\n    Product_Type_Nm ,\r\n    Item_Category_Cd,\r\n    cast(Exchange_Rate as nvarchar) as Exchange_Rate  ,\r\n     cast(Invoice_Qty as nvarchar) as  Invoice_Qty   ,\r\n    Uom_of_Sales    ,\r\n     cast(Invoice_Qty_Cs as nvarchar) as Invoice_Qty_Cs ,\r\n     cast(Net_Value_Local_Currency as nvarchar) as   Net_Value_Local_Currency,\r\n     cast(Net_Value_Billing_Document as nvarchar) as Net_Value_Billing_Document,\r\n     cast(Net_Weight  as nvarchar) as   Net_Weight  ,\r\n     cast(Grs_Weight as nvarchar) as   Grs_Weight   ,\r\n     cast(Volume  as nvarchar) as Volume,\r\n    Uom_of_vol,\r\n     cast(Net_Vol_L as nvarchar) as Net_Vol_L,\r\n     cast(Tax_Value as nvarchar) as Tax_Value,\r\n     cast(GPS as nvarchar) as GPS ,\r\n     cast(GPS_Local as nvarchar) as GPS_Local,\r\n     cast(GPR as nvarchar) as GPR ,\r\n     cast(NPS as nvarchar) as  NPS,\r\n    DC_UniId ,\r\n    DC_Cd,\r\n    Storage_Location,\r\n    Shipping_Point_Cd ,\r\n    Shipto_Cust_UniId ,\r\n    Shipto_Cust_Cd  ,\r\n    Route_Cd ,\r\n    Local_Sales_Chl ,\r\n    Nestle_Sales_Chl_Cd ,\r\n    cast(Creation_Tm_GMT as nvarchar) as Creation_Tm_GMT ,\r\n    Reference_Document,\r\n    Cancel_Status_Cd,\r\n    Billto_Cust_UniId ,\r\n    Billto_Cust_Cd  ,\r\n     cast(File_Dt as nvarchar) as File_Dt,\r\n     cast(Pub_Dt as nvarchar) as Pub_Dt,\r\n     cast(Week_Id as nvarchar) as Week_Id,\r\n    Source ,\r\n     cast(Ledger_Period  as nvarchar) as   Ledger_Period,\r\n    Prod_Type_Cd    ,\r\n    Post_CL6_Cd     ,\r\n    Post_CL5_Cd     ,\r\n    Post_CL4_Cd     ,\r\n    Post_CL3_Cd     ,\r\n    Reference_Id    ,\r\n    Cust_Chl_Cd     ,\r\n     cast(Creation_Tm as nvarchar) as  Creation_Tm ,\r\n     cast(Cust_Surcharge as nvarchar) as Cust_Surcharge ,\r\n     cast(Etl_Tm as nvarchar) as Etl_Tm,\r\n    Etl_Src\r\n from (\r\nselect  row_number() over(order by Billing_Type_Cd ) as Num,\r\n*\r\nfrom(\r\nselect \r\nBilling_Type_Cd ,\r\n    cast(Fiscal_Year as nvarchar) as Fiscal_Year   ,\r\n     cast(Posting_Period  as nvarchar) as  Posting_Period,\r\n    Soldto_Cust_UniId ,\r\n    Soldto_Cust_Cd,\r\n    cast(Invoice_Dt  as nvarchar) as   Invoice_Dt    ,\r\n    Company_Cd      ,\r\n    SalesOrg_Cd     ,\r\n    DistChannel_Cd  ,\r\n    Billing_Document_Id ,\r\n    Document_Currency ,\r\n    Payer_Cust_UniId,\r\n    Payer_Cust_Cd   ,\r\n    PO_Number,\r\n    Sales_Document_Id ,\r\n    Order_Type_Cd   ,\r\n    Reason_Cd,\r\n    Billing_Item    ,\r\n    Product_UniId   ,\r\n    Product_Sku_Cd  ,\r\n    Product_Type_Cd ,\r\n    Product_Type_Nm ,\r\n    Item_Category_Cd,\r\n    cast(Exchange_Rate as nvarchar) as Exchange_Rate  ,\r\n     cast(cast(Invoice_Qty as decimal(12, 4)) as nvarchar) as  Invoice_Qty   ,\r\n    Uom_of_Sales    ,\r\n     cast(cast(Invoice_Qty_Cs as decimal(12, 4)) as nvarchar) as Invoice_Qty_Cs ,\r\n     cast(cast(Net_Value_Local_Currency  as decimal(19, 6)) as nvarchar) as   Net_Value_Local_Currency,\r\n     cast(cast(Net_Value_Billing_Document   as decimal(19, 6)) as nvarchar) as Net_Value_Billing_Document,\r\n     cast(cast(Net_Weight  as decimal(12, 4))  as nvarchar) as   Net_Weight  ,\r\n     cast(cast(Grs_Weight   as decimal(12, 4)) as nvarchar) as   Grs_Weight   ,\r\n     cast(cast(Volume as decimal(12, 4)) as nvarchar) as Volume,\r\n    Uom_of_vol,\r\n     cast(cast(Net_Vol_L  as decimal(12, 4)) as nvarchar) as Net_Vol_L,\r\n     cast(cast(Tax_Value as decimal(19, 6))  as nvarchar) as Tax_Value,\r\n     cast(cast(GPS  as decimal(19, 6)) as nvarchar) as GPS ,\r\n     cast(cast(GPS_Local  as decimal(19, 6)) as nvarchar) as GPS_Local,\r\n     cast(cast(GPR  as decimal(19, 6)) as nvarchar) as GPR ,\r\n     cast(cast(NPS  as decimal(19, 6)) as nvarchar) as  NPS,\r\n    DC_UniId ,\r\n    DC_Cd,\r\n    Storage_Location,\r\n    Shipping_Point_Cd ,\r\n    Shipto_Cust_UniId ,\r\n    Shipto_Cust_Cd  ,\r\n    Route_Cd ,\r\n    Local_Sales_Chl ,\r\n    Nestle_Sales_Chl_Cd ,\r\n    cast(Creation_Tm_GMT as nvarchar) as Creation_Tm_GMT ,\r\n    Reference_Document,\r\n    Cancel_Status_Cd,\r\n    Billto_Cust_UniId ,\r\n    Billto_Cust_Cd  ,\r\n     cast(File_Dt as nvarchar) as File_Dt,\r\n     cast(Pub_Dt as nvarchar) as Pub_Dt,\r\n     cast(Week_Id as nvarchar) as Week_Id,\r\n    Source ,\r\n     cast(Ledger_Period  as nvarchar) as   Ledger_Period,\r\n    Prod_Type_Cd    ,\r\n    Post_CL6_Cd     ,\r\n    Post_CL5_Cd     ,\r\n    Post_CL4_Cd     ,\r\n    Post_CL3_Cd     ,\r\n    Reference_Id    ,\r\n    Cust_Chl_Cd     ,\r\n     cast(Creation_Tm as nvarchar) as  Creation_Tm ,\r\n     cast(Cust_Surcharge as nvarchar) as Cust_Surcharge ,\r\n     cast(Etl_Tm as nvarchar) as Etl_Tm,\r\n    Etl_Src\r\n from  NESZ_BFL.SI_Sales\r\nwhere SalesOrg_Cd in('CN23','CN14') and DistChannel_Cd='01'\r\n--and Ledger_Period=format(dateadd(DD,0,getdate()),'yyyyMM')\r\nand Ledger_Period>=format(dateadd(MM,-1,getdate()),'yyyyMM')\r\n)a\r\n)t",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_SI_Sales_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SI_Sales_CSV",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "IC_Master_data/Sellin"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-10-29T10:03:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

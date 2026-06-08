@@ -1,0 +1,543 @@
+{
+	"name": "All_BFL_BF_Customer_Purchase",
+	"properties": {
+		"activities": [
+			{
+				"name": "LY_BFL_PoIntransitInfo",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_PoIntransitInfo",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LY_BFL_PurchaseOrderInfo",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_PurchaseOrderInfo",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KW_BFL_Data_PurchaseOrder",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_Data_PurchaseOrder",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "DeleteBF_Customer_Purchase",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "LY_BFL_PoIntransitInfo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LY_BFL_PurchaseOrderInfo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "KW_BFL_Data_PurchaseOrder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DeleteBF_Customer_Purchase",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "BF_Customer_Purchase_Copy_SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete_BF_Customer_Purchase",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "bf_customer_purchase.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.supplier_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Supplier_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.supplier_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Supplier_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customerdc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customerdc_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customerdc_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.contract_no",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Contract_No",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.product_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.product_brand_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_product_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Product_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.customer_sku_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.unit_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "PO_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.nps_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.tax",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Tax",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_create_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "PO_Create_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_expire_date",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "PO_Expire_date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_accept_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Accept_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.po_close_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Close_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.etl_src_tb",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src_Tb",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_purchase.etl_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_Customer_Purchase_HIVE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_Customer_Purchase_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete_BF_Customer_Purchase",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DeleteBF_Customer_Purchase",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Delete_BF_Customer_Purchase_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave1Manual/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

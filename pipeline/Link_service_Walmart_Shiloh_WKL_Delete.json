@@ -1,0 +1,121 @@
+{
+	"name": "Link_service_Walmart_Shiloh_WKL_Delete",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_WKL",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "FileServerReadSettings",
+							"recursive": false,
+							"fileFilter": {
+								"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*','.zip')}",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "FileServerWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Walmart_Shiloh_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Walmart_Shiloh_sink_copy_WKL",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy_WKL_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy_WKL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "FileServerReadSettings",
+							"recursive": true,
+							"fileFilter": {
+								"value": "@{concat('NSL_YSHCN04AC1_MANIFEST_WKL_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.zip')}",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings",
+							"compressionProperties": {
+								"type": "ZipDeflateReadSettings"
+							}
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Walmart_Shiloh_source_copy1",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Walmart_Shiloh_sink_copy_WKL_copy1",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Link_Service_Copy"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

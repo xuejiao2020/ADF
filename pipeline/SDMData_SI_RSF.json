@@ -1,0 +1,398 @@
+{
+	"name": "SDMData_SI_RSF",
+	"properties": {
+		"activities": [
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "soure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Datacheck/Wave2_SI_RSF_DataCheck"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "soure",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "WITH maxdt as(\n  select *\n  from dbo.RSF\n  where sorperiod = FORMAT(GetDate(),'yyyyMM')\n),\nsorperiod_dt as(\n  SELECT sorperiod,RSF_Source,PubDate\n  FROM\n    (SELECT sorperiod,RSF_Source,PubDate,row_number() over (partition by sorperiod,RSF_Source order by PubDate desc)sorperiod_rank\n    FROM maxdt)tmp\n    --dscc.DW2SAP_RSF_L1)tmp\n  WHERE sorperiod_rank=1\n)\nselect sum(Amount) from maxdt  t1 inner join sorperiod_dt t2 \non\nt1.sorperiod=t2.sorperiod AND t1.PubDate=t2.PubDate \n AND t1.RSF_Source=t2.RSF_Source ",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "RSF",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_Soure,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "L2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/DW2SAP_RSF_L2_Datacheck",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DW2SAP_RSF_L2_Parquet_Datacheck",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_L2,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \nsum(Amt) as Amt\n from  NESZ_BFL.SI_RSF\nwhere Forcast_Create_YM =CONVERT(varchar(6), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 112) ",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_SI_RSF_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Notebook2",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "SDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Datacheck/DML/SDMDataCheck_RSF"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_Soure,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Delete2",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_L2,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Delete3",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"parameters": {
+			"TableName_Soure": {
+				"type": "string",
+				"defaultValue": "RSF_Soure"
+			},
+			"TableName_L2": {
+				"type": "string",
+				"defaultValue": "RSF_L2"
+			},
+			"TableName_SDM": {
+				"type": "string",
+				"defaultValue": "RSF_SDM"
+			},
+			"Path": {
+				"type": "string",
+				"defaultValue": "prod/process/sdmext/CN/Sales/Target/targetDate/SDMDataCheck_Table/"
+			}
+		},
+		"folder": {
+			"name": "SDMDataCheck"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-11T09:01:39Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

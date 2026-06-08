@@ -1,0 +1,101 @@
+{
+	"name": "Material_IC_Master_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "with ta1 as(\nselect \nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\ncast(LengthInCS as nvarchar) as LengthInCS,\ncast(WidthInCS as nvarchar) as WidthInCS,\ncast(HeightInCS as nvarchar) as HeightInCS,\ncast(VolumeInCS as nvarchar) as VolumeInCS,\nUOMOfVolumeInCS,\ncast(GrossWeightInCS as nvarchar) as GrossWeightInCS,\ncast(NetWeightInCS as nvarchar) as NetWeightInCS,\ncast(FactorInCS as nvarchar) as FactorInCS,\nUOMofBUN,\ncast(VolumeInBUN as nvarchar) as VolumeInBUN,\nUOMofVolumeInBUN ,\ncast(GrossWeightInBUN as nvarchar) as GrossWeightInBUN,\ncast(NetWeightInBUN as nvarchar) as NetWeightInBUN,\ncast(FactorInNL as nvarchar) as FactorInNL,\ncast(VolumeInNL as nvarchar) as VolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\ncast(Price as nvarchar) as Price,\nNestecCode,\nMaterialType,\ncast(FactorinDSP as nvarchar) as FactorinDSP,\ncast(DenominatorInNL as nvarchar) as DenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\ncast(TotalShelfLife as nvarchar) as TotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nFrom [MVIEW].[MIC_SAP_Material]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)\n,\nta2 as(\nselect distinct \n       [L2Code]\n      ,[L2Description]\n from  XFORM.SAP_ProductHierarchy\nwhere L2Description like '%Ice Cream%'  \n),\nta3 as(\nselect \na.MaterialNumber,\na.MaterialDescription,\na.MaterialGroup,\na.XPlantStatus,\na.LengthInCS,\na.WidthInCS,\na.HeightInCS,\na.VolumeInCS,\na.UOMOfVolumeInCS,\na.GrossWeightInCS,\na.NetWeightInCS,\na.FactorInCS,\na.UOMofBUN,\na.VolumeInBUN,\na.UOMofVolumeInBUN ,\na.GrossWeightInBUN,\na.NetWeightInBUN,\na.FactorInNL,\na.VolumeInNL,\na.UOMofVolumeinNL,\na.ShortDescription,\na.CorporateBrand,\na.RangeBrand,\na.BrandDenomination,\na.BAI,\na.MDRRecordOwner,\na.SalesOrg,\na.DistributionChannel,\na.DeliveringPlant,\na.ProductHierarchy,\na.BaseProduct,\na.RenoInno,\na.LaunchDay,\na.BusinessGroup,\na.Origin,\na.Producer,\na.ChineseDescription,\na.MaterialGroup1,\na.Price,\na.NestecCode,\na.MaterialType,\na.FactorinDSP,\na.DenominatorInNL,\na.ParentCode,\na.MaterialGrp3,\na.MaterialGrp4,\na.SalesUnit,\na.TotalShelfLife,\na.TotalShelfPeriod,\na.TAXClassification,\na.GlobalAttribute3,\na.ProductChannel,\na.REC_CRT_DT,\na.REC_EFF_DT,\na.REC_EXP_DT\nfrom ta1 a\ninner join ta2 b \non left(a.ProductHierarchy,3)=b.L2Code\nwhere XPlantStatus  in ('Z3','Z4','Z2')\n)\n,ta4 as(\nselect \nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom ta3 \n)\n,\nta5 as(\nselect \na.MaterialNumber,\na.MaterialDescription,\na.MaterialGroup,\na.XPlantStatus,\na.LengthInCS,\na.WidthInCS,\na.HeightInCS,\na.VolumeInCS,\na.UOMOfVolumeInCS,\na.GrossWeightInCS,\na.NetWeightInCS,\na.FactorInCS,\na.UOMofBUN,\na.VolumeInBUN,\na.UOMofVolumeInBUN ,\na.GrossWeightInBUN,\na.NetWeightInBUN,\na.FactorInNL,\na.VolumeInNL,\na.UOMofVolumeinNL,\na.ShortDescription,\na.CorporateBrand,\na.RangeBrand,\na.BrandDenomination,\na.BAI,\na.MDRRecordOwner,\na.SalesOrg,\na.DistributionChannel,\na.DeliveringPlant,\na.ProductHierarchy,\na.BaseProduct,\na.RenoInno,\na.LaunchDay,\na.BusinessGroup,\na.Origin,\na.Producer,\na.ChineseDescription,\na.MaterialGroup1,\na.Price,\na.NestecCode,\na.MaterialType,\na.FactorinDSP,\na.DenominatorInNL,\na.ParentCode,\na.MaterialGrp3,\na.MaterialGrp4,\na.SalesUnit,\na.TotalShelfLife,\na.TotalShelfPeriod,\na.TAXClassification,\na.GlobalAttribute3,\na.ProductChannel,\na.REC_CRT_DT,\na.REC_EFF_DT,\na.REC_EXP_DT\nfrom ta1 a \nleft join ta2 b \non left(a.ProductHierarchy,3)=b.L2Code\nwhere b.L2Code is null\n)\n,\nta6 as(\nselect \nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom ta5\n)\nselect \n'Num' as Num,\n'MaterialNumber' as  MaterialNumber,\n'MaterialDescription' as  MaterialDescription,\n'MaterialGroup' as  MaterialGroup,\n'XPlantStatus' as  XPlantStatus,\n'LengthInCS' as  LengthInCS,\n'WidthInCS' as  WidthInCS,\n'HeightInCS' as  HeightInCS,\n'VolumeInCS' as  VolumeInCS,\n'UOMOfVolumeInCS' as  UOMOfVolumeInCS,\n'GrossWeightInCS' as  GrossWeightInCS,\n'NetWeightInCS' as  NetWeightInCS,\n'FactorInCS' as  FactorInCS,\n'UOMofBUN' as  UOMofBUN,\n'VolumeInBUN' as  VolumeInBUN,\n'UOMofVolumeInBUN' as  UOMofVolumeInBUN,\n'GrossWeightInBUN' as  GrossWeightInBUN,\n'NetWeightInBUN' as  NetWeightInBUN,\n'FactorInNL' as  FactorInNL,\n'VolumeInNL' as  VolumeInNL,\n'UOMofVolumeinNL' as  UOMofVolumeinNL,\n'ShortDescription' as  ShortDescription,\n'CorporateBrand' as  CorporateBrand,\n'RangeBrand' as  RangeBrand,\n'BrandDenomination' as  BrandDenomination,\n'BAI' as  BAI,\n'MDRRecordOwner' as  MDRRecordOwner,\n'SalesOrg' as  SalesOrg,\n'DistributionChannel' as  DistributionChannel,\n'DeliveringPlant' as  DeliveringPlant,\n'ProductHierarchy' as  ProductHierarchy,\n'BaseProduct' as  BaseProduct,\n'RenoInno' as  RenoInno,\n'LaunchDay' as  LaunchDay,\n'BusinessGroup' as  BusinessGroup,\n'Origin' as  Origin,\n'Producer' as  Producer,\n'ChineseDescription' as  ChineseDescription,\n'MaterialGroup1' as MaterialGroup1 ,\n'Price' as Price,\n'NestecCode' as  NestecCode,\n'MaterialType' as  MaterialType,\n'FactorinDSP' as  FactorinDSP,\n'DenominatorInNL' as  DenominatorInNL,\n'ParentCode' as  ParentCode,\n'MaterialGrp3' as  MaterialGrp3,\n'MaterialGrp4' as  MaterialGrp4,\n'SalesUnit' as  SalesUnit,\n'TotalShelfLife' as  TotalShelfLife,\n'TotalShelfPeriod' as  TotalShelfPeriod,\n'TAXClassification' as TAXClassification ,\n'GlobalAttribute3' as  GlobalAttribute3,\n'ProductChannel' as  ProductChannel,\n'REC_CRT_DT' as  REC_CRT_DT,\n'REC_EFF_DT' as  REC_EFF_DT,\n'REC_EXP_DT' as  REC_EXP_DT\nunion all\nselect \nstr(Num) as Num,\nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom (\nselect \nrow_number() over(order by MaterialNumber ) as Num,\nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom (\nselect \nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom ta3 \nunion all\nselect \nMaterialNumber,\nMaterialDescription,\nMaterialGroup,\nXPlantStatus,\nLengthInCS,\nWidthInCS,\nHeightInCS,\nVolumeInCS,\nUOMOfVolumeInCS,\nGrossWeightInCS,\nNetWeightInCS,\nFactorInCS,\nUOMofBUN,\nVolumeInBUN,\nUOMofVolumeInBUN ,\nGrossWeightInBUN,\nNetWeightInBUN,\nFactorInNL,\nVolumeInNL,\nUOMofVolumeinNL,\nShortDescription,\nCorporateBrand,\nRangeBrand,\nBrandDenomination,\nBAI,\nMDRRecordOwner,\nSalesOrg,\nDistributionChannel,\nDeliveringPlant,\nProductHierarchy,\nBaseProduct,\nRenoInno,\nLaunchDay,\nBusinessGroup,\nOrigin,\nProducer,\nChineseDescription,\nMaterialGroup1,\nPrice,\nNestecCode,\nMaterialType,\nFactorinDSP,\nDenominatorInNL,\nParentCode,\nMaterialGrp3,\nMaterialGrp4,\nSalesUnit,\nTotalShelfLife,\nTotalShelfPeriod,\nTAXClassification,\nGlobalAttribute3,\nProductChannel,\nREC_CRT_DT,\nREC_EFF_DT,\nREC_EXP_DT\nfrom ta6\n)t \n)a",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_MIC_SAP_Material",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MIC_SAP_Material_CSV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Delete_MDM_MIC_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Patch": "prod/outbound/Hand/CN/Master/material/IC/Material/"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "IC_Master_data/DW1SAP"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-12-06T08:24:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

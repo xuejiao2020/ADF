@@ -1,0 +1,100 @@
+{
+	"name": "Walmart_DataCopy_Stock_Store",
+	"properties": {
+		"activities": [
+			{
+				"name": "Walmart_DataCopy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"modifiedDatetimeStart": {
+								"value": "@{addminutes(pipeline().parameters.LastModified_From, -10)}",
+								"type": "Expression"
+							},
+							"modifiedDatetimeEnd": {
+								"value": "@{addminutes(pipeline().parameters.LastModified_To, -10)}",
+								"type": "Expression"
+							},
+							"wildcardFileName": "NSL_B_YSHCN03AC1_STOCK_STORE_DLY_*",
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/dt=',utcnow('yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"LastModified_From": {
+				"type": "string",
+				"defaultValue": "2020-01-11T00:00:00Z"
+			},
+			"LastModified_To": {
+				"type": "string",
+				"defaultValue": "2020-01-11T12:00:00Z"
+			},
+			"SourcePath": {
+				"type": "string",
+				"defaultValue": "prod/inbound/SAP/CN/customer/walmart_shiloh"
+			},
+			"TargetPath": {
+				"type": "string",
+				"defaultValue": "prod/inbound/DSCC/CN/customer/walmart_shiloh/DLY/Stock_Store"
+			}
+		},
+		"folder": {
+			"name": "Wave3"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:38:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

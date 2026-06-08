@@ -1,0 +1,925 @@
+{
+	"name": "Wave2_DM_FACT_OTIF_copy2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_tmp_base_OTIF1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/OTIF/Wave2_DM_FACT_OTIFALL_full",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF1",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF2",
+						"ADF.rootpath3": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF3",
+						"ADF.rootpath4": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF4",
+						"ADF.rootpath5": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF5",
+						"ADF.rootpath6": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_tmp_base_OTIF6"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Wave2_DM_FACT_OTIF",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Wave2_tmp_base_OTIF1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/OTIF/Wave2_DM_FACT_OTIF_full",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Wave2_DM_FACT_OTIF/Wave2_DM_FACT_OTIF"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wave2_DM_FACT_OTIF",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_OTIF]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select \nUUID,\nKPIDate,\nCompany_Cd,\nCompany_NmEn,\nCompany_NmCn,\nDistChannel_Cd,\nDistChannel_NmCn,\nDistChannel_NmEn,\ncorporate_brand,\ncorporate_brand_desc,\nplant,\nplant_desc,\nCustomer_UniId,\nCustomer_Cd,\nCustomer_NmCn,\nCustomer_NmEn,\nship_to_party,\nship_to_party_desc,\nbusiness_id,\nbusiness_id_desc,\nbusiness,\nbusiness_desc,\nProduct_MG1_Cd,\nProduct_MG1_NmCn,\nProduct_MG1_NmEn,\nProduct_UniId,\nMaterial_Cd,\nMaterial_NmCn,\nMaterial_NmEn,\ncs_reason_code,\ncs_Reason_NmCn,\ncs_Reason_NmEn,\ncof_sub_reason_code,\ncof_sub_reason_desc,\ncof,\notif,\nifd,\notd,\notc,\nplanned_delivery_qty_pum,\nactual_delivery_qty_pum,\nsupply_driven_failures,\ncustomer_driven_failures,\not_cr_indicator,\nsdf,\ncdf,\ntotal_qty_failures,\nabsolute_diff_planned,\ncustomer,\nsales,\norder_management,\nstock,\ncorporate,\ndelivery,\nqty,\nwarehouse,\ndispute_management,\ndirect_delivery,\nsupply_driven_percent,\ncustomer_driven_percent,\nSummary_Level,\nDrillDown_Path,\nData_Year,\nData_Month,\nEtl_Time,\ndt\nfrom dscc.Wave2_DM_FACT_OTIF"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.kpidate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KPIDate",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.corporate_brand",
+									"type": "String"
+								},
+								"sink": {
+									"name": "corporate_brand",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.corporate_brand_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "corporate_brand_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.plant",
+									"type": "String"
+								},
+								"sink": {
+									"name": "plant",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.plant_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "plant_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.ship_to_party",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ship_to_party",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.ship_to_party_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ship_to_party_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.business_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "business_id",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.business_id_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "business_id_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.business",
+									"type": "String"
+								},
+								"sink": {
+									"name": "business",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.business_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "business_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cs_reason_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cs_reason_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cs_reason_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cs_Reason_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cs_reason_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cs_Reason_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cof_sub_reason_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cof_sub_reason_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cof_sub_reason_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cof_sub_reason_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cof",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "cof",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.otif",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "otif",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.ifd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "ifd",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.otd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "otd",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.otc",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "otc",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.planned_delivery_qty_pum",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "planned_delivery_qty_pum",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.actual_delivery_qty_pum",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "actual_delivery_qty_pum",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.supply_driven_failures",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "supply_driven_failures",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_driven_failures",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "customer_driven_failures",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.ot_cr_indicator",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ot_cr_indicator",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.sdf",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "sdf",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.cdf",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "cdf",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.total_qty_failures",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "total_qty_failures",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.absolute_diff_planned",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "absolute_diff_planned",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer",
+									"type": "String"
+								},
+								"sink": {
+									"name": "customer",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.sales",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sales",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.order_management",
+									"type": "String"
+								},
+								"sink": {
+									"name": "order_management",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.stock",
+									"type": "String"
+								},
+								"sink": {
+									"name": "stock",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.corporate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "corporate",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.delivery",
+									"type": "String"
+								},
+								"sink": {
+									"name": "delivery",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.warehouse",
+									"type": "String"
+								},
+								"sink": {
+									"name": "warehouse",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.dispute_management",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dispute_management",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.direct_delivery",
+									"type": "String"
+								},
+								"sink": {
+									"name": "direct_delivery",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.supply_driven_percent",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "supply_driven_percent",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_driven_percent",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "customer_driven_percent",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.summary_level",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Summary_Level",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.drilldown_path",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DrillDown_Path",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dt",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_OTIF_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_OTIF_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,155 @@
+{
+	"name": "Exec_CCFR",
+	"properties": {
+		"activities": [
+			{
+				"name": "KW_Data_NestleCCFR_UPDATE_Data_PurchaseOrderClear",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "KW_Data_NestleCCFR_UPDATE_Data_PurchaseOrderClear",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Hive2",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KW_Data_NestleCCFR_UPDATE_Data_PurchaseOrderClear",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_PurchaseOrderClear2",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_PurchaseOrderClear/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Delete_KW",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Hive2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_Data_PurchaseOrder_Delete",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KW_BFL_Data_PurchaseOrder",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Delete_KW",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_Data_PurchaseOrder_Clear",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LoadSELLIN_Order_Intransit_Warehousing_Detail_D",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "KW_BFL_Data_PurchaseOrder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "LoadSELLIN_Order_Intransit_Warehousing_Detail_D",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:01:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

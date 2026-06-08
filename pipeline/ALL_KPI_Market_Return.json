@@ -1,0 +1,453 @@
+{
+	"name": "ALL_KPI_Market_Return",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_Market_Return",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/AL_KPI_Market_Return",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_Market_Return"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete [NESZ_AL].[KPI_Market_Return]",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.cust_class_grp",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Class_Grp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.businessview_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.mr_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "MR_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.mr_reason",
+									"type": "String"
+								},
+								"sink": {
+									"name": "MR_Reason",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.mr_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MR_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.mr_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MR_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.data_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_market_return.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_Market_Return_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_Market_Return",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Market_Return",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_AL].[KPI_Market_Return]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

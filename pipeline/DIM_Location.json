@@ -1,0 +1,489 @@
+{
+	"name": "DIM_Location",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Location",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Location"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[DIM_Location]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dim_location.location_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Location_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.address",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Address",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.longitude",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Longitude",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.latitude",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Latitude",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.country_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Country_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.country_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Country_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.country_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Country_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.province_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Province_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.province_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Province_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.province_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Province_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.city_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.city_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.district_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "District_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.district_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "District_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.district_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "District_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.sub_district_lv1_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sub_District_Lv1_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.sub_district_lv2_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sub_District_Lv2_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.main_road_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Main_Road_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.second_road_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Second_Road_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.zone_address",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Zone_Address",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.house_no",
+									"type": "String"
+								},
+								"sink": {
+									"name": "House_No",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.building_no",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Building_No",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.room_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Room_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_location.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Location_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Location",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy data2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\nLocation_UniId,\nAddress,\nLongitude,\nLatitude,\nCountry_Cd,\nCountry_NmCn,\nCountry_NmEn,\nProvince_Cd,\nProvince_NmCn,\nProvince_NmEn,\nCity_Cd,\nCity_NmCn,\nCity_NmEn,\nDistrict_Cd,\nDistrict_NmCn,\nDistrict_NmEn,\nSub_District_Lv1_Nm,\nSub_District_Lv2_Nm,\nMain_Road_Nm,\nSecond_Road_Nm,\nZone_Address,\nHouse_No,\nBuilding_No,\nRoom_Desc,\nStart_Dt,\nEnd_Dt,\nEtl_Tm\nFROM \nNESZ_DIM.DIM_Location",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Location",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DM_DIM_Location",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_DIM_Location]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

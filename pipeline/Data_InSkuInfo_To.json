@@ -1,0 +1,247 @@
+{
+	"name": "Data_InSkuInfo_To",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/KW_Data_InSkuInfo_To",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/KW/Data_InSkuInfo_To/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.id",
+									"type": "Int64"
+								},
+								"sink": {
+									"name": "id",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.storecode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "storeCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.storename",
+									"type": "String"
+								},
+								"sink": {
+									"name": "storeName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.branchname",
+									"type": "String"
+								},
+								"sink": {
+									"name": "branchName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.cityname",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cityName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.inordernum",
+									"type": "String"
+								},
+								"sink": {
+									"name": "inOrderNum",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.brandname",
+									"type": "String"
+								},
+								"sink": {
+									"name": "brandName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.skutitle",
+									"type": "String"
+								},
+								"sink": {
+									"name": "skuTitle",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.innum",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "inNum",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "barCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.originnumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "originNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.createtime",
+									"type": "Int64"
+								},
+								"sink": {
+									"name": "createTime",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.updatetime",
+									"type": "Int64"
+								},
+								"sink": {
+									"name": "updateTime",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.skuerpcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "skuErpCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.intype",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "inType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_inskuinfo_to.createon",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CreateOn",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADF_To_MVP_KW_Data_InSkuInfo_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADF_To_MVP_KW_Data_InSkuInfo_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ADF_To_MVP/KW"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:41:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

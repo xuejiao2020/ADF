@@ -1,0 +1,297 @@
+{
+	"name": "PurchaseOrderInfo_To",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/LY/LY_PurchaseOrderInfo_To",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/LY/PurchaseOrderInfo_To/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_id",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "po_id",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.order_clerk",
+									"type": "String"
+								},
+								"sink": {
+									"name": "order_clerk",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_is_finished",
+									"type": "String"
+								},
+								"sink": {
+									"name": "po_is_finished",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.receiving_status",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "receiving_status",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_warehouse_id",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "po_warehouse_id",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.warehouse_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "warehouse_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.ctgy_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ctgy_code",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.product_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "product_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.sku",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sku",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.prod_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "prod_barcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_status",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "po_status",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_create_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "po_create_time",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.expire_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "expire_date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.receiving_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "receiving_time",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "po_qty",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.po_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "po_price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.recv_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "recv_qty",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.recv_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "recv_price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.vendor_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "vendor_id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_purchaseorderinfo_to.createon",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CreateOn",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADF_To_MVP_LY_PurchaseOrderInfo_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADF_To_MVP_LY_PurchaseOrderInfo_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ADF_To_MVP/LY"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:43:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

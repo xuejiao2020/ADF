@@ -1,0 +1,204 @@
+{
+	"name": "Customer_Inventory_M_SDM_DataCheck_NPP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NPP",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NPP",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Lookup2",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/Customer_Inventory_M_Datacheck_NPP_qty",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "wave2_customer_inventory_m_Parquet_Datacheck_NPP_qty",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Lookup3",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Lookup2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select cast(round(sum(stock_qty_cs),0) as int) as sdm_qty from  [NESZ_STG].[Customer_Inventory_M]\nwhere stock_date >= CONVERT(varchar(7), dateadd(mm,-1,getdate()) , 120) + '-01' \nand Stock_Date <=convert(varchar(10),getdate(),120)\nand Src_Data_Code='NPP'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Customer_Inventory_D_DB",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Lookup3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[UDP_SDMExtDataCheck]",
+					"storedProcedureParameters": {
+						"Hive_Count": {
+							"value": {
+								"value": "@activity('Lookup2').output.firstRow.DSCC_qty",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Hive_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.DSCC_Table",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SDM_Count": {
+							"value": {
+								"value": "@activity('Lookup3').output.firstRow.sdm_qty",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SDM_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.SDM_Table",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Src_Count": {
+							"value": {
+								"value": "@activity('Lookup1').output.firstRow.sdmext_qty",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Src_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.SDMEXT_Table",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"SDMEXT_Table": {
+				"type": "string",
+				"defaultValue": "sdmext.customer_inventory_m_NPP"
+			},
+			"DSCC_Table": {
+				"type": "string",
+				"defaultValue": "dscc.Wave2_Customer_Inventory_M_NPP"
+			},
+			"SDM_Table": {
+				"type": "string",
+				"defaultValue": "NESZ_STG.Customer_Inventory_M_NPP"
+			}
+		},
+		"folder": {
+			"name": "DataCheck_mail"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-24T03:10:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

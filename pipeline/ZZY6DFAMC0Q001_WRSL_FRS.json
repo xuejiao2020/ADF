@@ -1,0 +1,88 @@
+{
+	"name": "ZZY6DFAMC0Q001_WRSL_FRS",
+	"properties": {
+		"activities": [
+			{
+				"name": "ZZY6DFAMC0Q001_WRSL_FRS",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "prddatalake/prod/inbound/SAP/CN/production/ZZY6DS9MC0Q_001_/"
+					},
+					{
+						"name": "Destination",
+						"value": "prddatalake/prod/inbound/SAP/CN/production/dscc_bw/ZZY6DS9MC0Q_001_L4_1N2_/"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"modifiedDatetimeStart": {
+								"value": "@{pipeline().parameters.windowStart}",
+								"type": "Expression"
+							},
+							"modifiedDatetimeEnd": {
+								"value": "@{pipeline().parameters.windowEnd}",
+								"type": "Expression"
+							},
+							"wildcardFileName": "ZZY6DFAMC0Q001_WRSL_FRS_*.csv",
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ZZY6DFAMC0Q001_WRSL_FRS",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BW_Destination",
+						"type": "DatasetReference",
+						"parameters": {
+							"cw_folderPath": "prod/inbound/SAP/CN/production/dscc_bw/ZZY6DFAMC0Q001_WRSL_FRS_/dt=@{formatDateTime(pipeline().parameters.windowEnd,'yyyy-MM-dd')}"
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"windowStart": {
+				"type": "string"
+			},
+			"windowEnd": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Landing Zone Bw"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:38:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

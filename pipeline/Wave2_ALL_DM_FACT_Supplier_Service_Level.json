@@ -1,0 +1,346 @@
+{
+	"name": "Wave2_ALL_DM_FACT_Supplier_Service_Level",
+	"properties": {
+		"activities": [
+			{
+				"name": "ALL_DM_FACT_Supplier_Service_Level",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/Wave2_ALL_DM_FACT_Supplier_Service_Level",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_Supplier_Service_Level"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.data_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_YM",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.plant_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.plant_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.plant_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.supplier_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Supplier_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.supplier_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Supplier_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.supplier_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Supplier_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.material_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.material_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.material_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.total_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Total_Qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.ontime_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "OnTime_Qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.quantity_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Quantity_Qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.quality_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Quality_Qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.supplierservice_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "SupplierService_Qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_supplier_service_level.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_Supplier_Service_Level_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_Supplier_Service_Level_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ALL_DM_FACT_Supplier_Service_Level",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_Supplier_Service_Level]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:48:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

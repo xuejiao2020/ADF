@@ -1,0 +1,141 @@
+{
+	"name": "Exec_ALL_ReportLayer_Procedure",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_Stock_Cover_By_Case_D",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[KPI_Stock_Cover_By_Case_D_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_Stock_Cover_By_Value_D_Procedure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Stock_Cover_By_Case_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[KPI_Stock_Cover_By_Value_D_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_Stock_Cover_By_Value_M_Procedure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Stock_Cover_By_Value_D_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[KPI_Stock_Cover_By_Value_M_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_Stock_Cover_By_Value_W_Procedure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Stock_Cover_By_Value_M_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[KPI_Stock_Cover_By_Value_W_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Inventory_Warehouse_Product",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Stock_Cover_By_Value_W_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Inventory_Warehouse_Product]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_ReportLayer"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:38:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

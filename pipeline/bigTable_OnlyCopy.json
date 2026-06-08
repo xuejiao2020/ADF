@@ -1,0 +1,146 @@
+{
+	"name": "bigTable_OnlyCopy",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_ALL_Customer_Freshness_Inventory_M_OnlyCopy",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_Customer_Freshness_Inventory_M_OnlyCopy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_DSF_M_OnlyCopy",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_DSF_M_OnlyCopy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "KPI_RP_StockCover_OnlyCopy",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_DSF_M_OnlyCopy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "KPI_RP_StockCover_OnlyCopy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_AL_KPI_Customer_StockCover_M_OnlyCopy",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_AL_KPI_Customer_StockCover_M_OnlyCpoy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_SO_Sales_By_Store_D_Copy_Only",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_AL_KPI_Customer_StockCover_M_OnlyCopy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_SO_Sales_By_Store_D_Copy_Only",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_Customer_Inventory_M_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_Customer_Inventory_D_copy2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_Customer_Inventory_M_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_Customer_Inventory_D_copy2",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_Customer_Inventory_D_copy2",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/STG"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-06-08T10:06:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

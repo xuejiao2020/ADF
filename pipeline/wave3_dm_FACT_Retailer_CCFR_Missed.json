@@ -1,0 +1,529 @@
+{
+	"name": "wave3_dm_FACT_Retailer_CCFR_Missed",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave3/Wave3/Report/Wave3_DM_FACT_Retailer_CCFR_Missed",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave3/Report/Wave3_DM_FACT_Retailer_CCFR_Missed"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete DSCC_OTHERS.DM_FACT_Retailer_CCFR_Missed",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.retailer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.retailer_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_En",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.ledger_period",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ledger_period",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.sales_doc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sales_doc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.plant",
+									"type": "String"
+								},
+								"sink": {
+									"name": "plant",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.distribution_channel",
+									"type": "String"
+								},
+								"sink": {
+									"name": "distribution_channel",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.ponumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ponumber",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.material_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "material_number",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.material_description",
+									"type": "String"
+								},
+								"sink": {
+									"name": "material_description",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.sales_office",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sales_office",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.item",
+									"type": "String"
+								},
+								"sink": {
+									"name": "item",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.reason_for_rejection",
+									"type": "String"
+								},
+								"sink": {
+									"name": "reason_for_rejection",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.missed_reason_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Missed_Reason_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.missed_reason_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Missed_Reason_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.document_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "document_date",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.delivery_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "delivery_number",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.order_quantity",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "order_quantity",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.actual_quantity_deli",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "actual_quantity_deli",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.missed_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "missed_qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.original",
+									"type": "String"
+								},
+								"sink": {
+									"name": "original",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.cushielev4_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "cushielev4_cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.company_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "company_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "company_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "company_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.distribution_channel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "distribution_channel_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.distribution_channel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "distribution_channel_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.saleschannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "salesChannel_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.city_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.city_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.city_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.businessview_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "businessview_cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.businessview_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "businessview_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.businessview_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "businessview_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "product_mg1_cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr_missed.etl_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "wave3_dm_FACT_Retailer_CCFR_Missed",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "wave3_dm_FACT_Retailer_CCFR_Missed_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Report/Report/ONEALL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

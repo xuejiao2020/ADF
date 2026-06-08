@@ -1,0 +1,52 @@
+{
+	"name": "INCR_KPI_FG_StockCover_Report_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "INCR_FG_SDM_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "KPI_FG_StockCover_NEW_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "INCR_FG_Report_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "INCR_FG_SDM_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "INCR_Wave2_DM_FACT_FG_Stock_Cover_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL/report_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:03:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

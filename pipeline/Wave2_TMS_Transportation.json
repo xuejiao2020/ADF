@@ -1,0 +1,318 @@
+{
+	"name": "Wave2_TMS_Transportation",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/BFL/TMS_Transportation",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/TMS_Transportation"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_tms_transportation.obd_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.trans_plan_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Trans_Plan_Number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.transport_agent",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Transport_Agent",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.transport_mode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Transport_Mode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.vehicle_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Vehicle_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.vehicle_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Vehicle_Number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.driver_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Driver_Name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.driver_telephone",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Driver_Telephone",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.transporter",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Transporter",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.driver_rest_time",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Driver_Rest_Time",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.standard_dwt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Standard_DWT",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.standard_volume",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Standard_Volume",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.transport_prescription",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Transport_Prescription",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.actual_transit_time",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Actual_Transit_Time",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.actual_loaded_weight",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Actual_Loaded_Weight",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.actual_loaded_volume",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Actual_Loaded_Volume",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.box_no",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Box_NO",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.sealing_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sealing_Number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.identical_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Identical_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.source_data_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Source_data_status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.source_data_update",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Source_data_update",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_transportation.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_TMS_Transportation_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_TMS_Transportation_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,58 @@
+{
+	"name": "FULL_CustomerPartner_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "FULL_CustomerPartner",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "--解密数据前先开启密钥\nOPEN SYMMETRIC KEY DW1SAP_Cyber_SymmetricKey\n  DECRYPTION BY CERTIFICATE DW1SAP_Cyber\n--然后，我们可以使用DECRYPTBYKEY函数来解密数据：\n \nSELECT \nRid,ChangeFlag,CustomerNumber,SalesOrg,DistributionChannel,Division,PartnerFunction,PartnerNumber,\n   CONVERT(NVARCHAR, DECRYPTBYKEY(PartnerName)) as PartnerName,\n   CONVERT(NVARCHAR, DECRYPTBYKEY(PartnerDescription)) as PartnerDescription\n   ,getdate() CreateON_L1\nFROM [CustomerPartner];\n \n--解密数据完成后关闭密钥\nCLOSE SYMMETRIC KEY DW1SAP_Cyber_SymmetricKey",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "CustomerPartner",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_CustomerPartner",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "DW_TO_DL_L1_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-24T07:57:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

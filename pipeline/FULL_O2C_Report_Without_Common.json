@@ -1,0 +1,119 @@
+{
+	"name": "FULL_O2C_Report_Without_Common",
+	"properties": {
+		"description": "去重共有表的O2C简化任务",
+		"activities": [
+			{
+				"name": "ALL_KPI_Overdue_Detail",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_Overdue_Detail",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_Invoice_Accuracy_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_Invoice_Accuracy_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_Orders_BlockedforCredit_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_Orders_BlockedforCredit_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_Untouched_Order_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_Untouched_Order_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_DM_FACT_GCR_O2C",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_Overdue_Detail",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_KPI_Invoice_Accuracy_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_KPI_Orders_BlockedforCredit_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_KPI_Untouched_Order_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_GCR_O2C_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Scheduler/report/Without_Common"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

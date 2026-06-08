@@ -1,0 +1,85 @@
+{
+	"name": "MDM_CSTL4_CLS_GRP_MV_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select\nCST_SAL_ORG,\nREF_CMP_NAM_CN,\nREF_CMP_NAM_EN,\nCST_DST_CHL_ID,\nREF_CHL_DES_CN,\nREF_CHL_DES,\nCST_CLS_GRP,\nCST_UNIID,\nCST_NO,\nCST_NAM_CN,\nCST_NAM_EN,\nCONVERT(date,CST_STA_DT,23),\nCONVERT(date,CST_END_DT,23)\nfrom MVIEW.MDM_CSTL4_CLS_GRP_MV",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_CSTL4_CLS_GRP_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MDM_CSTL4_CLS_GRP_MV_Table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DB_Table/MDM_CSTL4_CLS_GRP_MV"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/DIM_DL/DB_Table_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:57:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

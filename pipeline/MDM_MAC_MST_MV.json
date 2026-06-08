@@ -1,0 +1,93 @@
+{
+	"name": "MDM_MAC_MST_MV",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \n\tMAC_ID,\n\tMAC_CD,\n\tMAC_CTG,\n\tMAC_VEN,\n\tMAC_BAR_CD,\n\tMAC_CNM,\n\tMAC_ENM,\n\tMAC_BRA_CNM,\n\tMAC_BRA_ENM,\n\tMAC_PRO_LOC,\n\tMAC_TYP,\n\tMAC_MOD,\n\tMAC_DIM,\n\tMAC_WGT_SIZ,\n\tMAC_RP,\n\tMAC_RF,\n\tMAC_RV,\n\tREC_CREATE_TS\nfrom MVIEW.MDM_MAC_MST_MV",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_SPL_MST_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MDM_MAC_MST_MV_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DB_Table/MDM_MAC_MST_MV",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_MAC_MST_MV"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM/DB_Table"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

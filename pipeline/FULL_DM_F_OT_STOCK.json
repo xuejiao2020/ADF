@@ -1,0 +1,66 @@
+{
+	"name": "FULL_DM_F_OT_STOCK",
+	"properties": {
+		"activities": [
+			{
+				"name": "FULL_DM_F_OT_STOCK",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "select  * , getdate() CreateON_L1 from [dbo].[DM_F_OT_STOCK] with(nolock)  \nwhere\nkac_group_code in ('A005','B093','B046','A009')\nand date_key>=20200101",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_F_OT_STOCK",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_DM_F_OT_STOCK",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"MyWindowStart": {
+				"type": "string"
+			},
+			"MyWindowEnd": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Wave3/Data_TO_L1/ECMS_TO_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

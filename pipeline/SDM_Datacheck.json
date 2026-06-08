@@ -1,0 +1,537 @@
+{
+	"name": "SDM_Datacheck",
+	"properties": {
+		"activities": [
+			{
+				"name": "SI_RSF",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('DW2SAP_RSF_L2')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "SI_RSF_Amendment",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('DW2SAP_AmendmentSF_L2')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "SI_RSF_Amendment_frozen",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('DW2SAP_AmendmentSF_Frozen_L2')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SI_RSF",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SI_RSF_Amendment",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SI_RSF_Amendment_frozen",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_D_EC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_D_NIN",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_D_NP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_D_NPP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_M_EC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_M_NIN",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_M_NP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Customer_Inventory_M_NPP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SI_Sales_Pending",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SI_Sales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"url": "http://10.236.78.210:8085/dep-core/api/mail",
+					"connectVia": {
+						"referenceName": "adf-ir",
+						"type": "IntegrationRuntimeReference"
+					},
+					"body": {
+						"value": "@concat('{\"to\":[\"zhangqiqi@agileex.com;Lingling.He@cn.nestle.com;\"],\"cc\":[\"gaoxiaozheng@agileex.com;quyue@agileex.com;\"],\"subject\":\"SDM巡检数据情况\",\"body\":\"Dear，<br>SDM数据巡检情况：<br>',activity('SI_RSF').output.firstRow.t,'<br>',activity('SI_RSF_Amendment').output.firstRow.t,'<br>',activity('SI_RSF_Amendment_frozen').output.firstRow.t,'<br>',activity('Customer_Inventory_D_EC').output.firstRow.t,'<br>',activity('Customer_Inventory_D_NIN').output.firstRow.t,'<br>',activity('Customer_Inventory_D_NP').output.firstRow.t,\n'<br>',activity('Customer_Inventory_D_NPP').output.firstRow.t,'<br>',activity('Customer_Inventory_M_EC').output.firstRow.t,\n'<br>',activity('Customer_Inventory_M_NIN').output.firstRow.t,\n'<br>',activity('Customer_Inventory_M_NP').output.firstRow.t,\n'<br>',activity('Customer_Inventory_M_NPP').output.firstRow.t,\n'<br>',activity('SI_Sales_Pending').output.firstRow.t,\n'<br>',activity('SI_Sales').output.firstRow.t,\n'\"}')",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://*.asazure.chinacloudapi.cn"
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_D_EC",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_D_EC')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_D_NIN",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_D_NIN')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_D_NP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_D_NP')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_D_NPP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_D_NPP')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_M_EC",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10'  then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_M_EC')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_M_NIN",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10'  then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_M_NIN')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_M_NP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10'  then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_M_NP')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "Customer_Inventory_M_NPP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select case when abs(Diff_Src_Hive)<='10' and abs(Diff_Hive_SDM)<='10'  then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('dscc.Wave2_Customer_Inventory_M_NPP')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "SI_Sales_Pending",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when  Diff_Src_Hive='0' and Diff_Hive_SDM='0' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('DW2SAP_Pending_L2')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			},
+			{
+				"name": "SI_Sales",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \ncase when  Diff_Src_Hive='0' then concat(SDM_TableName,'---',N'成功')\nelse concat(SDM_TableName,'---',N'失败') end as t\nfrom [dbo].[SDMExt_DataCheck]\nwhere Create_Dt=CONVERT(varchar(10), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)\nand Hive_TableName in('DW1SAP_Sales_L2')\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SRC_SDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "dbo",
+							"TableName": "SDMExt_DataCheck"
+						}
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-08-24T12:05:52Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

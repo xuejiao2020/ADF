@@ -1,0 +1,456 @@
+{
+	"name": "Report_Schedule_Chaos2Order_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Risk_AND_DPA_DPB_M_Common",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			},
+			{
+				"name": "ALL_SI_CDP_By_Region_DC_SKU_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "RSF_with_commom",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_SI_CDP_By_Region_DC_SKU_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SI_Sales",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SI_Sales",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "INCR_RISK_OPPO_REPORT_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_SI_CDP_By_Region_DC_SKU_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_SI_Sales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "INCR_RISK_OPPO_REPORT_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_SO_Forcast_By_Customer_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SO_Forcast_By_Customer_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_DPA_DPB_Month_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_SO_Forcast_By_Customer_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_SI_CDP_By_Region_DC_SKU_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_SI_Sales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_DPA_DPB_Month_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SO_Intransit_By_CustCity_D",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SO_Intransit_By_CustCity_D",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_DPA_DPB_Week_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_SI_Sales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_DPA_DPB_Week_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_DSA_D",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_SO_Intransit_By_CustCity_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_Customer_Inventory_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Auto_Wait",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_Customer_Inventory_D",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_Customer_Inventory_D",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_Distributor_Stock_Availability_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_DSA_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_KPI_CCFR_Detail",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_Distributor_Stock_Availability_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FULL_O2C_Report_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_DSA_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_Product_On_Shelf_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_SC_KPI_REPORT",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "FULL_O2C_Report_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_Product_On_Shelf_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_Product_On_Shelf_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "INCR_OSA_REPORT_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_Product_On_Shelf_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "INCR_OSA_REPORT_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_KPI_CCFR_Detail",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_KPI_CCFR_Detail",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FULL_KPI_CCFR_Detail_Report_Without_Common",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_KPI_CCFR_Detail",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "FULL_KPI_CCFR_Detail_Report_Without_Common",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_SC_KPI_REPORT",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_SC_KPI_REPORT",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_DM_FACT_CCFR_Monthly_Missed",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_CCFR_Monthly_Missed",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "RSF_with_commom",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Risk_AND_DPA_DPB_M_Common",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "RSF_with_commom",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Scheduler"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

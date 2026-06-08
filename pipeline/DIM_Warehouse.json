@@ -1,0 +1,647 @@
+{
+	"name": "DIM_Warehouse",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DIM_Warehouse",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DIM_Warehouse"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[DIM_Warehouse]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.location_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Location_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.supply_warehouse_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.supply_warehouse_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.supply_warehouse_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_status_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Status_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.warehouse_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehouse_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_warehouse.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Warehouse_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Warehouse",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_DIM_Warehouse]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select\nWarehouse_UniId,\nWarehouse_Cd,\nWarehouse_NmCn,\nWarehouse_NmEn,\nCustomer_UniId,\nLocation_UniId,\nCity_Cd,\nWarehouse_Type_Cd,\nWarehouse_Type_NmCn,\nWarehouse_Type_NmEn,\nParent_Whs_Cd,\nParent_Whs_NmCn,\nParent_Whs_NmEn,\nWarehouse_Status_Cd,\nWarehouse_Status_Desc,\nWarehouse_Src,\nStart_Dt,\nEnd_Dt,\nEtl_Tm\nfrom \nNESZ_DIM.DIM_Warehouse",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Warehouse_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Location_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Location_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "City_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Type_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Type_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Type_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Type_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Parent_Whs_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Parent_Whs_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Status_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Status_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Status_Desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Status_Desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Warehouse_Src",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Warehouse_Src",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Start_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "End_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "Etl_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Warehouse",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DM_DIM_Warehouse",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

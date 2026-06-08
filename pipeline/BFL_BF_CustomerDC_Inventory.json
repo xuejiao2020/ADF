@@ -1,0 +1,442 @@
+{
+	"name": "BFL_BF_CustomerDC_Inventory",
+	"properties": {
+		"activities": [
+			{
+				"name": "LY_BFL_StockInfo2",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KW_BFL_BF_CustomerDC_Inventory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/StockInfo2",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KW_BFL_BF_CustomerDC_Inventory",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_BF_CustomerDC_Inventory",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLModel/BF_CustomerDC_Inventory/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "BF_CustomerDC_Inventory",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LY_BFL_StockInfo2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.BF_CustomerDC_Inventory \nwhere to_date(Data_dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerdc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerdc_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerdc_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerwarehouse_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerbranch_area",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerBranch_Area",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customerdc_city",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_City",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.product_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_product_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Product_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.customer_sku_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.product_work_stats_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Work_Stats_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.product_work_stats_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Work_Stats_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.pd_date",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Pd_Date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.valid_days_total",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Valid_Days_Total",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.valid_days_remain",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Valid_Days_Remain",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.unit_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.goods_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Goods_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.inventory_stat_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Inventory_Stat_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.etl_src_tb",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src_Tb",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_inventory.etl_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_CustomerDC_Inventory_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_CustomerDC_Inventory_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ETL BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:43:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

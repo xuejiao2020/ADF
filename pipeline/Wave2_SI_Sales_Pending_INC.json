@@ -1,0 +1,342 @@
+{
+	"name": "Wave2_SI_Sales_Pending_INC",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/BFL/SI_Sales_Pending_inc",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/SI_Sales_Pending"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select * from dscc.Wave2_SI_Sales_Pending\nwhere Reporting_Dt>=add_months(trunc(current_date(),'MM'),-1)"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete from [NESZ_BFL].[SI_Sales_Pending]\nwhere left(Convert(varchar(100),Reporting_Dt,23),7)>=CONVERT(varchar(7), dateadd(MM,-1,getdate()), 120)",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.sales_document_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Document_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.sales_document_item_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Document_Item_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChl_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.dc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.po_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.obd_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.reporting_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Reporting_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.doc_create_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Doc_Create_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.order_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Order_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.pending_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Pending_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.atp_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ATP_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.pending_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Pending_Qty",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.gps",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "GPS",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.total_tax",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Total_Tax",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.item_tax",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Item_Tax",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales_pending.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_SI_Sales_Pending_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_SI_Sales_Pending_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

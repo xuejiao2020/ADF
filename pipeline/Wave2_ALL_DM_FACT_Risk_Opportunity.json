@@ -1,0 +1,454 @@
+{
+	"name": "Wave2_ALL_DM_FACT_Risk_Opportunity",
+	"properties": {
+		"activities": [
+			{
+				"name": "DM_FACT_Risk_Opportunity",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/ALL_DM_FACT_Risk_Opportunity",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_Risk_Opportunity"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select * from dscc.Wave2_DM_FACT_Risk_Opportunity\nwhere KPIDate>=add_months(trunc(current_date(), 'MM'), -1)\n"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.kpidate",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "KPIDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.data_date",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.datatype",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DataType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.saleschannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.saleschannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.saleschannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.city_cd_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.dc_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.dc_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.si_btmup_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SI_BtmUp_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.so_btmup_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SO_BtmUp_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.si_cdp_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SI_CDP_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.so_cdp_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SO_CDP_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.si_actual_sales",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SI_Actual_Sales",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.so_actual_sales",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SO_Actual_Sales",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_risk_opportunity.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_Risk_Opportunity_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_Risk_Opportunity_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DM_FACT_Risk_Opportunity",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete  DSCC_NESZ.DM_FACT_Risk_Opportunity\nwhere KPIDate>=format(DATEADD(month,-1,DATEADD(HOUR, 8, getdate())),'yyyy-MM-01')",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:33Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

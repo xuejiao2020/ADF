@@ -1,0 +1,182 @@
+{
+	"name": "WalMart_Schedule_LinkServer_SDM",
+	"properties": {
+		"activities": [
+			{
+				"name": "Link_service_Walmart_Shiloh_DLY_Delete",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Link_service_Walmart_Shiloh_DLY_Delete",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Link_service_Walmart_Shiloh_WKL_DELETE",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Link_service_Walmart_Shiloh_WKL_Delete",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Walmart_DataCopy_DLY_INC",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Link_service_Walmart_Shiloh_DLY_Delete",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Walmart_DataCopy_DLY_INC",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Walmart_DataCopy_WKL_INC",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Link_service_Walmart_Shiloh_WKL_DELETE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Walmart_DataCopy_WKL_INC",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Walmart_Schedule_L1_L2",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Walmart_DataCopy_DLY_INC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Walmart_DataCopy_WKL_INC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Walmart_Schedule_L1_L2",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "BFL_Schedule",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Walmart_Schedule_L1_L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "BFL_Schedule",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "stg_schedule",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "BFL_Schedule",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "stg_Schedule",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Schedule_Walmart_RPA",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Schedule_Walmart_RPA",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave3/Wave3_Schedule"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:03:54Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

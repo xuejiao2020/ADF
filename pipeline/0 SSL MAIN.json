@@ -1,0 +1,122 @@
+{
+	"name": "0 SSL MAIN",
+	"properties": {
+		"description": "入口",
+		"activities": [
+			{
+				"name": "1 SSL DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "1 SSL DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "2 SSL MDM",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "1 SSL DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "2 SSL MDM",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "3 SSL SDM DIM",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "2 SSL MDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "3 SSL SDM DIM",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "4 SSL SDM AL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "3 SSL SDM DIM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "4 SSL SDM AL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "5 SSL REPORT",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "4 SSL SDM AL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "5 SSL REPORT",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "SSL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

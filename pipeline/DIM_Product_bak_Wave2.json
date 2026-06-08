@@ -1,0 +1,397 @@
+{
+	"name": "DIM_Product_bak_Wave2",
+	"properties": {
+		"activities": [
+			{
+				"name": "MDM_PRD_MST_MV",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select PRD_UNIID,\n       PRD_NO,\n       PRD_SRC,\n       PRD_TYP,\n       PRD_TYP_DES,\n       PRD_EAN_CS,\n       PRD_EAN_EA,\n       PRD_DES_CN,\n       PRD_DES,\n       PRD_OTH_DES,\n       PRD_WGT,\n       PRD_WGT_UNT,\n       PRD_VOL,\n       PRD_VOL_UNT,\n       PRD_FAT_CS,\n       PRD_TOL_LIF,\n       PRD_TOL_PER,\n       PRD_STG,\n       PRD_STA_DT,\n       PRD_END_DT,\n       GETDATE()\nfrom [MVIEW].MDM_PRD_MST_MV T1 ",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_PRD_MST_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Product_CSV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DIM_Product",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "MDM_PRD_MST_MV",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Product_Wave2",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Product/",
+						"ADF.database": "dscc",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Product/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "DIM_Product_Copy_SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Initialization_DIM_Product",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm_Sc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_type_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_barcode_cs",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_barcode_ea",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm_SC",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FactorInCS",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_nm_alias",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.weight",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.weight_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Des",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.volume",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.volume_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_factorincs",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Stage",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_total_shelf_life",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NPS_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.product_total_shelf_period",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Total_Shelf_Life",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.milkpowder_stage",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Total_Shelf_Period",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_Discontinued",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "State",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_product.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Product_HIVE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Product_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Initialization_DIM_Product",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DIM_Product",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LoadDIM_Product]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:53:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

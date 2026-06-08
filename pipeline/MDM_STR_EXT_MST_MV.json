@@ -1,0 +1,93 @@
+{
+	"name": "MDM_STR_EXT_MST_MV",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \n\tSTR_UNIID,\n\tSTR_NEL_NO,\n\tSTR_NO,\n\tSTR_NAM_CN,\n\tSTR_NAM_EN,\n        STR_CMP_CD,\n        REF_CMP_NAM_CN,\n        REF_CMP_NAM_EN,\n        STR_DIS_CHL,\n        REF_CHL_DES_CN,\n        REF_CHL_DES,\n\tSTR_CST_UNIID,\n\tSTR_CST_CD,\n\tSTR_SCD,\n\tSTR_SNM_CN,\n\tSTR_SNM_EN,\n\tSTR_TYP_ID,\n\tSTR_TYP_DES_CN,\n\tSTR_TYP_DES_EN,\n\tSTR_ACT_CD,\n\tSTR_ACT_DES,\n\tSTR_JM,\n\tSTR_ZY,\n\tSTR_SNC,\n\tSTR_DEF_REG,\n\tSTR_DEF_REG_DES_CN,\n\tSTR_DEF_REG_DES_EN,\n\tSTR_CHL1_LEV,\n\tSTR_CHL1_DES_CN,\n\tSTR_CHL1_DES_EN,\n\tSTR_CHL2_LEV,\n\tSTR_CHL2_DES_CN,\n\tSTR_CHL2_DES_EN,\n\tSTR_CHL3_LEV,\n\tSTR_CHL3_DES_CN,\n\tSTR_CHL3_DES_EN,\n\tSTR_SRC_CD,\n\tCONVERT(date,STR_STA_DT,23),\n\tSTR_END_DT\nfrom MVIEW.MDM_STR_EXT_MST_MV",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_STR_EXT_MST_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MDM_STR_EXT_MST_MV_Table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/DB_Table/MDM_STR_EXT_MST_MV",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/DB_Table/MDM_STR_EXT_MST_MV"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM/DB_Table"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:46:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

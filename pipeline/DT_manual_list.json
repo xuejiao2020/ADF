@@ -1,0 +1,316 @@
+{
+	"name": "DT_manual_list",
+	"properties": {
+		"activities": [
+			{
+				"name": "DT_Manual_List",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave3/L1L2_ETL/ManualData/DT_Manual_List",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ManualData/DT_manual_list",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ManualData/DT_manual_list"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "DT_Manual_List",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete\nfrom  DSCC_OTHERS.DM_DIM_DT_Manual_List",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "dt_manual_list_l2.top20",
+									"type": "String"
+								},
+								"sink": {
+									"name": "top20",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.dt_group",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dt_group",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.oop",
+									"type": "String"
+								},
+								"sink": {
+									"name": "oop",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.segmentation_group",
+									"type": "String"
+								},
+								"sink": {
+									"name": "segmentation_group",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.customer_segment",
+									"type": "String"
+								},
+								"sink": {
+									"name": "customer_segment",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.customer_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "customer_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.customer_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "customer_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.distributor_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "distributor_type",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.region_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "region_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.region_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "region_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.city_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.city",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.sales_group",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sales_group",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.city_groupcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_groupcode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.city_groupname_cn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "city_groupname_cn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.l6_cg_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "l6_cg_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.main_ua_c",
+									"type": "String"
+								},
+								"sink": {
+									"name": "main_ua_c",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.based_city_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "based_city_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.nestle_ua_level",
+									"type": "String"
+								},
+								"sink": {
+									"name": "nestle_ua_level",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dt_manual_list_l2.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DT_Manual_List_l2",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Wave3_DIM_DT_Manual_List",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/L1_L2/ManualData"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:53:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

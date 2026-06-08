@@ -1,0 +1,121 @@
+{
+	"name": "FULL_Customer_Stock_Cover_Report_Without_Common_DL",
+	"properties": {
+		"description": "去重共有表的CSC简化任务",
+		"activities": [
+			{
+				"name": "Wave2_ALL_Customer_Inventory_M_OnlyHive_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_Customer_Inventory_M_OnlyHive_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SO_Intransit_By_CustCity_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SO_Intransit_By_CustCity_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "wave3_FACT_SALES_SO_STOCK_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_Customer_Inventory_M_OnlyHive_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_FACT_SALES_SO_STOCK_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_DM_FACT_Customer_Stock_Cover_INC_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_AL_KPI_Customer_StockCover_M_OnlyHive_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_Customer_Stock_Cover_INC_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_AL_KPI_Customer_StockCover_M_OnlyHive_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_Customer_Inventory_M_OnlyHive_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_SO_Intransit_By_CustCity_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_AL_KPI_Customer_StockCover_M_OnlyHive_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL/report_DL/Without_Common_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

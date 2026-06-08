@@ -1,0 +1,222 @@
+{
+	"name": "Schedule_retailer_RP_withwumart_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave3_DATA_Wumart_NiN_Online_stock_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave3_DATA_Wumart_NiN_Online_stock_D_INC_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave3_DATA_Wumart_NiN_res_order_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave3_DATA_Wumart_NiN_Online_stock_D_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave3_DATA_Wumart_NiN_res_order_D_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave3_DATA_Wumart_NiN_Ulevel_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave3_DATA_Wumart_NiN_Ulevel_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DATA_Wumart_Nestle_order_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DATA_Wumart_Nestle_order_D_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DATA_Wumart_Nestle_product_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DATA_Wumart_Nestle_order_D_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DATA_Wumart_Nestle_product_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DATA_Wumart_Nestle_sales_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave3_DATA_Wumart_NiN_Ulevel_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DATA_Wumart_Nestle_sales_D_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DATA_Wumart_Nestle_stock_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DATA_Wumart_Nestle_stock_D_INC_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DATA_Wumart_store_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "bigTable_OnlyCopy_afternoon",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DATA_Wumart_store_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bigTable_OnlyCopy_afternoon",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/bigTable_OnlyCopy_afternoon"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave3_DL/Report_DL/Report_DL/ONEALL_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-06-01T04:40:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

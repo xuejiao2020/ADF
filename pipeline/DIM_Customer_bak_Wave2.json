@@ -1,0 +1,396 @@
+{
+	"name": "DIM_Customer_bak_Wave2",
+	"properties": {
+		"activities": [
+			{
+				"name": "MDM_CST_BYS_MV_Copy",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "MDM_CST_MST_MV_Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT DISTINCT CST_UNIID  as Cust_UniId,\n                CST_NO     as Cust_Cd,\n                CST_Nm_Cn   as Cust_NmCn,\n                CST_Nm_En   as Cust_NmEn,\n                CST_CTY_CD as City_Cd,\n                CST_STA_DT as Start_Dt,\n                CST_END_DT as End_Dt,\n                GETDATE()\nFROM [MVIEW].[MDM_BYS_CST_MV] T1",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_BYS_CST_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Customer",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DIM_Customer",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "MDM_CST_BYS_MV_Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Customer_Wave2",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer",
+						"ADF.database": "dscc",
+						"ADF.rootpath3": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Customer",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DM_MDM_CST_MST_MV"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "DIM_Customer_Copy_SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Initialization_DIM_Customer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dim_customer.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.accountinggroup_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AccountingGroup_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.accountinggroup_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AccountingGroup_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.accountinggroup_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AccountingGroup_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.kac_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KAC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.kac_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KAC_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.kac_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KAC_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.location_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Location_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_customer.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Customer_HIVE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Customer_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Initialization_DIM_Customer",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DIM_Customer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LoadDIM_Customer]",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DIM_CUSTOMER]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "MDM_CST_MST_MV_Copy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT DISTINCT CST_UNIID,\n                CST_NO,\n                CST_NAM_CN,\n                CST_NAM_EN,\n                CST_ACC_GRP,\n                CST_ACC_GRP_DES,\n                CST_ACC_GRP_DES,\n                CST_GRP,\n                CST_GRP_DES_CN,\n                CST_GRP_DES_EN,\n                CST_CTY_CD,\n                CST_STA_DT,\n                CST_END_DT,\n                GETDATE()\nFROM [MVIEW].[MDM_CST_MST_MV] T1",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_CST_MST_MV_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_MDM_CST_MST_MV",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

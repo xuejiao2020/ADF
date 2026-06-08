@@ -1,0 +1,478 @@
+{
+	"name": "Wave2_DM_FACT_OTIF_bak",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_DM_FACT_OTIF",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/DM_FACT_OTIF",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_OTIF"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Wave2_DM_FACT_OTIF",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.kpidate",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "KPIDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.saleschannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.saleschannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.saleschannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.dc_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.dc_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.city_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.city_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.customer_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.iskeycustomer",
+									"type": "String"
+								},
+								"sink": {
+									"name": "IsKeyCustomer",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.reason_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reason_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.reason_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reason_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.ontimedelivery_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "ONTimeDelivery_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.totaldelivered_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TotalDelivered_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.totalrequest_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TotalRequest_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.plan_del_qty_pum",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Plan_Del_Qty_PUM",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.missedorder_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MissedOrder_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_otif.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_OTIF_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_OTIF_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:53:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

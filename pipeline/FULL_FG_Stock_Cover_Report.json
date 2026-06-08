@@ -1,0 +1,76 @@
+{
+	"name": "FULL_FG_Stock_Cover_Report",
+	"properties": {
+		"activities": [
+			{
+				"name": "FG_SDM",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_FG_StockCover",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FG_Report",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FG_SDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_FG_Stock_Cover",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_FG_StockCover_OnlyCopy",
+				"description": "report跑好后再同步sdm的sqlserver",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FG_Report",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_FG_StockCover_OnlyCopy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/SDM2Report/FULL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:03Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

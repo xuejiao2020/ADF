@@ -1,0 +1,422 @@
+{
+	"name": "Wave2_KPI_RP_OOS",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/AL/KPI_RP_OOS",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_RP_OOS"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select\nUUID,\nCompany_Cd,\nCompany_NmEn,\nCompany_NmCn,\nPlant_UniId,\nFactory_Cd,\nFactory_NmEn,\nFactory_NmCn,\nMaterial_Status,\nMaterial_UniId,\nMaterial_Cd,\nMaterial_NmCn,\nMaterial_NmEn,\nMaterial_Type_Cd,\nMaterial_Type_Desc,\nProcurement_Type,\nRequirements,\nReceipts,\nQty_Unit,\nCurrency,\nClosing_Stock,\nClosing_Stock_Amt,\nStock_Cover,\nVersion_Week,\nData_Year,\nData_Week,\n`date`,\nEtl_Tm,\nEtl_Src,\nEtl_Job\nfrom dscc.Wave2_KPI_RP_OOS\nWHERE `date`>=date_format(date_sub(next_day(CURRENT_DATE,'MO'),7),'yyyyMMdd')\nand `date`<=date_format(date_add(date_sub(next_day(CURRENT_DATE,'MO'),7),6),'yyyyMMdd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "factory_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "factory_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "factory_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_type_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "procurement_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Procurement_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "requirements",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Requirements",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "receipts",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receipts",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "qty_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Qty_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "currency",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Currency",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "closing_stock",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Closing_Stock",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "closing_stock_amt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Closing_Stock_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "stock_cover",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Stock_Cover",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "version_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Version_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_RP_OOS_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_RP_OOS",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_AL].[KPI_RP_OOS] \nWHERE date>= convert(varchar(10),dateadd(dd,-(DatePart(weekday, dateadd(dd,-1,getdate()))-1),getdate()),112) \nand date<= convert(varchar(10),dateadd(dd,(7-DatePart(weekday, dateadd(dd,-1,getdate()))),getdate()),112)",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:48:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,447 @@
+{
+	"name": "wave3_FACT_DPA_DPB_M",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave3/Wave3/Report/ALL/wave3_FACT_DPA_DPB_M",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave3/Report/ALL/wave3_FACT_DPA_DPB_M"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "TRUNCATE TABLE DSCC_OTHERS.DM_FACT_DPA_DPB_M",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.kpidate",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "KPIDate",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.selltype",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SellType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.datatype",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DataType",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.dc_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.dc_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.businessview_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.businessview_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.businessview_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.order_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Order_Qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.order_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Order_Amt",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.mfragreedcdp_m1",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MFRagreedCDP_M1",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.mfragreedcdp_m2",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MFRagreedCDP_M2",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.mfragreedcdp_m3",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MFRagreedCDP_M3",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_fact_dpa_dpb_m.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "wave3_FACT_DPA_DPB_M",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DM_FACT_DPA_DPB_M",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Report/Report/ONEALL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:54:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,61 @@
+{
+	"name": "INC_DM_D_SO_OUTLET",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DM_D_SO_OUTLET",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select\noutlet_id,\noutlet_uniqueId,\nparent_customer_number,\noutlet_code,\ndistribution_channel,\ncustomer_grpName,\nnestle_outlet_code,\nnestle_outlet_flag,\nlarge_storehouse_code,\nlarge_storehouse_name,\nsales_person_code,\nsales_person_cn,\nsales_person_en,\nsales_sifunction,\nkac_code,\nreplace(replace(outlet_name,CHAR(13),''),CHAR(10),'') as outlet_name,\nreplace(replace(outlet_address,CHAR(13),''),CHAR(10),'') as outlet_address,\noutlet_channel,\nIs_active,\nparent_dc,\narea_sq,\ncity_code,\n[cg-1_code],\nIs_dc,\nIs_ndsc,\nkanka,\nlat_lng,\nlocation,\ninsert_date,\nstore_no,\ndc_store_no,\nspecial_flag,\nOOH,\nPrimaryContact,\nreplace(replace(Telephone,CHAR(13),''),CHAR(10),'') as Telephone,\nkac_name_cn,\nkac_name_en,\nkac_group_code,\nkac_group_name,\nka_agg1,\nka_agg2,\nka_or_channel,\nka_team_seq_id,\nka_team_topclass,\noutlet_channel_group,\noutlet_channel_seq_id,\noutlet_channel2_seq_id,\ncustomer_class_group_new,\ncustomer_class_group_old,\ncustomer_channel,\nOutletSubChannel,\nOutletCreationTime,\nUpdateTime,\ngetdate() CreateON_L1\nfrom [dbo].[dm_d_so_outlet] with(nolock)where Convert(varchar(100),UpdateTime,112) >= format(dateadd(DD,-1,getdate()),'yyyyMMdd')\nand Convert(varchar(100),UpdateTime,112) <= format(dateadd(DD,-1,getdate()),'yyyyMMdd')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_D_SO_OUTLET",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DM_D_SO_OUTLET",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:42:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,393 @@
+{
+	"name": "ALL_Exec_Data_Service_instore",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data_Service_instore",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dscc/ETL/report/Data_Service_instore13",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/Data_Service_instore"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Data_Service_instore",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete [RPT].[Data_Service_instore]",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "data_service_instore.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.data_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Date",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.store_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.src_product_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Src_Product_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_nm_sc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm_Sc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_category_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_category_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_mg1",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_work_stats_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Work_Stats_Desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.is_available",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Is_Available",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.has_stocks",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Has_Stocks",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.consecutiveoosdays",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "consecutiveOosDays",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Qty_Ea",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS_Amt",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.prt_whs_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRT_WHS_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.prt_whs_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRT_WHS_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.prt_whs_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "PRT_WHS_Qty_Ea",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.o2ola_is_available",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "O2OLA_Is_Available",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.product_brand_nm_sc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm_SC",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.customer_dc_region",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_DC_Region",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.region_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.customerwarehouse_citygroup",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_CityGroup",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "data_service_instore.etl_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": true
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Data_Service_instore_hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Data_Service_instore_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ETL_ReportLayer"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

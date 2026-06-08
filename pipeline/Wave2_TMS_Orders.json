@@ -1,0 +1,542 @@
+{
+	"name": "Wave2_TMS_Orders",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/BFL/TMS_Orders",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/TMS_Orders"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select T1.* from dscc.Wave2_TMS_Orders T1\nwhere T1.dt >=date_sub(current_date(),1);"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "t1.po_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.nestle_salesorder_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Nestle_SalesOrder_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.po_create_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "PO_Create_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.so_create_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "SO_Create_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.obd_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.obd_create_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "OBD_Create_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.channel_rdd",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Channel_RDD",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.earliestshipment_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "EarliestShipment_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.latestshipment_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "LatestShipment_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.order_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Order_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.batch",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Batch",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.total_shelf_life",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Total_Shelf_Life",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.order_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Order_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.vol_m3",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Vol_M3",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.soldto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SoldTo_Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.soldto_cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SoldTo_Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.soldto_cust_addr",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SoldTo_Cust_Addr",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.soldto_cust_contactnumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SoldTo_Cust_ContactNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipTo_Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipto_cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipTo_Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipto_cust_addr",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipTo_Cust_Addr",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipto_cust_contacts",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipTo_Cust_Contacts",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipto_cust_contactsnumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipTo_Cust_ContactsNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.plant_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.factory_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.factory_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.factory_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Factory_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.route_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Route_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.soldto_cust_channel",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SoldTo_Cust_Channel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.is_directtocustomer",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Is_DirectToCustomer",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.shipment_place_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Shipment_Place_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.identical_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Identical_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.source_data_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Source_data_status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.source_data_update",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Source_data_update",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "t1.dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dt",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_TMS_Orders_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_TMS_Orders_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_BFL.TMS_Orders where dt>=CONVERT(varchar(100), dateadd(DD,-1,getdate()), 23)",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:47:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,155 @@
+{
+	"name": "Product_Puree",
+	"properties": {
+		"activities": [
+			{
+				"name": "Product_Puree",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/Product_Puree",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/Product_Puree/",
+						"ADF.database": "dscc",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/Product_Puree/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Product_Puree_Copy_ReportDB",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "DELETE_Product_Puree",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "product_puree.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_puree.sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_puree.sku_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_puree.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Product_Puree_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Product_Puree",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DELETE_Product_Puree",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Product_Puree",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Delete_Product_Puree]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:41:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

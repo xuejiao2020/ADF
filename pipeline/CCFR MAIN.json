@@ -1,0 +1,167 @@
+{
+	"name": "CCFR MAIN",
+	"properties": {
+		"activities": [
+			{
+				"name": "CCFR DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR MDM",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR MDM",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR SDM DIM",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR MDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR SDM DIM",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR SDM BFL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR SDM DIM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR SDM BFL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR SDM STG",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR SDM BFL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR SDM STG",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR SDM AL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR SDM STG",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR SDM AL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR REPORT",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CCFR SDM AL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR REPORT",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "ccfr"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:03:54Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

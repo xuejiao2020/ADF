@@ -1,0 +1,75 @@
+{
+	"name": "ALL_Schedule_New_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "ALL_Schedule_DL_copy",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_Schedule_DL_copy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "SDMData_Pipeline_Failure",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_Schedule_DL_copy",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SDMData_Pipeline_Failure",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "SDMData_Pipeline_Successed",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_Schedule_DL_copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SDMData_Pipeline_Successed",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-08T09:27:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

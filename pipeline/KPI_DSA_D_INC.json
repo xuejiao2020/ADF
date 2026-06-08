@@ -1,0 +1,731 @@
+{
+	"name": "KPI_DSA_D_INC",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_DSA_D",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KPI_DSA_D_stock_intransit_base",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "KPI_DSA_D_P6M_SO_Qty",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_DSA_D",
+					"defines": {
+						"database": "dscc",
+						"rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_DSA_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_DSA_D_DIM",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_DSA_D_DIM1",
+					"defines": {
+						"database": "dscc",
+						"rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_DSA_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_DSA_D_P2M_SO_SKU",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KPI_DSA_D_DIM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_DSA_D_P2M_SO_SKU1",
+					"defines": {
+						"database": "dscc",
+						"rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_DSA_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_DSA_D_P6M_SO_Qty",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KPI_DSA_D_DIM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_DSA_D_P6M_SO_Qty1",
+					"defines": {
+						"database": "dscc",
+						"rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_DSA_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KPI_DSA_D_stock_intransit_base",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KPI_DSA_D_P2M_SO_SKU",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_DSA_D_stock_intransit_base1",
+					"defines": {
+						"database": "dscc",
+						"rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_DSA_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_DSA_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_AL.KPI_DSA_D",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_AL.KPI_DSA_D",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"parallelCopies": 20,
+					"dataIntegrationUnits": 32,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.salesorg_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.salesorg_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.cust_class_grp",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Class_Grp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.city_cd_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.product_factorincs",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Product_FactorInCS",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.skugrp_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.skugrp_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.skugrp_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Stock_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.intransit_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Intransit_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.intransit_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Intransit_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.intransit_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Intransit_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_with_intransit_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Stock_with_Intransit_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_with_intransit_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_with_Intransit_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_with_intransit_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_with_Intransit_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.p6m_daily_avg_so_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P6M_Daily_Avg_SO_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_cover",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_Cover",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Stock_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.stock_status_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Stock_Status_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_dsa_d.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_DSA_D_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_DSA_D",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

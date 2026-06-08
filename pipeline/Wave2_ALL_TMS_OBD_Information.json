@@ -1,0 +1,571 @@
+{
+	"name": "Wave2_ALL_TMS_OBD_Information",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/BFL/TMS_OBD_Information",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/TMS_OBD_Information"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.obd_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.obd_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.vehicle_total_num",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Vehicle_Total_Num",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.transplan_total_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "TransPlan_Total_Qty",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.delivery_distance",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Delivery_Distance",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.req_delivery_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Req_Delivery_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.vehicle_arrival_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Vehicle_Arrival_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_start_load_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Start_Load_leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.start_load_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Start_Load_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_load_completed_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Load_Completed_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.load_completed_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Load_Completed_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_leave_pickuppoint_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Leave_PickupPoint_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_pickuppoint_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Leave_PickupPoint_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_arrive_transpoint_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Arrive_TransPoint_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_transpoint_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Arrive_TransPoint_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_leave_transpoint_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Leave_TransPoint_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_transpoint_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Leave_TransPoint_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_req_arrive_deatination_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Req_Arrive_Deatination_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.req_arrive_destination_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Req_Arrive_Destination_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_actual_arrive_destination_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Actual_Arrive_Destination_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_receive_place_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Arrive_Receive_Place_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.to_receive_goods_leadtime",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "To_Receive_Goods_Leadtime",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.receive_goods_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Receive_Goods_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_pickuppoint_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_PickupPoint_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.start_load_positon",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Load_Positon",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.load_complet_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Load_Complet_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_pickuppoint_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Leave_PickupPoint_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_transpoint_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_TransPoint_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_transpoint_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Leave_TransPoint_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_receiving_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_Receiving_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.receive_goods_position",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Goods_Position",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_pickuppoint_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_PickupPoint_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.start_loading_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Loading_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.loading_completion_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Loading_Completion_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_pickpoint_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Leave_PickPoint_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_transpoint_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_TransPoint_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.leave_transpoint_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Leave_TransPoint_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.arrive_receiving_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Arrive_Receiving_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.receive_goods_triggermode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Goods_TriggerMode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.sign_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sign_Status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.identical_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Identical_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.source_data_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Source_data_status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.source_data_update",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Source_data_update",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_obd_information.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_TMS_OBD_Information_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_TMS_OBD_Information_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_BFL.TMS_OBD_Information",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:47:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,518 @@
+{
+	"name": "wave3_dm_FACT_Retailer_CCFR",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave3/Wave3/Report/Wave3_DM_FACT_Retailer_CCFR",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave3/Report/Wave3_DM_FACT_Retailer_CCFR"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete DSCC_OTHERS.DM_FACT_Retailer_CCFR",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.retailer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.retailer_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_En",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.vender_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "vender_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.store_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "store_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.nestleoutletcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "nestleoutletcode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.store_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "store_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.city_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.city_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sku_cd",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.businessview_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.businessview_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.businessview_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.sales_document_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Document_Id",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.po_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Number",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.order_fill_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Order_Fill_Qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.original_order_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Original_Order_Qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.missedsku_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MissedSKU_Qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 18
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.miss_ledger_period",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Miss_Ledger_Period",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.original",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Original",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_obd_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_OBD_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_obd_year",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_OBD_Year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_obd_month",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_OBD_Month",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_pgi_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_PGI_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_pgi_year",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_PGI_Year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.first_pgi_month",
+									"type": "String"
+								},
+								"sink": {
+									"name": "First_PGI_Month",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_ccfr.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "wave3_dm_FACT_Retailer_CCFR",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "wave3_dm_FACT_Retailer_CCFR_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Report/Report/ONEALL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

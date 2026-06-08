@@ -1,0 +1,165 @@
+{
+	"name": "ALL_OverView_Report_Without_Common_DL",
+	"properties": {
+		"description": "去重共有表的OverView简化任务",
+		"activities": [
+			{
+				"name": "ALL_KPI_Market_Return_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_Market_Return_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_Customer_Freshness_Inventory_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_Customer_Freshness_Inventory_M_OnlyHive_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_DSF_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_Customer_Freshness_Inventory_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_DSF_M_OnlyHive_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_FG_Freshness_DC_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_FG_Freshness_DC_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_DM_FACT_Overview_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_Market_Return_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_KPI_DSF_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_KPI_FG_Freshness_DC_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "KPI_FG_Freshness_Shipment_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_Overview_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave3_FACT_DSF_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALL_KPI_DSF_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave3_FACT_DSF_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "KPI_FG_Freshness_Shipment_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_FG_Freshness_Shipment_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL/report_DL/Without_Common_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,91 @@
+{
+	"name": "MDM_TO_Store",
+	"properties": {
+		"activities": [
+			{
+				"name": "MDM_STR_EXT_MST_MV_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "MDM_STR_EXT_MST_MV_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "EXT_Store_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "MDM_STR_EXT_MST_MV_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "EXT_Store_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "MDM_STR_MST_MV_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "MDM_STR_MST_MV_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DIM_Store_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "MDM_STR_MST_MV_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DIM_Store_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-24T02:54:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

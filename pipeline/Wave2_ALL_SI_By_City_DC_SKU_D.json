@@ -1,0 +1,604 @@
+{
+	"name": "Wave2_ALL_SI_By_City_DC_SKU_D",
+	"properties": {
+		"activities": [
+			{
+				"name": "SI_By_City_DC_SKU_D",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/SI_By_City_DC_SKU_D",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/SI_By_City_DC_SKU_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select * from dscc.wave2_SI_By_City_DC_SKU_D"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_AL.SI_By_City_DC_SKU_D",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.subbu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SubBU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.subbu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SubBU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.subbu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SubBU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.cust_class_grp",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Class_Grp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.custcity_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustCity_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.custcity_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustCity_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.custcity_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustCity_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.dc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.dc_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.dc_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.month_end_ind",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Month_End_Ind",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.data_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.data_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.si_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SI_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.mtd_si_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MTD_SI_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.lm_mtd_si_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "LM_MTD_SI_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.ytd_si_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "YTD_SI_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.ly_ytd_si_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "LY_YTD_SI_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.si_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SI_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.mtd_si_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MTD_SI_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.lm_mtd_si_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "LM_MTD_SI_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.ytd_si_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "YTD_SI_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.ly_ytd_si_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "LY_YTD_SI_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_by_city_dc_sku_d.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SI_By_City_DC_SKU_D_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SI_By_City_DC_SKU_D_Hive_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "SI_By_City_DC_SKU_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_AL.SI_By_City_DC_SKU_D",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

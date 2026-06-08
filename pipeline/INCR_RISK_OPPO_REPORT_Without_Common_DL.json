@@ -1,0 +1,120 @@
+{
+	"name": "INCR_RISK_OPPO_REPORT_Without_Common_DL",
+	"properties": {
+		"description": "去重共有表的Risk简化任务",
+		"activities": [
+			{
+				"name": "Wave2_ALL_DM_FACT_Risk_Opportunity_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_SO_ICP_CDP_By_Store_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Wave2_ALL_SI_By_City_DC_SKU_D_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ALL_SI_SO_BtmUp_By_Region_DC_SKU_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_DM_FACT_Risk_Opportunity_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SI_SO_BottomUp_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SI_SO_BottomUp_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_SI_SO_BtmUp_By_Region_DC_SKU_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wave2_ALL_SI_SO_BottomUp_M_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_SI_SO_BtmUp_By_Region_DC_SKU_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SO_ICP_CDP_By_Store_M_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_SO_ICP_CDP_By_Store_M_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wave2_ALL_SI_By_City_DC_SKU_D_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_SI_By_City_DC_SKU_D_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL/report_DL/Without_Common_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:03:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

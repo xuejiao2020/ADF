@@ -1,0 +1,433 @@
+{
+	"name": "Wave2_ALL_SI_RSF_Amendment",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/BFL/SI_RSF_Amendment",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/SI_RSF_Amendment"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_BFL.SI_RSF_Amendment",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.forcast_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Forcast_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.forcast_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Forcast_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.forcast_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Forcast_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.custhier_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustHier_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.custhier_level",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "CustHier_Level",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.cl4_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CL4_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.local_sales_chl",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Local_Sales_Chl",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.dc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.raso_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Raso_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.bonus_weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Bonus_Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.bonussamp_weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "BonusSamp_Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.tradesamp_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TradeSamp_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.tradesamp_weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TradeSamp_Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.consumersamp_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "ConsumerSamp_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.consumersamp_weight_ton",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "ConsumerSamp_Weight_Ton",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.tsa_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TSA_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.tea_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "TEA_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.cpr_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "CPR_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.nns_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NNS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_rsf_amendment.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_SI_RSF_Amendment_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_SI_RSF_Amendment_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_BFL.SI_RSF_Amendment",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:48:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

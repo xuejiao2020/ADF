@@ -1,0 +1,294 @@
+{
+	"name": "Data_SkuWorkStateInfo",
+	"properties": {
+		"description": "查询门店商品经营状态",
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/L2ETL/KW/Data_SkuWorkStateInfo",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/KW/KW10005/",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/KW/Data_SkuWorkStateInfo/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "HiveToDB",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select * from dscc.KW_Data_SkuWorkStateInfo_L2\nwhere to_date(CreateOn) = from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.id",
+									"type": "Int64"
+								},
+								"sink": {
+									"name": "Id",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.skucode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "skuCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.skubarcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "skuBarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.skuname",
+									"type": "String"
+								},
+								"sink": {
+									"name": "skuName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.brandcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "brandCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.brandname",
+									"type": "String"
+								},
+								"sink": {
+									"name": "brandName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.storecode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "storeCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.storename",
+									"type": "String"
+								},
+								"sink": {
+									"name": "storeName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.workstatecode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "workstateCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.createtime",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "createTime",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.updatetime",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "updateTime",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "kw_data_skuworkstateinfo_l2.createon",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CreateOn",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Data_SkuWorkStateInfo_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Data_SkuWorkStateInfo_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "ExecProcedure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "HiveToDB",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "declare @nowdate datetime = dateadd(hh,8,getdate())\nexec KW_Data_SkuWorkStateInfo_Procedure @lastDate = @nowdate",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "DBToHive",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ExecProcedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_Product_Work_Stats_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_Product_Work_Stats_csv",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "L1-L2/KW"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:40:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

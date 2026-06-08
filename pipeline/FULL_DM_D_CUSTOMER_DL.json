@@ -1,0 +1,58 @@
+{
+	"name": "FULL_DM_D_CUSTOMER_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "FULL_DM_D_CUSTOMER",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "select * , getdate() CreateON_L1 from  [dbo].[DM_D_CUSTOMER] with(nolock) \nwhere customer_id <> 0",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_D_CUSTOMER",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_DM_D_CUSTOMER",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ECMS_TO_DL_L1_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

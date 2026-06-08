@@ -1,0 +1,77 @@
+{
+	"name": "SET_PARAMETER",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Set T - 1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/demo/demo-set-parameter.hql",
+					"defines": {
+						"dt": {
+							"value": "@variables('yesterday')",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Set T - 1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "yesterday",
+					"value": {
+						"value": "@formatDateTime(subtractFromTime(pipeline().parameters.today, 1, 'Day'), 'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"today": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"yesterday": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "DSA"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

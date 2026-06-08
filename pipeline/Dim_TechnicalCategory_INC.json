@@ -1,0 +1,69 @@
+{
+	"name": "Dim_TechnicalCategory_INC",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select * from [dbo].[Dim_TechnicalCategory]  with (nolock) \nwhere CONVERT(varchar(100), UpdateTime, 23) <  '@{pipeline().parameters.MyWindowEnd}' \nand   CONVERT(varchar(100), UpdateTime, 23) >= '@{pipeline().parameters.MyWindowStart}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Dim_TechnicalCategory",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_Dim_TechnicalCategory",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"MyWindowStart": {
+				"type": "string"
+			},
+			"MyWindowEnd": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Nestfi_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

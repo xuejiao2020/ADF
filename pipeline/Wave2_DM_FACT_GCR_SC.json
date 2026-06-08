@@ -1,0 +1,234 @@
+{
+	"name": "Wave2_DM_FACT_GCR_SC",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_DM_FACT_GCR_SC",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/DM_FACT_GCR_SC",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_GCR_SC"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT\nUUID,\nData_Year,\nData_Month,\nBU_Cd,\nBU_NmCn,\nBU_NmEn,\nKPI_Cd,\nKPI_Nm,\nValue_Month,\nValue_YTD,\nEtl_Time\nFROM dscc.Wave2_DM_FACT_GCR_SC\nWHERE dt=trunc(current_timestamp,'MM')"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete DSCC_NESZ.DM_FACT_GCR_SC",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kpi_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KPI_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kpi_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KPI_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "value_month",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Value_Month",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "value_ytd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Value_YTD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_GCR_SC_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_GCR_SC_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wave2_DM_FACT_GCR_SC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete DSCC_NESZ.DM_FACT_GCR_SC",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:51:12Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

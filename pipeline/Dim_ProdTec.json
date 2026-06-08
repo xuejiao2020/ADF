@@ -1,0 +1,271 @@
+{
+	"name": "Dim_ProdTec",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/Dim_ProdTec",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/Dim_ProdTec"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete  [NESZ_DIM].[Dim_ProdTec]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_internalnm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_InternalNm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_displaynm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_DisplayNm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_grp_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_Grp_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_grp_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_Grp_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodtec_seg_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTec_Seg_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodteccat_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTecCat_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodteccat_internalnm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTecCat_InternalNm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.prodteccat_displaynm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProdTecCat_DisplayNm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dim_prodtec.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Dim_ProdTec_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Dim_ProdTec",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,53 @@
+{
+	"name": "FULL_KPI_CCFR_Detail_Report",
+	"properties": {
+		"description": "CCFR == SDM->Report",
+		"activities": [
+			{
+				"name": "FULL_CCFR_SDM",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_ALL_KPI_CCFR_Detail",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FULL_CCFR_Report",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FULL_CCFR_SDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_CCFR",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/SDM2Report/FULL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

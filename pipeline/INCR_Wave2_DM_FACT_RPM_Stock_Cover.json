@@ -1,0 +1,375 @@
+{
+	"name": "INCR_Wave2_DM_FACT_RPM_Stock_Cover",
+	"properties": {
+		"activities": [
+			{
+				"name": "INCR_Wave2_DM_FACT_RPM_Stock_Cover",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/Wave2_DM_FACT_RPM_Stock_Cover_incr",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_RPM_Stock_Cover"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select\nUUID,\nKPI_Week,\nVersion_Week,\nData_Year,\nData_Week,\n`date`,\nCompany_Cd,\nMaterial_Type_Cd,\nMaterial_Type_NmCn,\nMaterial_Type_NmEn,\nPlant_Cd,\nPlant_NmCn,\nPlant_NmEn,\nMaterial_Cd,\nMaterial_NmCn,\nMaterial_NmEn,\nStockCover_Day,\nOpening_Stock_Amt,\nClosing_Stock_Amt,\nDemand_Amt,\nSupply_Amt,\nIs_Summary,\nSummary_Level,\nDrillDown_Path,\nEtl_Time\nfrom dscc.Wave2_DM_FACT_RPM_Stock_Cover\nWHERE `date`>=date_format(date_sub(next_day(CURRENT_DATE,'SU'),7),'yyyyMMdd')\nand `date`<=date_format(date_add(date_sub(next_day(CURRENT_DATE,'SU'),7),6),'yyyyMMdd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete [DSCC_NESZ].[DM_FACT_RPM_Stock_Cover]  WHERE date>=CONVERT(varchar(100),DATEADD(DAY,1-DATEPART(weekday,DATEADD(HOUR, 8, getdate())),DATEADD(HOUR, 8, getdate())), 112)\nand date<=CONVERT(varchar(100),DATEADD(DAY,7-DATEPART(WeekDay,DATEADD(HOUR, 8, getdate())),DATEADD(HOUR, 8, getdate())), 112)",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kpi_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "KPI_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "version_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Version_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "stockcover_day",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "StockCover_Day",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "opening_stock_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Opening_Stock_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "closing_stock_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Closing_Stock_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "demand_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Demand_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "supply_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Supply_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "is_summary",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Summary",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "summary_level",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Summary_Level",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "drilldown_path",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DrillDown_Path",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_RPM_Stock_Cover_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_RPM_Stock_Cover_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "INCR_Wave2_DM_FACT_RPM_Stock_Cover",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_RPM_Stock_Cover]  WHERE date>=CONVERT(varchar(100),DATEADD(DAY,1-DATEPART(weekday,DATEADD(HOUR, 8, getdate())),DATEADD(HOUR, 8, getdate())), 112)\nand date<=CONVERT(varchar(100),DATEADD(DAY,7-DATEPART(WeekDay,DATEADD(HOUR, 8, getdate())),DATEADD(HOUR, 8, getdate())), 112)",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:44:52Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

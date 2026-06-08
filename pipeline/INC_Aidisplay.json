@@ -1,0 +1,119 @@
+{
+	"name": "INC_Aidisplay",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"modifiedDatetimeStart": {
+								"value": "@getPastTime(5,'Hour')",
+								"type": "Expression"
+							},
+							"wildcardFolderPath": "prod/inbound/POS/CN/Marketing/CRM/OSA/",
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DL_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "prod/inbound/POS/CN/Marketing/CRM/OSA/",
+							"file": "*"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "OSA_DL1",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "@concat('prod/inbound/DSCC/CN/customer/aidisplay_New','/dt=',formatDateTime(addhours(utcNow(),8),'yyyy-MM-dd'))"
+						}
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "OSA_DL1",
+						"type": "DatasetReference",
+						"parameters": {
+							"path": "@concat('prod/inbound/DSCC/CN/customer/aidisplay_New','/dt=',formatDateTime(addhours(utcNow(),8),'yyyy-MM-dd'))"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "L1-L2_DL/SFA_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-24T03:12:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,326 @@
+{
+	"name": "Wave2_DM_FACT_RPM_Out_Of_Stock",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_DM_FACT_RPM_Out_Of_Stock",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/DM_FACT_RPM_Out_Of_Stock",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_RPM_Out_Of_Stock"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.kpi_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "KPI_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.version_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Version_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.data_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.date"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.plant_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.plant_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.plant_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.bun"
+								},
+								"sink": {
+									"name": "Bun",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.outofstock_qty"
+								},
+								"sink": {
+									"name": "OutOfStock_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.outofstock_qty_wk1",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "OutOfStock_Qty_WK1",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.outofstock_qty_wk2"
+								},
+								"sink": {
+									"name": "OutOfStock_Qty_WK2",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_rpm_out_of_stock.etl_time"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_RPM_Out_Of_Stock_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_RPM_Out_Of_Stock_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wave2_DM_FACT_RPM_Out_Of_Stock",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_RPM_Out_Of_Stock]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:51:12Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

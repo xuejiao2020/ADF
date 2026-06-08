@@ -1,0 +1,402 @@
+{
+	"name": "BFL_BF_CustomerDC_Warehousing_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "LY_BFL_PurchaseOrderInfo2",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KW_BFL_Data_InSkuInfo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/LY/Test/PurchaseOrderInfo2",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KW_BFL_Data_InSkuInfo",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_Data_InSkuInfo",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLModel/BF_CustomerDC_Warehousing/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "BF_CustomerDC_Warehousing",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LY_BFL_PurchaseOrderInfo2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.BF_CustomerDC_Warehousing   \nwhere to_date(Data_dt)>='2020-12-03' and  to_date(Data_dt)<= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customerdc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customerdc_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customerdc_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customerbranch_area",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerBranch_Area",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customerdc_city",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerDC_City",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.acceptance_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Acceptance_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.po_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.product_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_product_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Product_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.customer_sku_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.warehousing_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Warehousing_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.warehousing_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Warehousing_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.warehousing_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Warehousing_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.unit_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.warehousing_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Warehousing_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.warehousing_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Warehousing_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.acceptance_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Acceptance_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.etl_src_tb",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src_Tb",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customerdc_warehousing.etl_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_CustomerDC_Warehousing_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_CustomerDC_Warehousing_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave1OneALL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:48:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

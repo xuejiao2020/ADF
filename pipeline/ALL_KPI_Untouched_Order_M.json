@@ -1,0 +1,294 @@
+{
+	"name": "ALL_KPI_Untouched_Order_M",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_Untouched_Order",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_Untouched_Order",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_Untouched_Order"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Untouched_Order",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_AL.KPI_Untouched_Order",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_AL.KPI_Untouched_Order",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.uuid"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.company_cd"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.company_nmen"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.company_nmcn"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.distchannel_cd"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.distchanne_nmen"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.distchanne_nmcn"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.sales_document_type_cd"
+								},
+								"sink": {
+									"name": "Sales_Document_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.salesdoc_desc"
+								},
+								"sink": {
+									"name": "SalesDoc_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.sales_document_id"
+								},
+								"sink": {
+									"name": "Sales_Document_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.untouched_order_num"
+								},
+								"sink": {
+									"name": "Untouched_Order_Num",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.created_order_num"
+								},
+								"sink": {
+									"name": "Created_Order_Num",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.data_ym"
+								},
+								"sink": {
+									"name": "Data_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.data_year"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.data_month"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.data_tm"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.etl_tm"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.etl_src"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_untouched_order_m.etl_job"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_Untouched_Order_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_Untouched_Order",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

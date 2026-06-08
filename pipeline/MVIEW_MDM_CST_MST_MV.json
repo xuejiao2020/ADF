@@ -1,0 +1,94 @@
+{
+	"name": "MVIEW_MDM_CST_MST_MV",
+	"properties": {
+		"activities": [
+			{
+				"name": "MVIEW_MDM_CST_MST_MV_Copy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \nCST_NO,\nCST_SAL_ORG,\nCST_DST_CHL, \nCST_CTG_CD,\nCST_CTG_DES,\nCST_CTG_DES_E,\nDATEADD(HH,8,getdate())\nFROM [MVIEW].MDM_CST_MST_MV",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_CST_MST_MV",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MVIEW_MDM_CST_MST_MV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "MVIEW_MDM_CST_MST_MV_TABLE",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "MVIEW_MDM_CST_MST_MV_Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/MVIEW_MDM_CST_MST_MV_TABLE",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/MVIEW_MDM_CST_MST_MV/",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/MVIEW_MDM_CST_MST_MV/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:44:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

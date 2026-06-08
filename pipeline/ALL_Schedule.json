@@ -1,0 +1,174 @@
+{
+	"name": "ALL_Schedule",
+	"properties": {
+		"activities": [
+			{
+				"name": "DIM_Schedule",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DIM_Schedule",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "L1-L2_Schedule",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait_1H",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "L1-L2_Schedule",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DIM2_Schedule",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DIM_Schedule",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DIM2_Schedule",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Report_Schedule_Summary",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "L1-L2_Schedule",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "DIM2_Schedule",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Report_Schedule_Summary",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wait_1H",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3600
+				}
+			},
+			{
+				"name": "Wait_2H_copy1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 7200
+				}
+			},
+			{
+				"name": "SAP_data_schedule_copy",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait_2H_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SAP_data_schedule_copy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "CCFR_Data_Report_AL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "SAP_data_schedule_copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "DIM2_Schedule",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CCFR_Data_Report_AL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Scheduler"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

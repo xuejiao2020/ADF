@@ -1,0 +1,69 @@
+{
+	"name": "Report_Schedule_Summary_DL_copy1",
+	"properties": {
+		"description": "调度汇总，最后执行SO_Sales_By_Store_D的数据库拷贝",
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Report_Schedule_Chaos2Order_DL_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			},
+			{
+				"name": "Report_Schedule_Chaos2Order_DL_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Report_Schedule_Chaos2Order_DL_copy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "bigTable_OnlyCopy_DL_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bigTable_OnlyCopy_DL_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-24T02:53:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

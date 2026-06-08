@@ -1,0 +1,75 @@
+{
+	"name": "Report Trigger",
+	"properties": {
+		"activities": [
+			{
+				"name": "Delete Report Data",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DeleteReportData",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "All_TO_BF_CustomerDC_Inventory",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Delete Report Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "All_TO_BF_CustomerDC_Inventory",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "All_Exec_ReportLayer_Procedure",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "All_TO_BF_CustomerDC_Inventory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "All_Exec_ReportLayer_Procedure",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave1Manual/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

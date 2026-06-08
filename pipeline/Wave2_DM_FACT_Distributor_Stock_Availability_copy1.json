@@ -1,0 +1,542 @@
+{
+	"name": "Wave2_DM_FACT_Distributor_Stock_Availability_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_DM_FACT_Distributor_Stock_Availability",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/DM_FACT_Distributor_Stock_Availability",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_Distributor_Stock_Availability",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"parallelCopies": 40,
+					"dataIntegrationUnits": 32,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.kpidate",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "KPIDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.kpitype",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KPIType",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.city_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.city_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.citygroup_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CityGroup_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.citygroup_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CityGroup_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.citygroup_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CityGroup_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.region",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.customer_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.customer_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.customer_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.businessview_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.businessview_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.businessview_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BusinessView_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.skugrp_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.skugrp_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.skugrp_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SkuGrp_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.p6m_daily_avg_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P6m_Daily_Avg_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.stock_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.dsa_stock_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DSA_Stock_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.otif_ontimedelivery_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "OTIF_ONTimeDelivery_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.otif_totaldelivered_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "OTIF_TotalDelivered_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.otif_totalrequest_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "OTIF_TotalRequest_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.ccfr_firstdelivery_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "CCFR_FirstDelivery_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.ccfr_order_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "CCFR_Order_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_dm_fact_distributor_stock_availability.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_Distributor_Stock_Availability_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_Distributor_Stock_Availability_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wave2_DM_FACT_Distributor_Stock_Availability",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_Distributor_Stock_Availability]"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:33Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,89 @@
+{
+	"name": "Delete BFL BF_Customerstore_Inventory",
+	"properties": {
+		"activities": [
+			{
+				"name": "DeleteBF_CustomerStore_Inventory",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"sql": {
+							"value": "delete NESZ_SDM_BFL.BF_CustomerStore_Inventory\nwhere CONVERT(date,Data_Dt,23) = CONVERT(date,dateadd(HH,8,GETDATE()),23)",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "DeleteBF_CustomerStore_Inventory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.BF_CustomerStore_Inventory \nwhere to_date(Data_dt)= from_unixtime(unix_timestamp(),'yyyy-MM-dd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_CustomerStore_Inventory_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_CustomerStore_Inventory_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave1Manual/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,46 @@
+{
+	"name": "INCR_BW_KPI_RPM_Stockcover1_KPI",
+	"properties": {
+		"activities": [
+			{
+				"name": "INCR_BW_KPI_RPM_Stockcover1_KPI",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/L2ETL/dscc_bw/incr_rpm1",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath_l1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/SAP/CN/customer/RPMStockCover1/",
+						"ADF.rootpath_l2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/SAP/CN/customer/RPMStockCover1/",
+						"ADF.dt": {
+							"value": "@formatDateTime(addDays(pipeline().TriggerTime, -1), 'yyyy-MM-dd')",
+							"type": "Expression"
+						}
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "L1-L2/BW"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:43:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

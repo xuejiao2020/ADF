@@ -1,0 +1,401 @@
+{
+	"name": "Wave2_ALL_TMS_Goods_Sign",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/BFL/TMS_Goods_Sign",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/TMS_Goods_Sign"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.obd_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OBD_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.receipt_generation_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Receipt_Generation_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.vehicle_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Vehicle_Number",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.qty_receivable",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Qty_receivable",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.actual_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Actual_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.difference_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Difference_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.signatory",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Signatory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.sign_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Sign_Time",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.sign_mode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sign_Mode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.replace_sign",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Replace_Sign",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.replace_signatory",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Replace_Signatory",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modify_state",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Modify_State",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modifier",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Modifier",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modify_role",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Modify_Role",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modification_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Modification_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modify_goods_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Modify_Goods_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.modify_goods_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Modify_Goods_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.receive_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Receive_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.identical_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Identical_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.source_data_status",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Source_data_status",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.source_data_update",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Source_data_update",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_tms_goods_sign.dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dt",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_TMS_Goods_Sign_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_TMS_Goods_Sign_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_BFL.TMS_Goods_Sign",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

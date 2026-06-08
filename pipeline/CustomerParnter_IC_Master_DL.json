@@ -1,0 +1,101 @@
+{
+	"name": "CustomerParnter_IC_Master_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \n'Num' as Num,\n'RAW_DATA_ID'  as RAW_DATA_ID,\n'CustomerNumber' as CustomerNumber,\n'SalesOrg' as SalesOrg,\n'DistributionChannel' as DistributionChannel,\n'PartnerFunction' as PartnerFunction,\n'PartnerNumber'  as PartnerNumber,\n'REC_EFF_DT' as REC_EFF_DT,\n'REC_EXP_DT' as REC_EXP_DT,\n'REC_CRT_DT' as REC_CRT_DT\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nPartnerFunction,\ncast(PartnerNumber as nvarchar) as PartnerNumber,\nREC_EFF_DT,\nREC_EXP_DT,\nREC_CRT_DT\n from (\nselect row_number() over(order by RAW_DATA_ID ) as Num,\n*\nfrom (\nselect \ncast(RAW_DATA_ID as nvarchar) as RAW_DATA_ID,\nCustomerNumber,\nSalesOrg,\nDistributionChannel,\nPartnerFunction,\ncast(PartnerNumber as nvarchar) as PartnerNumber,\nREC_EFF_DT,\nREC_EXP_DT,\nREC_CRT_DT\n from [MVIEW].[MIC_CustomerPartner]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_MIC_CustomerPartner",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MIC_CustomerPartner_CSV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Delete_MDM_MIC_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Patch": "prod/outbound/Hand/CN/Master/Customer/IC/CustomerParnter/"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "IC_Master_data/DW1SAP"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-12-06T08:22:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

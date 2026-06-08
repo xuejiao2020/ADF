@@ -1,0 +1,144 @@
+{
+	"name": "OneETL",
+	"properties": {
+		"activities": [
+			{
+				"name": "BFLTigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "BFLTigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALTigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "BFLTigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALTigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "TO_BF_CustomerDC_Inventory",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ALTigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "TO_BF_CustomerDC_Inventory",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Exec_ReportLayer_Procedure",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "TO_BF_CustomerDC_Inventory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Exec_ReportLayer_Procedure",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Data_StoreInfo",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exec_ReportLayer_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Data_StoreInfo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Load_OFFTAKE_Market_Share",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exec_ReportLayer_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Load_OFFTAKE_Market_Share",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

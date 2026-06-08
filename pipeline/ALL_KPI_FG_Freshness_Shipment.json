@@ -1,0 +1,500 @@
+{
+	"name": "ALL_KPI_FG_Freshness_Shipment",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_FG_Freshness_Shipment",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_FG_Freshness_Shipment",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_FG_Freshness_Shipment"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "KPI_FG_Freshness_Shipment",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete [NESZ_AL].[KPI_FG_Freshness_Shipment]",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.salesorg_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.salesorg_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.dc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.dc_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.dc_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_stat_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Intransit_Stat_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Intransit_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Intransit_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "InTransit_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "InTransit_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.wrsl_intransit_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "WRSL_Intransit_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.wrsl_intransit_qty_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WRSL_Intransit_Qty_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.pct_intransit_freshness_by_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Pct_Intransit_Freshness_By_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Intransit_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.intransit_nps_amt_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Intransit_NPS_Amt_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_fg_freshness_shipment.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_FG_Freshness_Shipment_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_FG_Freshness_Shipment",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

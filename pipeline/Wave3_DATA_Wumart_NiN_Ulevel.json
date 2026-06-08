@@ -1,0 +1,226 @@
+{
+	"name": "Wave3_DATA_Wumart_NiN_Ulevel",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave3/Wave3/Report/Wave3_DATA_Wumart_NiN_Ulevel",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave3/Report/product_U_class/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete DSCC_OTHERS.DATA_Wumart_NiN_Ulevel",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.vender_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "vender_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.shelf_group_level_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "shelf_group_level_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.shelf_group_level_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "shelf_group_level_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.shelf_group_level",
+									"type": "String"
+								},
+								"sink": {
+									"name": "shelf_group_level",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.purchases_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "purchases_code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.purchases_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "purchases_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.matnr",
+									"type": "String"
+								},
+								"sink": {
+									"name": "matnr",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.ware_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ware_Name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.mmsta",
+									"type": "String"
+								},
+								"sink": {
+									"name": "mmsta",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "start_dt",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "end_dt",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_data_wumart_nin_ulevel.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Wave3_DATA_Wumart_NiN_Ulevel",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Wave3_DATA_Wumart_NiN_Ulevel_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Report/Report/ONEALL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

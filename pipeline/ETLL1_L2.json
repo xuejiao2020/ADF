@@ -1,0 +1,190 @@
+{
+	"name": "ETLL1_L2",
+	"properties": {
+		"activities": [
+			{
+				"name": "KWL2Trigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "LoadPipelineStatusL1_L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "KWL2Trigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "LYL2Trigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "LoadPipelineStatusL1_L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "LYL2Trigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "LoadPipelineStatusL1_L2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,0 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LYL2Trigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "KWL2Trigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,1 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_errror_KW",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KWL2Trigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'SDM' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_errror_LY",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LYL2Trigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'SDM' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

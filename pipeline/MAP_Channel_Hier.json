@@ -1,0 +1,321 @@
+{
+	"name": "MAP_Channel_Hier",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/MAP_Channel_Hier",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/MAP_Channel_Hier"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[MAP_Channel_Hier]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channel_map_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Channel_Map_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channel_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Channel_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev1_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev1_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev2_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev2_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev3_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev3_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.channelhielev3_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.attr1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Attr1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.attr1_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Attr1_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.attr2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Attr2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.attr2_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Attr2_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_map_channel_hier.etl_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "MAP_Channel_Hier_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MAP_Channel_Hier",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:50:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

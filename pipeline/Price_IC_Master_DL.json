@@ -1,0 +1,101 @@
+{
+	"name": "Price_IC_Master_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \n'Num' as Num,\n'SalesOrg' as  SalesOrg,\n'DistributionChannel' as DistributionChannel,\n'ConditionType' as ConditionType,\n'MaterialNumber' as MaterialNumber,\n'MaterialGroup1' as MaterialGroup1,\n'PricingGroupCustomer' as PricingGroupCustomer,\n'PricingGroupMaterial' as PricingGroupMaterial,\n'AmountRate' as AmountRate,\n'RateUnit' as RateUnit,\n'ConditionPriceUnit' as ConditionPriceUnit,\n'ConditionUnit' as ConditionUnit,\n'DateFrom' as DateFrom,\n'DateTo' as DateTo,\n'FileDate' as FileDate,\n'PubDate' as PubDate,\n'RAW_DATA_ACT_STATUS' as RAW_DATA_ACT_STATUS,\n'RAW_DATA_UPDT_TS' as RAW_DATA_UPDT_TS,\n'BACH_NUM' as BACH_NUM,\n'SRC_SYS_CD' as SRC_SYS_CD,\n'REC_CRT_DT' as REC_CRT_DT,\n'SRC_SCM_NM' as SRC_SCM_NM,\n'SRC_FIL_NM' as SRC_FIL_NM,\n'SRC_FIL_DIR' as SRC_FIL_DIR,\n'DT' as DT,\n'EXP_FLG' as EXP_FLG\nunion all\n-- select * from (\nselect \nstr(Num) as Num,\n-- convert(varchar,Num) as Num,\nSalesOrg,\nDistributionChannel,\nConditionType,\nMaterialNumber,\nMaterialGroup1,\nPricingGroupCustomer,\nPricingGroupMaterial,\ncast(AmountRate as nvarchar) as AmountRate,\nRateUnit,\ncast(ConditionPriceUnit as nvarchar) as ConditionPriceUnit,\nConditionUnit, \nDateFrom,\nDateTo,\nFileDate,\nPubDate,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nREC_CRT_DT,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nDT,\nEXP_FLG\n from (\nselect row_number() over(order by MaterialNumber ) as Num,\n*\nfrom (\nselect \nSalesOrg,\nDistributionChannel,\nConditionType,\nMaterialNumber,\nMaterialGroup1,\nPricingGroupCustomer,\nPricingGroupMaterial,\ncast(AmountRate as nvarchar) as AmountRate,\nRateUnit,\ncast(ConditionPriceUnit as nvarchar) as ConditionPriceUnit,\nConditionUnit, \nDateFrom,\nDateTo,\nFileDate,\nPubDate,\ncast(RAW_DATA_ACT_STATUS as nvarchar) as RAW_DATA_ACT_STATUS,\ncast(RAW_DATA_UPDT_TS as nvarchar) as RAW_DATA_UPDT_TS,\ncast(BACH_NUM as nvarchar) as BACH_NUM,\ncast(SRC_SYS_CD as nvarchar) as SRC_SYS_CD,\nREC_CRT_DT,\nSRC_SCM_NM,\nSRC_FIL_NM,\nSRC_FIL_DIR,\nDT,\nEXP_FLG\nFrom [MVIEW].[MIC_SAP_Price]\nwhere SalesOrg in('CN23','CN14') and DistributionChannel='01'\n)t \n)a\n-- order by Num asc\n-- )",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_MIC_SAP_Price",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MIC_SAP_Price_CSV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Delete_MDM_MIC_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Patch": "prod/outbound/Hand/CN/Master/material/IC/Price/"
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "IC_Master_data/DW1SAP"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-12-06T08:31:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

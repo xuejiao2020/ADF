@@ -1,0 +1,447 @@
+{
+	"name": "LoadKW_SELLIN_Order_D",
+	"properties": {
+		"activities": [
+			{
+				"name": "LoadSELLIN_Order_D",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LoadKWSELLIN_Order_D",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SELLIN_Order_D",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LoadSELLIN_Order_D",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.SELLIN_Order_D \nwhere  GroupUnild='1000000KIDSWANTGROUP'\nand to_date(Data_dt)=to_date(date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)); "
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "sellin_order_d.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customerwarehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_UniID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customerwarehouse_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customerwarehouse_city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customerwarehouse_citygroup",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_CityGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.customer_dc_region",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_DC_Region",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_category_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_category_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_brand_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.product_mg1",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.sku_nps",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "SKU_NPS",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.d_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "D_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.d_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "D_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.d_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "D_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.wtd_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "WTD_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.wtd_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "WTD_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.wtd_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "WTD_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.mtd_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MTD_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.mtd_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "MTD_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.mtd_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "MTD_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.qtd_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "QTD_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.qtd_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "QTD_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.qtd_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "QTD_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.ytd_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "YTD_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.ytd_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "YTD_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.ytd_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "YTD_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.month_end_ind",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Month_End_Ind",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "sellin_order_d.etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SELLIN_Order_D_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SELLIN_Order_D_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ETL_AL/KW"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:49:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

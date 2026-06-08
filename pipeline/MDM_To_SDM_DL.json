@@ -1,0 +1,75 @@
+{
+	"name": "MDM_To_SDM_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "DIM_Schedule_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DIM_Schedule_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DIM2_Schedule_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DIM_Schedule_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DIM2_Schedule_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "SDMData_DIM_Table",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DIM2_Schedule_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SDMData_DIM_Table",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/DIM_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-21T02:45:01Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

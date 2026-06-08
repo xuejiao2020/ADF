@@ -1,0 +1,94 @@
+{
+	"name": "SELLIN_MDM_WHS_MST_MV",
+	"properties": {
+		"activities": [
+			{
+				"name": "SELLIN_MDM_WHS_MST_MV",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \nWHS_UNIID,\nWHS_CTG_CD,\nWHS_CTG_DES_C,\nWHS_CTG_DES_E,\n[WHS_STA_DT],\n[WHS_END_DT],\nDATEADD(HH,8,getdate())\nFROM [MVIEW].[MDM_WHS_MST_MV]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_WHS_MST_MV",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SELLIN_MDM_WHS_MST_MV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "SELLIN_MDM_WHS_MST_MV_TABLE",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "SELLIN_MDM_WHS_MST_MV",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETLDIM/SELLIN_MDM_WHS_MST_MV",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/SELLIN_MDM_WHS_MST_MV/",
+						"ADF.database": "dscc",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/SELLIN_MDM_WHS_MST_MV/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:43:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

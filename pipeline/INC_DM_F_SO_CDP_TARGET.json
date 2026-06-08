@@ -1,0 +1,58 @@
+{
+	"name": "INC_DM_F_SO_CDP_TARGET",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DM_F_SO_CDP_TARGET",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "select * , getdate() CreateON_L1  from [dbo].[DM_F_SO_CDP_TARGET] with(nolock) \nwhere [datekey] >= format(dateadd(DD,-1,getdate()),'yyyyMMdd')\nand  [datekey] <= format(dateadd(DD,-1,getdate()),'yyyyMMdd')",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_F_SO_CDP_TARGET",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DM_F_SO_CDP_TARGET",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:42:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,60 @@
+{
+	"name": "Wave2_SO_Sales_By_Store_D_Hive_Only_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_SO_Sales_By_Store_D_Hive_Only_DL",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Wave2/STG/SO_Sales_By_Store_D"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SDMEXT_Increment_DL",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Wave2_SO_Sales_By_Store_D_Hive_Only_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Wave2/OneALL/STG/SO_Sales_By_Store_D_sdmext2.hql"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/STG_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-07-04T07:45:02Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

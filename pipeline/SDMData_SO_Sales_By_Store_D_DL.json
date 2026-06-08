@@ -1,0 +1,415 @@
+{
+	"name": "SDMData_SO_Sales_By_Store_D_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "SO_Sales_By_Store_D_SubD_check",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/sdmext/DataCheck/DML/DataCheck_SO_Sales_By_Store_D"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "SO_Sales_By_Store_D_SubD_check",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/sdmext/CN/Sales/Target/targetDate/edms_ForSync_Sales_l2_salesquantity_1_Parameter",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SDMData_Check",
+						"type": "DatasetReference",
+						"parameters": {
+							"Da": {
+								"value": "@pipeline().parameters.de\n",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_L2,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_L2,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Delete2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select \nsum(Sellout_Qty_Cs) as Sellout_Qty_Cs\nfrom [NESZ_STG].[SO_Sales_By_Store_D]\nwhere \nleft([SO_Dt],7)=format(dateadd(DD,0,DATEADD(HOUR, 8, getdate())),'yyyy-MM')\n  AND(\n  (Customer_Group = 'NPP' AND  DistChannel_Cd = '01')\n  OR (Customer_Group = 'BBS' AND  DistChannel_Cd = '01')\n  OR (Customer_Group IN ('Non','NBP') AND  DistChannel_Cd= '02'))\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SO_Sales_By_Store_D_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Delete2",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "sub",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "SDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Delete3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select \nsum(Sellout_Qty_Cs) as sdm_count\nfrom [NESZ_STG].[SO_Sales_By_Store_D_SubD]\nwhere LEFT(CONVERT(VARCHAR(100),SO_DT,120),7)= CONVERT(varchar(7), dateadd(mm,0,DATEADD(HOUR, 8, getdate())) , 120)",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SO_Sales_By_Store_D_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_Sub_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Delete3",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(pipeline().parameters.path,pipeline().parameters.TableName_Sub_SDM,'/dt=',formatDateTime(addhours(utcnow(),8),'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "sub",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/sdmext/DataCheck/DML/SDMDataCheck_SO_Sales_By_Store_D"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"TableName_Soure": {
+				"type": "string",
+				"defaultValue": "SO_Sales_By_Store_D_Soure"
+			},
+			"TableName_L2": {
+				"type": "string",
+				"defaultValue": "SO_Sales_By_Store_D_L2"
+			},
+			"TableName_SDM": {
+				"type": "string",
+				"defaultValue": "SO_Sales_By_Store_D_SDM"
+			},
+			"Path": {
+				"type": "string",
+				"defaultValue": "prod/process/sdmext/CN/Sales/Target/targetDate/SDMDataCheck_Table/"
+			},
+			"de": {
+				"type": "string",
+				"defaultValue": "prod/process/sdmext/CN/Sales/Target/targetDate/edms_ForSync_Sales_l2_salesquantity_1_Parameter"
+			},
+			"TableName_Sub_SDM": {
+				"type": "string",
+				"defaultValue": "SO_Sales_By_Store_D_Sub_SDM"
+			},
+			"TableName_Sub_Soure": {
+				"type": "string",
+				"defaultValue": "SO_Sales_By_Store_D_Sub_Soure"
+			}
+		},
+		"folder": {
+			"name": "SDMDataCheck"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-23T10:01:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

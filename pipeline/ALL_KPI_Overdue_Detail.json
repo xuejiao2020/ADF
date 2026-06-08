@@ -1,0 +1,563 @@
+{
+	"name": "ALL_KPI_Overdue_Detail",
+	"properties": {
+		"activities": [
+			{
+				"name": "KPI_Overdue_Detail",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/AL_KPI_Overdue_Detail",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_Overdue_Detail"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_AL.KPI_Overdue_Detail",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.payer_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.payer_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.payer_cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.payer_cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.soldto_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.soldto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.soldto_cust_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.soldto_cust_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.sales_document_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Document_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.document_num",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Document_Num",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.document_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Document_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.document_type_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Document_Type_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.posting_key",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Posting_Key",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.reason_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reason_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.reason_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reason_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.g_l_account",
+									"type": "String"
+								},
+								"sink": {
+									"name": "G_L_account",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.g_l_account_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "G_L_account_desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.spec_gl_indicator",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Spec_GL_indicator",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.spec_gl_indicator_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Spec_GL_indicator_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.posting_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Posting_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.baseline_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Baseline_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.net_due_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Net_Due_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.receivable_balance_cny",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Receivable_Balance_CNY",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.currrent_balance_cny",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Currrent_Balance_CNY",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.overdue_balance_cny",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Overdue_Balance_CNY",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.receivable_balance_hkd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Receivable_Balance_HKD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.currrent_balance_hkd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Currrent_Balance_HKD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.overdue_balance_hkd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Overdue_Balance_HKD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.receivable_balance_twd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Receivable_Balance_TWD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.currrent_balance_twd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Currrent_Balance_TWD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.overdue_balance_twd",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Overdue_Balance_TWD",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.data_ym",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_YM",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_overdue_detail.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_Overdue_Detail_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_Overdue_Detail",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KPI_Overdue_Detail",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_AL.KPI_Overdue_Detail",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:52:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

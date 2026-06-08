@@ -1,0 +1,567 @@
+{
+	"name": "All_BFL_BF_Customer_DC_Store_Allocate",
+	"properties": {
+		"activities": [
+			{
+				"name": "LY_BFL_FranchiseeReceDetail",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KW_BFL_BF_Customer_DC_Store_Allocate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_FranchiseeReceDetail",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LY_BFL_ShipmentInfo",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "KW_BFL_BF_Customer_DC_Store_Allocate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/LY_BFL_ShipmentInfo",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "KW_BFL_BF_Customer_DC_Store_Allocate",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/KW_BF_Customer_DC_Store_Allocate",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "BF_Customer_DC_Store_Allocate",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "DeleteProcedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allopo_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "AlloPO_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allopo_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "AlloPO_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.product_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_BarCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.product_brand_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_product_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Product_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.customer_sku_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_SKU_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allo_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Allo_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allo_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Allo_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.unit_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.tax",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Tax",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allo_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Allo_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.allo_nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Allo_NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.outbound_warehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Outbound_Warehouse_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.outbound_warehouse_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Outbound_Warehouse_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.outbound_warehouse_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Outbound_Warehouse_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.outbound_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Outbound_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.outbound_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Outbound_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_warehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Warehouse_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_warehouse_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Warehouse_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_warehouse_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Warehouse_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_warehouse_customerbranch_area",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Warehouse_CustomerBranch_Area",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_store_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Store_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_store_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Store_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_store_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Store_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.receive_store_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Receive_Store_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.warehousing_entry_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Warehousing_Entry_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.warehousing_entry_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Warehousing_Entry_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.data_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.etl_src_tb",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src_Tb",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bf_customer_dc_store_allocate.etl_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_Customer_DC_Store_Allocate_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_Customer_DC_Store_Allocate_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DeleteProcedure",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LY_BFL_FranchiseeReceDetail",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LY_BFL_ShipmentInfo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Delete_BF_Customer_DC_Store_Allocate_Procedure]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave1Manual/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

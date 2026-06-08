@@ -1,0 +1,52 @@
+{
+	"name": "INCR_RP_OSS_Report_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "INCR_RP_OOS_SDM_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_KPI_RP_OOS_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "INCR_RP_OOS_Report_DL",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "INCR_RP_OOS_SDM_DL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "INCR_Wave2_DM_FACT_RPM_Out_Of_Stock_DL",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/Scheduler_DL/report_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:59Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,614 @@
+{
+	"name": "INCR_Wave2_DM_FACT_PLG_FG_Stock_Cover",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/Report/DM_FACT_PLG_FG_Stock_Cover_incr",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/Report/DM_FACT_PLG_FG_Stock_Cover",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select \nUUID,\nKPI_Week,\nVersion_Week,\nData_Year,\nData_Week,\n`date`,\nCompany_Cd,\nCompany_NmEn,\nCompany_NmCn,\nPlant_UniId,\nPlant_Cd,\nPlant_NmCn,\nPlant_NmEn,\nPrdHieLev1_Cd,\nPrdHieLev1_Nm,\nPrdHieLev2_Cd,\nPrdHieLev2_Nm,\nBU_Cd,\nBU_NmCn,\nBU_NmEn,\nProduct_MG1_Cd,\nProduct_MG1_NmCn,\nProduct_MG1_NmEn,\nProduct_UniId,\nMaterial_Cd,\nMaterial_NmCn,\nMaterial_NmEn,\nDemand_Amt,\nClosing_Stock_Amt,\nOpening_Stock_Amt,\nSupply_Amt,\nStockCover_Day_ByAmt,\nCurrency,\nDemand_Qty,\nOpening_Stock_Qty,\nSupply_Qty,\nStock_Qty,\nStockCover_Day_ByQty,\nQty_Unit,\nMax_StockCover_Day,\nMax_Stock_Qty,\nMax_Stock_Unit,\nMin_StockCover_Day ,\nMin_Stock_Qty,\nMin_Stock_Unit,\nIs_Summary,\nSummary_Level,\nDrillDown_Path,\nEtl_Time\nfrom dscc.Wave2_DM_FACT_PLG_FG_Stock_Cover\nwhere `date`>=date_format(date_sub(next_day(current_date,'SU'),7),'yyyyMMdd')\nand `date`<=date_format(date_add(date_sub(next_day(current_date,'SU'),7),6),'yyyyMMdd')"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete [DSCC_NESZ].[DM_FACT_PLG_FG_Stock_Cover]  WHERE date>=CONVERT(varchar(100),DATEADD(DAY,1-DATEPART(weekday,GETDATE()),GETDATE()), 112)\nand date<=CONVERT(varchar(100),DATEADD(DAY,7-DATEPART(WeekDay,GETDATE()),GETDATE()), 112)",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "uuid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "kpi_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "KPI_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "version_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Version_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "data_week",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Week",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "company_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "plant_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Plant_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "prdhielev1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PrdHieLev1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "prdhielev1_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PrdHieLev1_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "prdhielev2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PrdHieLev2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "prdhielev2_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PrdHieLev2_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "bu_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "BU_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_mg1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_mg1_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_mg1_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "material_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Material_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "demand_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Demand_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "closing_stock_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Closing_Stock_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "opening_stock_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Opening_Stock_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "supply_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Supply_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "stockcover_day_byamt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "StockCover_Day_ByAmt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "currency",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Currency",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "demand_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Demand_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "opening_stock_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Opening_Stock_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "supply_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Supply_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "stock_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Stock_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "stockcover_day_byqty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "StockCover_Day_ByQty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "qty_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Qty_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "max_stockcover_day",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Max_StockCover_Day",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "max_stock_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Max_Stock_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "max_stock_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Max_Stock_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "min_stockcover_day",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Min_StockCover_Day",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "min_stock_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Min_Stock_Qty",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "min_stock_unit",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Min_Stock_Unit",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "is_summary",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Summary",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "summary_level",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Summary_Level",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "drilldown_path",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DrillDown_Path",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "etl_time",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Report_DM_FACT_PLG_FG_Stock_Cover_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Report_DM_FACT_PLG_FG_Stock_Cover_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [DSCC_NESZ].[DM_FACT_PLG_FG_Stock_Cover]  WHERE date>=CONVERT(varchar(100),DATEADD(DAY,1-DATEPART(weekday,GETDATE()),GETDATE()), 112)\nand date<=CONVERT(varchar(100),DATEADD(DAY,7-DATEPART(WeekDay,GETDATE()),GETDATE()), 112)",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/Report"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:45:09Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

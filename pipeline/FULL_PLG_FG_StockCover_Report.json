@@ -1,0 +1,76 @@
+{
+	"name": "FULL_PLG_FG_StockCover_Report",
+	"properties": {
+		"activities": [
+			{
+				"name": "FULL_PLG_SDM",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_PLG_FG_StockCover",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FULL_PLG_Report",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FULL_PLG_SDM",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Wave2_DM_FACT_PLG_FG_Stock_Cover",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALL_KPI_PLG_FG_StockCover_OnlyCopy",
+				"description": "report跑完再同步sdm的sqlserver",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FULL_PLG_Report",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALL_KPI_PLG_FG_StockCover_OnlyCopy",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/SDM2Report/FULL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:01:42Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

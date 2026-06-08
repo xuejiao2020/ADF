@@ -1,0 +1,917 @@
+{
+	"name": "Wave2_ALL_SI_Sales",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_SI_Sales",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/BFL/SI_Sales",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/BFL/SI_Sales",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Wave2_SI_Sales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_BFL.SI_Sales",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_BFL.SI_Sales",
+						"writeBehavior": "insert",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_si_sales.billing_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Billing_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.fiscal_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Fiscal_Year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.posting_period",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Posting_Period",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.soldto_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.soldto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Soldto_Cust_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.invoice_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Invoice_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.company_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Company_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.billing_document_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Billing_Document_Id",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.document_currency",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Document_Currency",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.payer_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.payer_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Payer_Cust_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.po_number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PO_Number",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.sales_document_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Document_Id",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.order_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Order_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.reason_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reason_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.billing_item",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Billing_Item",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.product_sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.product_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.product_type_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Type_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.item_category_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Item_Category_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.exchange_rate",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Exchange_Rate",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.invoice_qty",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Invoice_Qty",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.uom_of_sales",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Uom_of_Sales",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.invoice_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Invoice_Qty_Cs",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.net_value_local_currency",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Net_Value_Local_Currency",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.net_value_billing_document",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Net_Value_Billing_Document",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.net_weight",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Net_Weight",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.grs_weight",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Grs_Weight",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.volume",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Volume",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.uom_of_vol",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Uom_of_vol",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.net_vol_l",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Net_Vol_L",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 12
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.tax_value",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Tax_Value",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.gps",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "GPS",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.gps_local",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "GPS_Local",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.gpr",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "GPR",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.nps",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.dc_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.dc_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DC_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.storage_location",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Storage_Location",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.shipping_point_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Shipping_Point_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.shipto_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Shipto_Cust_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.shipto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Shipto_Cust_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.route_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Route_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.local_sales_chl",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Local_Sales_Chl",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.nestle_sales_chl_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Nestle_Sales_Chl_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.creation_tm_gmt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Creation_Tm_GMT",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.reference_document",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reference_Document",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.cancel_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cancel_Status_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.billto_cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Billto_Cust_UniId",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.billto_cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Billto_Cust_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.file_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "File_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.pub_dt",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Pub_Dt",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.week_id",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Week_Id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.source",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Source",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.ledger_period",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Ledger_Period",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.prod_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Prod_Type_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.post_cl6_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Post_CL6_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.post_cl5_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Post_CL5_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.post_cl4_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Post_CL4_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.post_cl3_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Post_CL3_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.reference_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Reference_Id",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.cust_chl_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Chl_Cd",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.creation_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Creation_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.cust_surcharge",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Cust_Surcharge",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 6,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.etl_tm",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_si_sales.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BF_SI_Sales_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "BF_SI_Sales_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/BFL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:47:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

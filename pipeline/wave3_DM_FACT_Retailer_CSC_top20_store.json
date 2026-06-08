@@ -1,0 +1,230 @@
+{
+	"name": "wave3_DM_FACT_Retailer_CSC_top20_store",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave3/ALL/Wave3/wave3_DM_FACT_Retailer_CSC_top20_store",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave3/Report/ALL/wave3_DM_FACT_Retailer_CSC_top20_store"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete\nDSCC_OTHERS.DM_FACT_Retailer_CSC_top20store",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.retailer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_Nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.retailer_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Retailer_En",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.data_ym",
+									"type": "String"
+								},
+								"sink": {
+									"name": "data_ym",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.data_year",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.data_month",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "store_cd",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.nestleoutletcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "nestleoutletcode",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.store_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "store_nm",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.sales_qty_sum",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Qty_sum",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 3,
+									"precision": 17
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.sales_amt_sum",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Sales_Amt_sum",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 17
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.amt_rank",
+									"type": "String"
+								},
+								"sink": {
+									"name": "amt_rank",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wave3_dm_fact_retailer_csc_top20_store.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "wave3_DM_FACT_Retailer_CSC_top20_store",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "wave3_DM_FACT_Retailer_CSC_top20_store_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Wave3/Report/Report/ONEALL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:55:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

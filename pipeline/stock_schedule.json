@@ -1,0 +1,114 @@
+{
+	"name": "stock_schedule",
+	"properties": {
+		"activities": [
+			{
+				"name": "wave3_dm_FACT_Retailer_Sales_Stock_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_dm_FACT_Retailer_Sales_Stock_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "wave3_dm_FACT_Retailer_SI_M",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_dm_FACT_Retailer_SI_M",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "wave3_dm_FACT_Retailer_CCFR",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "wave3_dm_FACT_Retailer_Sales_Stock_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_dm_FACT_Retailer_CCFR",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "wave3_DM_FACT_Retailer_CSC_top20_store",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "wave3_DM_FACT_Retailer_Customer_Stock_Cover",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_DM_FACT_Retailer_CSC_top20_store",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "wave3_DM_FACT_Retailer_Customer_Stock_Cover",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "wave3_dm_FACT_Retailer_Sales_Stock_M",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "wave3_DM_FACT_Retailer_Customer_Stock_Cover",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave3/Wave3_Schedule"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:02:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

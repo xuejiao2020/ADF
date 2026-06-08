@@ -1,0 +1,197 @@
+{
+	"name": "FranchiseeReceDetailInfo_To",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ADF_TO/KW/LY_FranchiseeReceDetailInfo_To",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ADF_TO_MVP/LY/FranchiseeReceDetailInfo_To/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.shop_id",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "shop_id",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.wid",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "wid",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.recv_num",
+									"type": "String"
+								},
+								"sink": {
+									"name": "recv_num",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.ctgy_code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ctgy_code",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.sku",
+									"type": "String"
+								},
+								"sink": {
+									"name": "sku",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.market_title",
+									"type": "String"
+								},
+								"sink": {
+									"name": "market_title",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.prod_barcode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "prod_barcode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.warehouse_name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "warehouse_name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.recv_qty",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "recv_qty",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.recv_price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "recv_price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "ly_franchiseerecedetailinfo_to.createon",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CreateOn",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADF_To_MVP_LY_FranchiseeReceDetailInfo_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADF_To_MVP_LY_FranchiseeReceDetailInfo_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ADF_To_MVP/LY"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:44:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

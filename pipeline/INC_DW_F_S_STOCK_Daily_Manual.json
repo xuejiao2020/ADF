@@ -1,0 +1,71 @@
+{
+	"name": "INC_DW_F_S_STOCK_Daily_Manual",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DW_F_S_STOCK_Daily",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select * , getdate() CreateON_L1  from [dbo].[DW_F_S_STOCK_Daily] with(nolock) \nwhere\nConvert(varchar(100),date,112) >= '@{pipeline().parameters.Start_Date}'\nand Convert(varchar(100),date,112) <= '@{pipeline().parameters.End_Date}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DW_F_S_STOCK_Daily",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DW_F_S_STOCK_Daily",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"Start_Date": {
+				"type": "string",
+				"defaultValue": "20220301"
+			},
+			"End_Date": {
+				"type": "string",
+				"defaultValue": "20220331"
+			}
+		},
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:56:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

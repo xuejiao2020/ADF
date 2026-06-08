@@ -1,0 +1,1541 @@
+{
+	"name": "EXT_Store",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/DIM/EXT_Store",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/DIM/EXT_Store"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[EXT_Store]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_ext_store.store_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nestle_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Nestle_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_franchise",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Franchise",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_direct",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Direct",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.have_snc",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Have_SNC",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "EXT_Store_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "EXT_Store",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1_Failed1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[EXT_Store]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1_Failed1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1_Failed1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_ext_store.store_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nestle_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Nestle_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_franchise",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Franchise",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_direct",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Direct",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.have_snc",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Have_SNC",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "EXT_Store_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "EXT_Store",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy data1_Failed2",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1_Failed2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_ext_store.store_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nestle_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Nestle_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.salesorg_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.distchannel_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.parent_whs_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Parent_Whs_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_type_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_status_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Status_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_franchise",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Franchise",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.is_direct",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Is_Direct",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.have_snc",
+									"type": "Int16"
+								},
+								"sink": {
+									"name": "Have_SNC",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmcn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.cust_region_nmen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Cust_Region_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev1_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev1_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev2_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev2_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_desccn",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.channelhielev3_descen",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ChannelHieLev3_DescEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.store_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_src",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Src",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_job",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Job",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_ext_store.etl_tm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Tm",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "EXT_Store_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "EXT_Store",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1_Failed2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy data1_Failed1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete [NESZ_DIM].[EXT_Store]",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/DIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:46:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

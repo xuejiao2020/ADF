@@ -1,0 +1,497 @@
+{
+	"name": "DIM_Customer_Store",
+	"properties": {
+		"activities": [
+			{
+				"name": "MDM_STR_MST_MV _Copy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \nT1.STR_UNIID,\nT1.STR_NO,\nT1.STR_NAM,\nT1.STR_TYP_ID,\nT1.STR_TYP,\nCASE \nWHEN  STR_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT1.STR_TYP_ID='n' or (T1.STR_TYP_ID='v' and T4.WHS_TYP_CD='n') \nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  STR_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END,\nCASE \nWHEN  STR_DTR_CD='1000000LEYYOUGROUP' then\n(CASE WHEN\nT1.STR_TYP_ID in ('v','DSCCSDMV')\nthen 'TRUE' ELSE 'FALSE' END)\nWHEN  STR_DTR_CD='1000000KIDSWANTGROUP' then\n'FALSE'\nELSE 'FALSE' END,\nNULL,\nT1.STR_DTR_CD,\nT1.STR_DTR_NM,\nT1.NTS_REG_CD,\nT1.NTS_REG_DES,\nT1.STR_POV_CD,\nT1.STR_POV_DES,\nT1.STR_CTG_CD,\nT1.STR_CTG_M_DES_C,\nT1.STR_CTG_M_DES_E,\nT1.STR_CTY_CD,\nT1.STR_CTY_DES,\nNULL,\nNULL,\nISNULL(T1.STR_DEF_REG_DES,'undefined'),\nISNULL(T1.STR_DEF_REG,'undefined'),\nT4.WHS_UNIID,\nT1.STR_SCD,\nT1.STR_SNM,\ncase when T1.STR_XZ = 'Y' then 'TRUE' else 'FALSE' end,\nT1.STR_ACT,\nCase when T1.STR_INA_FLG='Y' then 'TRUE' else 'FALSE' END,\nT1.STR_STA_DT,\nT1.STR_END_DT,\nDATEADD(hh,8,getdate())\nFROM \n[MVIEW].MDM_STR_MST_MV  T1\nLEFT JOIN [MVIEW].MDM_WHS_MST_MV T4 ON T1.STR_DTR_CD = T4.WHS_DTR_CD and T4.WHS_CD = T1.STR_SCD and \nT4.WHS_INA_FLG!='Y'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_STR_MST_MV",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Customer_Store",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "DIM_Customer_Store",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "MDM_STR_MST_MV _Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/DIM_Customer_Store",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/DIM_Customer_Store/",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/DIM_Customer_Store/",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "DIM_Customer_Store_Copy_SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Initialization_DIM_Customer_Store",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.is_franchise",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Is_Franchise",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.is_virtual",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Is_Virtual",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.outletchannel",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OutletChannel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.region_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.region_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Region_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.province_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Province_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.province_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Province_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.city_group_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Group_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.city_group_nm_sc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Group_Nm_Sc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.city_group_nm_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Group_Nm_En",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.city_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.district_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "District_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.district_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "District_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.customer_region_nm_sc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Region_Nm_Sc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.customer_region_nm_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Region_Nm_En",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_warehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Warehouse_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_warehouse_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Warehouse_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_warehouse_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_Warehouse_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.have_online",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Have_Online",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.store_state",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Store_State",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.have_snc",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "Have_SNC",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.state",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "State",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_dim_customer_store.etl_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DIM_Customer_Store_HIVE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DIM_Customer_Store_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Initialization_DIM_Customer_Store",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "DIM_Customer_Store",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LoadDIM_Customer_Store]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:41:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

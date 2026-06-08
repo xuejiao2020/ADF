@@ -1,0 +1,297 @@
+{
+	"name": "Load_OFFTAKE_Consumer_D",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/OFFTAKE_Consumer_D_Part1",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "OFFTAKE_Consumer_D",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.OFFTAKE_Consumer_D \nwhere to_date(Data_Dt)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "offtake_consumer_d.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customerstore_city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerStore_City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customerstore_citygroup",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerStore_CityGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customerbranch_area",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerBranch_Area",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customer_dc_regionv",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_DC_Region",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.customerstore_hassnc",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "CustomerStore_HasSNC",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consumer_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Consumer_Id",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.is_member",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Is_Member",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.member_type",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Member_Type",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.is_premium_member",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Is_Premium_Member",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consume_s2_cm",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Consume_S2_CM",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consume_s3_cm",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Consume_S3_CM",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consume_s1_p18m",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Consume_S1_P18M",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consume_s2_p30m",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Consume_S2_P30M",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.consume_s1_p36m",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Consume_S1_P36M",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.month_end_ind",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Month_End_Ind",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.data_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "offtake_consumer_d.etl_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "OFFTAKE_Consumer_D_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "OFFTAKE_Consumer_D_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ETL_AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:43:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

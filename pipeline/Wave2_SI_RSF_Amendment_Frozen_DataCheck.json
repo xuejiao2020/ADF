@@ -1,0 +1,228 @@
+{
+	"name": "Wave2_SI_RSF_Amendment_Frozen_DataCheck",
+	"properties": {
+		"activities": [
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Datacheck/Wave2_SI_RSF_Amendment_Frozen_DataCheck"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/DW2SAP_AmendmentSF_Frozen_L1_Datacheck",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DW2SAP_AmendmentSF_Frozen_L1_Parquet_Datacheck",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "L2",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "L1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "prod/process/DSCC/CN/customer/targetDate/DW2SAP_AmendmentSF_Frozen_L2_Datacheck",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DW2SAP_AmendmentSF_Frozen_L2_Parquet_Datacheck",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "L2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select cast(round(sum(Amt),0) as int) as Amount\n from  NESZ_BFL.SI_RSF_Amendment_Frozen\nwhere Forcast_YM >=CONVERT(varchar(6), dateadd(mm,-1,getdate()) , 112) \nand Forcast_YM <=CONVERT(varchar(6), dateadd(mm,0,getdate()) , 112) ",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "BF_SI_RSF_Amendment_DB",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[UDP_SDMExtDataCheck]",
+					"storedProcedureParameters": {
+						"Hive_Count": {
+							"value": {
+								"value": "@activity('L2').output.firstRow.Amount",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Hive_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.Hive_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SDM_Count": {
+							"value": {
+								"value": "@activity('Lookup1').output.firstRow.Amount",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SDM_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.SDM_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Src_Count": {
+							"value": {
+								"value": "@activity('L1').output.firstRow.Amount",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Src_TableName": {
+							"value": {
+								"value": "@pipeline().parameters.Src_TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"Hive_TableName": {
+				"type": "string",
+				"defaultValue": "DW2SAP_AmendmentSF_Frozen_L2"
+			},
+			"SDM_TableName": {
+				"type": "string",
+				"defaultValue": "NESZ_BFL.SI_RSF_Amendment_Frozen"
+			},
+			"Src_TableName": {
+				"type": "string",
+				"defaultValue": "dbo.amendmentsf_frozen"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-07-21T09:09:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

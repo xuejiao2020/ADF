@@ -1,0 +1,460 @@
+{
+	"name": "ETLTigger_BAK_20210429",
+	"properties": {
+		"activities": [
+			{
+				"name": "KWL2Trigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "LoadPipelineStatus",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "KWL2Trigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "LYL2Trigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "LoadPipelineStatus",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "LYL2Trigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "BFLTigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "L1-L2_success",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "BFLTigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ALTigger",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "BFLTigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ALTigger",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "TO_BF_CustomerDC_Inventory",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Share_Data_Model_success",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "TO_BF_CustomerDC_Inventory",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Exec_ReportLayer_Procedure",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "TO_BF_CustomerDC_Inventory",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Exec_ReportLayer_Procedure",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Data_StoreInfo",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exec_ReportLayer_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Data_StoreInfo",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "LoadPipelineStatus",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,0 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,0 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KWL2Trigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LYL2Trigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,1 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_errror",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "KWL2Trigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "L1-L2_errror_copy1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LYL2Trigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'ETL（L1->L2)' ,2 ,DATEADD(hh,8,GETDATE()))\nINSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Share_Data_Model_errror",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ALTigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Share_Data_Model_errror_copy1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "BFLTigger",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,2 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Share_Data_Model_success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ALTigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "INSERT INTO [UTOL].[DISPACHER_STATUS] VALUES( CONVERT(varchar(100), DATEADD(hh,8,GETDATE()), 112) ,'Share Data Model' ,1 ,DATEADD(hh,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppMdm",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Report_Success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Exec_ReportLayer_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 300,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"p": {
+							"value": "INSERT INTO [RPT].[sys_etl_date] ([Etl_Date],[UpdateDTS])VALUES(DATEADD(HH,8,GETDATE()),DATEADD(HH,8,GETDATE()))",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Load_OFFTAKE_Market_Share",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exec_ReportLayer_Procedure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Load_OFFTAKE_Market_Share",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T12:04:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

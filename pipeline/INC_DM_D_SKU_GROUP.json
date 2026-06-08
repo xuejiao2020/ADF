@@ -1,0 +1,58 @@
+{
+	"name": "INC_DM_D_SKU_GROUP",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DM_D_SKU_GROUP",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "select \nREPLACE(REPLACE(REPLACE(ID,CHAR(10),''),CHAR(13),''),' ','') AS ID,\nREPLACE(REPLACE(REPLACE(YearMonth,CHAR(10),''),CHAR(13),''),' ','') AS YearMonth,\nREPLACE(REPLACE(REPLACE(SKU_Code,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Code,\nREPLACE(REPLACE(REPLACE(Unit_Quantity,CHAR(10),''),CHAR(13),''),' ','') AS Unit_Quantity,\nREPLACE(REPLACE(REPLACE(RRP_EA,CHAR(10),''),CHAR(13),''),' ','') AS RRP_EA,\nREPLACE(REPLACE(REPLACE(RRP_Cases,CHAR(10),''),CHAR(13),''),' ','') AS RRP_Cases,\nREPLACE(REPLACE(REPLACE(SKU_Group,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group,\nREPLACE(REPLACE(REPLACE(Key_SKU,CHAR(10),''),CHAR(13),''),' ','') AS Key_SKU,\nREPLACE(REPLACE(REPLACE(SKU_Group_DSA,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group_DSA,\nREPLACE(REPLACE(REPLACE(KEY_Group_DSA,CHAR(10),''),CHAR(13),''),' ','') AS KEY_Group_DSA,\nREPLACE(REPLACE(REPLACE(SKU_GroupCode_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS SKU_GroupCode_KEYSKU,\nREPLACE(REPLACE(REPLACE(KEY_GroupName_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS KEY_GroupName_KEYSKU,\nREPLACE(REPLACE(REPLACE(insertUser,CHAR(10),''),CHAR(13),''),' ','') AS insertUser,\nCreateTime,\nUpdateTime,\nREPLACE(REPLACE(REPLACE(KEY_SKU_KEYSKU,CHAR(10),''),CHAR(13),''),' ','') AS KEY_SKU_KEYSKU,\nREPLACE(REPLACE(REPLACE(SKU_Group_DSA_Name,CHAR(10),''),CHAR(13),''),' ','') AS SKU_Group_DSA_Name,\ngetdate() CreateON_L1 from [dbo].[DM_D_SKU_GROUP] with(nolock)\nwhere Convert(varchar(100),CreateTime,23) >= format(dateadd(DD,-1,getdate()),'yyyy-MM-dd')\nand Convert(varchar(100),CreateTime,23) <= format(dateadd(DD,-1,getdate()),'yyyy-MM-dd')",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_D_SKU_GROUP",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DM_D_SKU_GROUP",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:42:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

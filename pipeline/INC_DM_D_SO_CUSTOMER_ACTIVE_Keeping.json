@@ -1,0 +1,69 @@
+{
+	"name": "INC_DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select * from [dbo].[DM_D_SO_CUSTOMER_ACTIVE_Keeping] with(nolock) \nwhere Convert(varchar(100),insert_date,23)  <  '@{pipeline().parameters.MyWindowEnd}' \nand   Convert(varchar(100),insert_date,23)  >= '@{pipeline().parameters.MyWindowStart}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DM_D_SO_CUSTOMER_ACTIVE_Keeping",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"MyWindowStart": {
+				"type": "string"
+			},
+			"MyWindowEnd": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:42:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

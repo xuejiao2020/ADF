@@ -1,0 +1,85 @@
+{
+	"name": "MDM_REF_BUS_VIEW_MAP_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT\nVIE_CD,\nVIE_DES_CN,\nVIE_DES_EN,\nMAK_CD,\nMAK_DES_CN,\nMAK_DES_EN,\nPRD_HIE_L1CD,\nPRD_HIE_L1DES_EN,\nPRD_HIE_L1DES_CN,\nPRD_HIE_L2CD,\nPRD_HIE_L2DES_EN,\nPRD_HIE_L2DES_CN,\nSAL_CMP_ID,\nCMP_NAM_CN,\nCMP_NAM_EN,\nDST_CHL_ID,\nREF_CHL_DES,\nREF_CHL_DES_CN,\nBUS_SYS_CD,\nCONVERT(date,STA_DT,23),\nCONVERT(date,END_DT,23)\nfrom MVIEW.MDM_REF_BUS_VIEW_MAP",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_REF_BUS_VIEW_MAP_DB",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MDM_REF_BUS_VIEW_MAP_Table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/dscc/dsccwave2/Wave2/DIM/DB_Table/MDM_REF_BUS_VIEW_MAP"
+				},
+				"linkedServiceName": {
+					"referenceName": "ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL_DL/DIM_DL/DB_Table_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:57:39Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

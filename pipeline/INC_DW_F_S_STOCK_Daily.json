@@ -1,0 +1,93 @@
+{
+	"name": "INC_DW_F_S_STOCK_Daily",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_DW_F_S_STOCK_Daily",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Date range",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select * , getdate() CreateON_L1  from [dbo].[DW_F_S_STOCK_Daily] with(nolock) \nwhere\nConvert(varchar(100),datekey_actual,112) >= @{activity('Date range').output.FirstRow.s_date}\nand Convert(varchar(100),datekey_actual,112) <= @{activity('Date range').output.FirstRow.e_date}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DW_F_S_STOCK_Daily",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INC_DW_F_S_STOCK_Daily",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Date range",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "select top 1 * from (\nselect iif(month_end_date=convert(varchar(8),getdate()-1,112),convert(varchar(8),eomonth(dateadd(mm,-1,getdate())),112),convert(varchar(8),getdate()-1,112)) s_date,\nconvert(varchar(8),getdate()-1,112) e_date\nfrom dbo.ODS_MD_SO_SCHEDULE\n) t order by s_date asc  ",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DW_F_S_STOCK_Daily",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "ECMS_TO_DL_L1/INC_ECMS_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:42:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,146 @@
+{
+	"name": "Email_CityGroup_Person_Mapping",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/L2ETL/email/CityGroup_Person_Mapping",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/CityGroup_Person_Mapping",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/email/CityGroup_Person_Mapping",
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "delete_CityGroup_Person_Mapping",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[delete_CityGroup_Person_Mapping]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_ReportModel_DSCC",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy_CityGroup_Person_Mapping",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "delete_CityGroup_Person_Mapping",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "with max_table as  (\n     select MDM_Rawdata_Id,max(MDM_Rawdata_updatetime) as MDM_Rawdata_updatetime from dscc.Email_CityGroup_Person_Mapping_L2 group by MDM_Rawdata_Id\n),Data_table as (\n   SELECT T1.* FROM dscc.Email_CityGroup_Person_Mapping_L2 T1 \n   INNER JOIN max_table T2 ON T1.MDM_Rawdata_Id=T2.MDM_Rawdata_Id AND T1.MDM_Rawdata_updatetime=T2.MDM_Rawdata_updatetime\n   where T1.MDM_Rawdata_AcStatus!='D'\n)\n\nselect * from Data_table"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "data_table.person_in_charge",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Person_In_Charge",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "data_table.city_group_nm_en",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Group_Nm_En",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "data_table.city_group_nm_sc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "City_Group_Nm_Sc",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "CityGroup_Person_Mapping_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "CityGroup_Person_Mapping_DB",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "L1-L2/Emali"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:45:09Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

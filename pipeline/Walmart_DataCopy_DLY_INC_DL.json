@@ -1,0 +1,435 @@
+{
+	"name": "Walmart_DataCopy_DLY_INC_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "B_STOCK_STORE_DLY",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_B_YSHCN03AC1_STOCK_STORE_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/B_STOCK_STORE_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "E_STOCK_STORE_DLY",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "B_STOCK_STORE_DLY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_E_YSHCN03AC1_STOCK_STORE_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/E_STOCK_STORE_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "LOC_MASTER_STORE_DLY",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_B_YSHCN03AC1_LOC_MASTER_STORE_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/LOC_MASTER_STORE_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "PRODUCT_MASTER_DLY",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LOC_MASTER_STORE_DLY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_B_YSHCN03AC1_PRODUCT_MASTER_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/PRODUCT_MASTER_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "SALES_DAILY_DLY",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "PRODUCT_MASTER_DLY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_B_YSHCN03AC1_SALES_DAILY_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/SALES_DAILY_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "MANIFEST_DLY",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "E_STOCK_STORE_DLY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@concat('NSL_YSHCN03AC1_MANIFEST_DLY_*',formatDateTime(adddays(utcnow(), -2), 'yyyyMMdd'),'.txt')\n",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Binarysource001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@pipeline().parameters.SourcePath",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Binarysink001",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "prddatalake",
+							"Directory": {
+								"value": "@concat(pipeline().parameters.TargetPath,'/MANIFEST_DLY/dt=',formatDateTime(adddays(utcnow(), -2), 'yyyy-MM-dd'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"SourcePath": {
+				"type": "string",
+				"defaultValue": "prod/inbound/SAP/CN/customer/walmart_shiloh/DLY"
+			},
+			"TargetPath": {
+				"type": "string",
+				"defaultValue": "prod/inbound/DSCC/CN/customer/walmart_shiloh/DLY"
+			}
+		},
+		"folder": {
+			"name": "Wave3_DL/Link_Service_Copy_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:39:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

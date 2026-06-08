@@ -1,0 +1,106 @@
+{
+	"name": "ifdata",
+	"properties": {
+		"activities": [
+			{
+				"name": "LookupLastChangeTrackingVersionActivity",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "  SELECT (CASE WHEN Count(*)>0 THEN CAST(1 AS bit) else CAST(0 AS bit) end) as  [State] FROM  [NESZ_SDM_AL].[DIM_Customer] WHERE Customer_UniId='1'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DIM_Customer_DB",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "LookupLastChangeTrackingVersionActivity",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@{activity('LookupLastChangeTrackingVersionActivity').output.firstRow.State} ",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Hive1_copy1",
+							"type": "HDInsightHive",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"scriptPath": "workspace/scripts/dsccwave2/TEST2",
+								"scriptLinkedService": {
+									"referenceName": "DataLake_Secondary",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "HDI_Hadoop",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Hive1",
+							"type": "HDInsightHive",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"scriptPath": "workspace/scripts/dsccwave2/TEST1",
+								"scriptLinkedService": {
+									"referenceName": "DataLake_Secondary",
+									"type": "LinkedServiceReference"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "HDI_Hadoop",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:45:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

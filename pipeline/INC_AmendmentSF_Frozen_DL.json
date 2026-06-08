@@ -1,0 +1,61 @@
+{
+	"name": "INC_AmendmentSF_Frozen_DL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select  * , getdate() CreateON_L1 from [dbo].[amendmentsf_frozen] with(nolock)\nwhere [ledgerperiod] >=FORMAT(dateadd(month,-1,getdate()),'yyyyMM')\nand [ledgerperiod] <= FORMAT(GetDate(),'yyyyMM')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "AmendmentSF_Frozen",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_AmendmentSF_Frozen",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "DW_TO_DL_L1_DL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:57:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

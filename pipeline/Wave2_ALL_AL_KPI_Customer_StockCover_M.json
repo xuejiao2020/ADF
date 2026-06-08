@@ -1,0 +1,473 @@
+{
+	"name": "Wave2_ALL_AL_KPI_Customer_StockCover_M",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hive1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/AL/KPI_Customer_StockCover_M_ALL",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/AL/KPI_Customer_StockCover_M"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "select * from dscc.Wave2_KPI_Customer_StockCover_M\nwhere Cust_UniId is not null\nand Product_UniId is not null"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "delete NESZ_AL.KPI_Customer_StockCover_M",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.uuid"
+								},
+								"sink": {
+									"name": "UUID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.salesorg_cd"
+								},
+								"sink": {
+									"name": "SalesOrg_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.salesorg_nmen"
+								},
+								"sink": {
+									"name": "SalesOrg_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.salesorg_nmcn"
+								},
+								"sink": {
+									"name": "SalesOrg_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.distchannel_cd"
+								},
+								"sink": {
+									"name": "DistChannel_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.distchannel_nmen"
+								},
+								"sink": {
+									"name": "DistChannel_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.distchannel_nmcn"
+								},
+								"sink": {
+									"name": "DistChannel_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.cust_uniid"
+								},
+								"sink": {
+									"name": "Cust_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.cust_cd"
+								},
+								"sink": {
+									"name": "Cust_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.cust_nmcn"
+								},
+								"sink": {
+									"name": "Cust_NmCn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.cust_nmen"
+								},
+								"sink": {
+									"name": "Cust_NmEn",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.cust_class_grp"
+								},
+								"sink": {
+									"name": "Cust_Class_Grp",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.city_cd_src"
+								},
+								"sink": {
+									"name": "City_Cd_Src"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_uniid"
+								},
+								"sink": {
+									"name": "Product_UniId"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_sku_cd"
+								},
+								"sink": {
+									"name": "Product_Sku_Cd"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_nmcn"
+								},
+								"sink": {
+									"name": "Product_NmCn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_nmen"
+								},
+								"sink": {
+									"name": "Product_NmEn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_bu_cd"
+								},
+								"sink": {
+									"name": "Product_BU_Cd"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_bu_nmen"
+								},
+								"sink": {
+									"name": "Product_BU_NmEn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_bu_nmcn"
+								},
+								"sink": {
+									"name": "Product_BU_NmCn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_mg1_cd"
+								},
+								"sink": {
+									"name": "Product_MG1_Cd"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_mg1_nmen"
+								},
+								"sink": {
+									"name": "Product_MG1_NmEn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.product_mg1_nmcn"
+								},
+								"sink": {
+									"name": "Product_MG1_NmCn"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.stock_qty_cs"
+								},
+								"sink": {
+									"name": "Stock_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.stock_nps_amt"
+								},
+								"sink": {
+									"name": "Stock_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.intransit_qty_cs"
+								},
+								"sink": {
+									"name": "Intransit_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.intransit_nps_amt"
+								},
+								"sink": {
+									"name": "Intransit_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.p3m_daily_avg_so_qty_cs"
+								},
+								"sink": {
+									"name": "P3M_Daily_Avg_SO_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_cm_so_qty_cs"
+								},
+								"sink": {
+									"name": "Fcst_CM_SO_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m1_so_qty_cs"
+								},
+								"sink": {
+									"name": "Fcst_M1_SO_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m2_so_qty_cs"
+								},
+								"sink": {
+									"name": "Fcst_M2_SO_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m3_so_qty_cs"
+								},
+								"sink": {
+									"name": "Fcst_M3_SO_Qty_Cs"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_cm_so_nps_amt"
+								},
+								"sink": {
+									"name": "Fcst_CM_SO_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m1_so_nps_amt"
+								},
+								"sink": {
+									"name": "Fcst_M1_SO_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m2_so_nps_amt"
+								},
+								"sink": {
+									"name": "Fcst_M2_SO_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.fcst_m3_so_nps_amt"
+								},
+								"sink": {
+									"name": "Fcst_M3_SO_NPS_Amt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.data_dt"
+								},
+								"sink": {
+									"name": "Data_Dt"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.data_year"
+								},
+								"sink": {
+									"name": "Data_Year"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.data_month"
+								},
+								"sink": {
+									"name": "Data_Month"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.etl_tm"
+								},
+								"sink": {
+									"name": "Etl_Tm"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.etl_src"
+								},
+								"sink": {
+									"name": "Etl_Src"
+								}
+							},
+							{
+								"source": {
+									"name": "wave2_kpi_customer_stockcover_m.etl_job"
+								},
+								"sink": {
+									"name": "Etl_Job"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "KPI_Customer_StockCover_M_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "KPI_Customer_StockCover_M1",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Hive1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "sp_executesql",
+					"storedProcedureParameters": {
+						"q": {
+							"value": "delete NESZ_AL.KPI_Customer_StockCover_M",
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/OneALL/AL"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:53:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

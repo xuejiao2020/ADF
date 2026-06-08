@@ -1,0 +1,61 @@
+{
+	"name": "INC_CustomerHier",
+	"properties": {
+		"activities": [
+			{
+				"name": "INC_CustomerHier",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select *\nfrom dbo.CustomerHier with(nolock) \nwhere pubdate>='@{formatDateTime(adddays(pipeline().TriggerTime, -0), 'yyyyMMdd')}' ",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "CustomerHier",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FULL_CustomerHier",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "DW_TO_DL_L1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-05-30T08:44:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

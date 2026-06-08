@@ -1,0 +1,551 @@
+{
+	"name": "KW_Load_INVENTORY_Warehouse_Product_D",
+	"properties": {
+		"activities": [
+			{
+				"name": "part2",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "part1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part2_KW",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "INVENTORY_Warehouse_Product_D",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "part2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource",
+						"query": "SELECT * FROM  dscc.INVENTORY_Warehouse_Product_D  \nwhere GroupUnild='1000000KIDSWANTGROUP' and to_date(Data_Date)= date_sub(from_unixtime(unix_timestamp(),'yyyy-MM-dd'),1)"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customer_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customer_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customerwarehouse_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_UniID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customerwarehouse_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customerwarehouse_city_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_City_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customerwarehouse_citygroup",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_CityGroup",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customer_dc_region",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_DC_Region",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.customerwarehouse_type_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerWarehouse_Type_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.is_franchisewarehouse",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_FranchiseWarehouse",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_category_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_category_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Category_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_brand_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_brand_nm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Brand_Nm",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_mg1",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_MG1",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.sku_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SKU_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_work_stats_cd",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Work_Stats_Cd",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.product_work_stats_desc",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_Work_Stats_Desc",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.last_out_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Last_out_date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.last_out_date_store",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Last_out_date_store",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.is_availablesku",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_AvailableSKU",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.is_idlesku",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_IdleSKU",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.is_freezesku",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_FreezeSKU",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P30D_Avg_Daily_Out_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.p30d_avg_daily_out_qty_ea",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P30D_Avg_Daily_Out_Qty_Ea",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P28D_Avg_Daily_Out_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.p28d_avg_daily_out_qty_ea",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "P28D_Avg_Daily_Out_Qty_Ea",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.is_oos",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Is_OOS",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.intransit_qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Intransit_Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.intransit_qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Intransit_Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.intransit_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Intransit_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.has_stocks",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Has_Stocks",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.qty_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Qty_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.qty_ea",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Qty_Ea",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.price",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Price",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.nps_amt",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "NPS_Amt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.data_year",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Year",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.data_month",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Data_Month",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.month_end_ind",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "Month_End_Ind",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.data_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Data_Date",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "inventory_warehouse_product_d.etl_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Etl_Dt",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "INVENTORY_Warehouse_Product_D_Hive",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "INVENTORY_Warehouse_Product_D_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "part1",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/INVENTORY_Warehouse_Product_D_Part1_KW",
+					"defines": {
+						"ADF.database": "dscc"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETL_AL/KW"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:49:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,277 @@
+{
+	"name": "EXT_Product_Price_bak_Wave2",
+	"properties": {
+		"activities": [
+			{
+				"name": "MDM_PRD_PRC_MV_Copy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": " SELECT\nT1.PRD_UNIID,\nT1.PRD_SAL_ORG,\nT1.PRD_DST_CHL,\nT1.CST_NO,\nT1.PRD_BAS_GPS,\nT1.PRD_CS_GPS,\nT1.NUM_IN_CS,\nCASE WHEN T1.INA_FLG='N' THEN 'TRUE' ELSE 'FALSE' END [1],\nCONVERT(varchar(100),CAST(T1.PRD_STA_DT AS date),120)  as PRD_STA_DT,\nCONVERT(varchar(100),CAST(T1.PRD_END_DT as date),120) as PRD_END_DT,\nDATEADD(HH,8,getdate()) [2]\n FROM [MVIEW].[MDM_PRD_PRC_MV] T1",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "MDM_PRD_PRC_MV",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "EXT_Product_Price",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "EXT_Product_Price",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "MDM_PRD_PRC_MV_Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/ETL/Beverage_ETL/EXT_Product_Price_Wave2",
+					"defines": {
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/inbound/DSCC/CN/customer/ETLDIM/EXT_Product_Price/",
+						"ADF.database": "dscc",
+						"ADF.rootpath2": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/ETLDIM/EXT_Product_Price/"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "EXT_Product_Price_Copy_SDM",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Initialization_EXT_Product_Price",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "HiveSource"
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.product_uniid",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_UniId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.product_salesorg",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_SalesOrg",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.product_distchannel",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Product_DistChannel",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.customer_num",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Customer_Num",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.unit_price_ea",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price_Ea",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.unit_price_cs",
+									"type": "Decimal"
+								},
+								"sink": {
+									"name": "Unit_Price_Cs",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.factorincs",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "FactorInCS",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.state",
+									"type": "Boolean"
+								},
+								"sink": {
+									"name": "State",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.start_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Start_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.end_dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "End_Dt",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "nesz_sdm_al_ext_product_price.etl_time",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ETL_Time",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "EXT_Product_Price_HIVE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "EXT_Product_Price_DB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Initialization_EXT_Product_Price",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "EXT_Product_Price",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LoadEXT_Product_Price]"
+				},
+				"linkedServiceName": {
+					"referenceName": "AZURE_SSDB_AppSdm",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "ETLDIM"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:53:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,72 @@
+{
+	"name": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+				"type": "HDInsightHive",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/STG/SO_Sales_By_Store_D",
+					"defines": {
+						"ADF.database": "dscc",
+						"ADF.rootpath1": "abfs://prddatalake@nchnprdep003sta.dfs.core.chinacloudapi.cn/prod/process/DSCC/CN/customer/Wave2/STG/SO_Sales_By_Store_D"
+					},
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SDMEXT_Increment",
+				"type": "HDInsightHive",
+				"dependsOn": [
+					{
+						"activity": "Wave2_SO_Sales_By_Store_D_Hive_Only",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"scriptPath": "workspace/scripts/dsccwave2/Wave2/OneALL/STG/SO_Sales_By_Store_D_sdmext2.hql",
+					"scriptLinkedService": {
+						"referenceName": "DataLake_Secondary",
+						"type": "LinkedServiceReference"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "HDI_Hadoop",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Wave2ETL/STG"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-04-28T11:54:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
